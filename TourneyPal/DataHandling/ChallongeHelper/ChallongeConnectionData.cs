@@ -11,12 +11,12 @@ namespace TourneyPal.DataHandling.ChallongeHelper
         /// <summary>
         /// API Endpoint of Challonge 
         /// </summary>
-        public const string StartGGEndpoint = "https://api.challonge.com/v1/tournaments";
+        public const string ChallongeEndpoint = "https://api.challonge.com/v1/tournaments";
 
         /// <summary>
         /// Auth Token of Challonge
         /// </summary>
-        public const string StartGGToken = "XIkXgh8o82D8ulgwJ4viTCd613Kq2SxPobjRv77l";
+        public const string ChallongeToken = "XIkXgh8o82D8ulgwJ4viTCd613Kq2SxPobjRv77l";
 
     }
 }
