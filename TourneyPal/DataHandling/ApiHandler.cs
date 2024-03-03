@@ -13,9 +13,10 @@ using System.Xml.Linq;
 using System.Text.Json;
 using Newtonsoft.Json;
 using TourneyPal.DataHandling.StartGGHelper;
-using static TourneyPal.DataHandling.StartGGHelper.StartGGJsonObject;
 using TourneyPal.DataHandling.DataObjects;
 using EnumsNET;
+using TourneyPal.DataHandling.ChallongeHelper;
+using System.Net;
 
 namespace TourneyPal.DataHandling
 {
@@ -30,6 +31,8 @@ namespace TourneyPal.DataHandling
         public ApiHandler()
         {
             handleData();
+            //TODO: delete
+            //handleData("1gthtrfs");
         }
 
         
@@ -48,7 +51,6 @@ namespace TourneyPal.DataHandling
                     }
 
                     handleData();
-
                 }
             }
             catch (Exception ex)
@@ -62,8 +64,8 @@ namespace TourneyPal.DataHandling
             try
             {
                 //getData
-                var TournamentData = CallApiAsync();
-                if(TournamentData?.Result?.data?.tournaments?.nodes == null)
+                var TournamentData = CallStartGGApiAsync();
+                if (TournamentData?.Result?.data?.tournaments?.nodes == null)
                 {
                     return;
                 }
@@ -77,7 +79,26 @@ namespace TourneyPal.DataHandling
             }
         }
 
-        private void SetDataToSystem(Task<Root?> tournamentData)
+        public void handleData(string tournamentID)
+        {
+            try
+            {
+                //getData
+                var TournamentData = CallChallongeApiAsync(tournamentID);
+                if (TournamentData?.Result?.tournament == null)
+                {
+                    return;
+                }
+
+                //setData
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("EXCEPTION: " + ex.Message);
+            }
+        }
+
+        private void SetDataToSystem(Task<StartGGJsonObject.Root?> tournamentData)
         {
             try
             {
@@ -112,7 +133,7 @@ namespace TourneyPal.DataHandling
             }
         }
 
-        public async Task<Root?> CallApiAsync()
+        public async Task<StartGGJsonObject.Root?> CallStartGGApiAsync()
         {
             try
             {
@@ -124,7 +145,7 @@ namespace TourneyPal.DataHandling
                     return null;
                 }
 
-                Root startGGData = JsonConvert.DeserializeObject<Root>(responseData);
+                StartGGJsonObject.Root startGGData = JsonConvert.DeserializeObject<StartGGJsonObject.Root>(responseData);
                 var noEvents = startGGData.data.tournaments.nodes.Where(x => x.events.Count == 0).ToList();
                 if(noEvents !=null)
                 {
@@ -190,8 +211,68 @@ namespace TourneyPal.DataHandling
             return string.Empty;
         }
 
+        public async Task<ChallongeJsonObject.Root?> CallChallongeApiAsync(string tournamentID)
+        {
+            try
+            {
+                Console.WriteLine("Calling Challonge Api: " + System.DateTime.Now);
 
-        
+                var responseData = await ConnectAndGetData_Challonge(tournamentID);
+                if (String.IsNullOrEmpty(responseData))
+                {
+                    return null;
+                }
+
+                ChallongeJsonObject.Root challongeGGData = JsonConvert.DeserializeObject<ChallongeJsonObject.Root>(responseData);
+
+                return challongeGGData;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("EXCEPTION: " + ex.Message);
+            }
+            return null;
+        }
+
+        private async Task<string> ConnectAndGetData_Challonge(string tournamentID)
+        {
+            try
+            {
+                using (HttpClient client = new HttpClient())
+                {
+                    var uri = ChallongeConnectionData.getFullChallongeApiRequestURI(tournamentID);
+                    using (var response = await client.GetAsync(uri))
+                    {
+                        response.EnsureSuccessStatusCode();
+                        if (response?.StatusCode != System.Net.HttpStatusCode.OK)
+                        {
+                            Console.WriteLine("Invalid Status after Challonge API call: " + response?.StatusCode);
+                            return string.Empty;
+                        }
+
+                        var responseString = await response.Content.ReadAsStringAsync();
+                        if (String.IsNullOrEmpty(responseString) ||
+                            responseString.Contains("error"))
+                        {
+                            Console.WriteLine("Invalid Response after Challonge API call");
+                            return string.Empty;
+                        }
+
+                        return responseString;
+                    }
+                }
+
+                
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("EXCEPTION: " + ex.Message);
+            }
+            return string.Empty;
+        }
+
+
+
 
     }
 }
