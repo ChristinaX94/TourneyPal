@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32825.248
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TourneyPal", "TourneyPal\TourneyPal.csproj", "{55058A97-3905-43B9-BBB6-C60B247F30C0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{55058A97-3905-43B9-BBB6-C60B247F30C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{55058A97-3905-43B9-BBB6-C60B247F30C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{55058A97-3905-43B9-BBB6-C60B247F30C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{55058A97-3905-43B9-BBB6-C60B247F30C0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {41307945-C3DD-42CA-819B-778824DFE562}
+	EndGlobalSection
+EndGlobal
