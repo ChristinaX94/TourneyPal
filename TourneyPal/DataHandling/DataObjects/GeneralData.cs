@@ -19,7 +19,7 @@ namespace TourneyPal.DataHandling.DataObjects
         {
             [Description("https://www.start.gg/")]
             Start = 0,
-            [Description("invalid")]
+            [Description("https://challonge.com/")]
             Challonge = 1
         }
 
