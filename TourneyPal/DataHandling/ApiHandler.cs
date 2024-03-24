@@ -121,10 +121,10 @@ namespace TourneyPal.DataHandling
                         NumberOfAttendees = tournament.numAttendees,
                         Game = tournament.events.Select(x=>x.videogame?.name)?.FirstOrDefault(),
                         Streams = tournament.streams?.Select(x=> "https://www.twitch.tv/" + x.streamName)?.ToList(),
-                        TournamentHostSite = GeneralData.TournamentSiteHost.Start.AsString(EnumFormat.Description),
+                        TournamentHostSite = "https://www.start.gg/",
                     };
 
-                    GeneralData.addTournament(systemTourney);
+                    DataObjects.GeneralData.addTournament(systemTourney);
                 }
             }
             catch (Exception ex)
