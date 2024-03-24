@@ -17,7 +17,7 @@ namespace TourneyPal.BotHandling
         {
             var config = new DiscordConfiguration
             {
-                Token = "MTE4OTIyMjIwNTM5NDAwNjA4Ng.GF686m.eaTsZqMiB9BG-hkuujCalslAdxL2v91rYzqVyQ",
+                Token = System.Configuration.ConfigurationManager.AppSettings["bottoken"],
                 TokenType = TokenType.Bot,
                 AutoReconnect = true,
                 MinimumLogLevel = Microsoft.Extensions.Logging.LogLevel.Debug

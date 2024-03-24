@@ -1,11 +1,9 @@
-﻿
-using DSharpPlus;
+﻿using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Enums;
 using DSharpPlus.Interactivity.Extensions;
 using DSharp​Plus.SlashCommands;
-using TourneyPal.DataHandling.DataObjects;
 
 namespace TourneyPal
 {
@@ -38,14 +36,14 @@ namespace TourneyPal
             Console.WriteLine("server: " + server);
             Console.WriteLine("member: " + member);
 
-            if (GeneralData.Tournaments.Count==0)
+            if (TourneyPal.DataHandling.DataObjects.GeneralData.Tournaments.Count==0)
             {
                 await ctx.CreateResponseAsync("No Data").ConfigureAwait(false);
             }
 
             await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent(". . .")).ConfigureAwait(false);
             await ctx.Channel.SendMessageAsync(member.Mention).ConfigureAwait(false);
-            foreach (var tourney in GeneralData.Tournaments)
+            foreach (var tourney in TourneyPal.DataHandling.DataObjects.GeneralData.Tournaments)
             {
                 DiscordEmbed embed = new DiscordEmbedBuilder
                 {

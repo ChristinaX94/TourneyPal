@@ -9,20 +9,7 @@ namespace TourneyPal.DataHandling.DataObjects
 {
     public static class GeneralData
     {
-        public enum YesNo
-        {
-            No = 0,
-            Yes = 1
-        }
-
-        public enum TournamentSiteHost
-        {
-            [Description("https://www.start.gg/")]
-            Start = 0,
-            [Description("https://challonge.com/")]
-            Challonge = 1
-        }
-
+        
         public static List<Tournament> Tournaments { get; private set; }
 
         public static void GeneralDataInitialize()
