@@ -25,7 +25,7 @@ namespace TourneyPal
 
         public static void Initialize()
         {
-            GeneralData.GeneralDataInitialize();
+            TourneyPal.DataHandling.DataObjects.GeneralData.GeneralDataInitialize();
         }
     }
 }
