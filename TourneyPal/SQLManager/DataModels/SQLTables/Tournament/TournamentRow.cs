@@ -140,6 +140,8 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament
                     return result;
                 }
                 IsExpired = (bool)isExpired;
+
+                result.success = true;
             }
             catch (Exception ex)
             {

@@ -46,6 +46,8 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Game_On_Tournament_Host_Sit
                 {
                     SpecificHostGameID = convertToInt(nameof(SpecificHostGameID), reader[nameof(SpecificHostGameID)]?.ToString());
                 }
+
+                result.success = true;
             }
             catch (Exception ex)
             {
