@@ -35,6 +35,8 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Game
                     return result;
                 }
                 Title = reader[nameof(Title)].ToString();
+
+                result.success = true;
             }
             catch (Exception ex)
             {
