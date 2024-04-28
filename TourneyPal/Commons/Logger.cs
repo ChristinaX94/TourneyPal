@@ -18,6 +18,12 @@ namespace TourneyPal.Commons
             writeToDB();
         }
 
+        public static void log(string messageItem)
+        {
+            message = messageItem;
+            writeToDB();
+        }
+
         private static void writeToDB()
         {
             throw new NotImplementedException();

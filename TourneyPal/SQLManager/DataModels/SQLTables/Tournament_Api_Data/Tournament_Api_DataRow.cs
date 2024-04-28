@@ -75,6 +75,8 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament_Api_Data
                     return result;
                 }
                 Response = reader[nameof(Response)].ToString();
+
+                result.success = true;
             }
             catch (Exception ex)
             {

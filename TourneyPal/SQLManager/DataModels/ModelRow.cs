@@ -52,6 +52,8 @@ namespace TourneyPal.SQLManager.DataModels
                     return result;
                 }
                 this.DateInserted = (DateTime)dateInserted;
+
+                result.success = true;
             }
             catch (Exception ex)
             {
