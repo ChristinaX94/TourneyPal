@@ -1,11 +1,4 @@
 ﻿using MySql.Data.MySqlClient;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TourneyPal.Commons;
-using static TourneyPal.SQLManager.DataModels.SQLTables.Game_On_Tournament_Host_Site.Game_On_Tournament_Host_Site;
 using Result = TourneyPal.Commons.Result;
 
 namespace TourneyPal.SQLManager.DataModels
