@@ -59,6 +59,8 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament_Host_Sites
 
                 //DataFormat
                 DataFormat = reader[nameof(DataFormat)]?.ToString();
+
+                result.success = true;
             }
             catch (Exception ex)
             {
