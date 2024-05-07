@@ -27,6 +27,7 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Game_On_Tournament_Host_Sit
                     }
                     rows.Add(row);
                 }
+                result.success = true;
             }
             catch (Exception ex)
             {

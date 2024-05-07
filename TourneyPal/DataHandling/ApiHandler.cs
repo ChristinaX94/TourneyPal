@@ -33,6 +33,8 @@ namespace TourneyPal.DataHandling
             handleData();
             //TODO: delete
             //handleData("1gthtrfs");
+
+            //updateDB
         }
 
         
@@ -79,39 +81,20 @@ namespace TourneyPal.DataHandling
             }
         }
 
-        public void handleData(string tournamentID)
-        {
-            try
-            {
-                //getData
-                var TournamentData = CallChallongeApiAsync(tournamentID);
-                if (TournamentData?.Result?.tournament == null)
-                {
-                    return;
-                }
-
-                //setData
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("EXCEPTION: " + ex.Message);
-            }
-        }
-
         private void SetDataToSystem(Task<StartGGJsonObject.Root?> tournamentData)
         {
             try
             {
-                foreach(var tournament in tournamentData.Result.data.tournaments.nodes)
+                foreach (var tournament in tournamentData.Result.data.tournaments.nodes)
                 {
-                    var systemTourney = new Tournament()
+                    var systemTourney = new TournamentData()
                     {
                         ID = tournament.id,
                         Name = tournament.name,
                         CountryCode = tournament.countryCode,
                         City = tournament.city,
                         AddrState = tournament.addrState,
-                        StartsAT = tournament.startAt == null? null:DateTime.UnixEpoch.AddSeconds(tournament.startAt),
+                        StartsAT = tournament.startAt == null ? null : DateTime.UnixEpoch.AddSeconds(tournament.startAt),
                         Online = tournament.isOnline,
                         URL = tournament.url,
                         State = tournament.state,
@@ -119,8 +102,8 @@ namespace TourneyPal.DataHandling
                         VenueName = tournament.venueName,
                         RegistrationOpen = tournament.isRegistrationOpen,
                         NumberOfAttendees = tournament.numAttendees,
-                        Game = tournament.events.Select(x=>x.videogame?.name)?.FirstOrDefault(),
-                        Streams = tournament.streams?.Select(x=> "https://www.twitch.tv/" + x.streamName)?.ToList(),
+                        Game = tournament.events.Select(x => x.videogame?.name)?.FirstOrDefault(),
+                        Streams = tournament.streams?.Select(x => "https://www.twitch.tv/" + x.streamName)?.ToList(),
                         TournamentHostSite = "https://www.start.gg/",
                     };
 
@@ -199,7 +182,7 @@ namespace TourneyPal.DataHandling
                             Console.WriteLine("Invalid Response after startGG API call");
                             return string.Empty;
                         }
-
+                        
                         return responseString;
                     }
                 }
@@ -209,6 +192,65 @@ namespace TourneyPal.DataHandling
                 Console.WriteLine("EXCEPTION: " + ex.Message);
             }
             return string.Empty;
+        }
+
+        public void handleData(string tournamentID)
+        {
+            try
+            {
+                //getData
+                var TournamentData = CallChallongeApiAsync(tournamentID);
+                if (TournamentData?.Result?.tournament == null)
+                {
+                    return;
+                }
+
+                //setData
+                SetDataToSystem(TournamentData);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("EXCEPTION: " + ex.Message);
+            }
+        }
+
+        private void SetDataToSystem(Task<ChallongeJsonObject.Root?> tournamentData)
+        {
+            try
+            {
+                var tournament =tournamentData?.Result?.tournament;
+
+                var systemTourney = new TournamentData()
+                {
+                    ID = tournament.id,
+                    Name = tournament.name,
+                    CountryCode = string.Empty,
+                    City = string.Empty,
+                    AddrState = string.Empty,
+                    StartsAT = tournament.start_at == null ? null : (DateTime)tournament.start_at,
+                    Online = null,
+                    URL = tournament.url,
+                    State = null,
+                    VenueAddress = string.Empty,
+                    VenueName = string.Empty,
+                    RegistrationOpen = tournament.open_signup,
+                    NumberOfAttendees = tournament.participants_count,
+                    Game = tournament.game_name,
+                    Streams = null,
+                    TournamentHostSite = "https://challonge.com/",
+                };
+
+                if(systemTourney.Game.ToLower().Remove(' ').Contains("soulcalibur"))
+                {
+                    DataObjects.GeneralData.addTournament(systemTourney);
+                }
+                
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("EXCEPTION: " + ex.Message);
+            }
         }
 
         public async Task<ChallongeJsonObject.Root?> CallChallongeApiAsync(string tournamentID)
@@ -262,7 +304,7 @@ namespace TourneyPal.DataHandling
                     }
                 }
 
-                
+
             }
             catch (Exception ex)
             {
@@ -270,9 +312,6 @@ namespace TourneyPal.DataHandling
             }
             return string.Empty;
         }
-
-
-
 
     }
 }

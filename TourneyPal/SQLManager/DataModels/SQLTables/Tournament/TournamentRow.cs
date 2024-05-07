@@ -27,7 +27,7 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament
         public string? VenueAddress { get; set; }
         public string? VenueName { get; set; }
         public bool? RegistrationOpen { get; set; }
-        public string? NumberOfAttendees { get; set; }
+        public int? NumberOfAttendees { get; set; }
         public int? Game_ID { get; set; }
         public bool? IsExpired { get; set; }
 
@@ -121,7 +121,10 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament
                 RegistrationOpen = (bool)registrationOpen;
 
                 //NumberOfAttendees
-                NumberOfAttendees = reader[nameof(NumberOfAttendees)]?.ToString();
+                if (reader[nameof(NumberOfAttendees)] != null)
+                {
+                    NumberOfAttendees = convertToInt(nameof(NumberOfAttendees), reader[nameof(NumberOfAttendees)]?.ToString());
+                }
 
                 //Game_ID
                 var game_ID = convertToInt(nameof(Game_ID), reader[nameof(Game_ID)]?.ToString());
