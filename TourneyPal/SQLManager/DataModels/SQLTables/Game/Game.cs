@@ -27,6 +27,7 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Game
 
                     rows.Add(row);
                 }
+                result.success = true;
             }
             catch (Exception ex)
             {

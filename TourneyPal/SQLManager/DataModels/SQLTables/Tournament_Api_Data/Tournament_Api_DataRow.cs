@@ -14,8 +14,7 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament_Api_Data
         {
         }
 
-        public int? Tournament_ID { get; private set; }
-        public int? HostSite_ID { get; private set; }
+        public int? RelatedTournamentsApiCall_ID { get; private set; }
         public int? TournamentHostSite_ID { get; private set; }
         public string? Request { get; private set; }
         public string? Response { get; private set; }
@@ -31,23 +30,14 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament_Api_Data
                     return result;
                 }
 
-                //Tournament_ID
-                var tournament_ID = convertToInt(nameof(Tournament_ID), reader[nameof(Tournament_ID)]?.ToString());
-                if (tournament_ID == null)
+                //RelatedTournamentsApiCall_ID
+                var relatedTournamentsApiCall_ID = convertToInt(nameof(RelatedTournamentsApiCall_ID), reader[nameof(RelatedTournamentsApiCall_ID)]?.ToString());
+                if (relatedTournamentsApiCall_ID == null)
                 {
                     result.success = false;
                     return result;
                 }
-                Tournament_ID = (int)tournament_ID;
-
-                //HostSite_ID
-                var hostSite_ID = convertToInt(nameof(HostSite_ID), reader[nameof(HostSite_ID)]?.ToString());
-                if (hostSite_ID == null)
-                {
-                    result.success = false;
-                    return result;
-                }
-                HostSite_ID = (int)hostSite_ID;
+                RelatedTournamentsApiCall_ID = (int)relatedTournamentsApiCall_ID;
 
                 //TournamentHostSite_ID
                 var tournamentHostSite_ID = convertToInt(nameof(TournamentHostSite_ID), reader[nameof(TournamentHostSite_ID)]?.ToString());
@@ -91,15 +81,10 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament_Api_Data
             Result result = new Result();
             try
             {
-                if (this.Tournament_ID == null)
+                if (this.RelatedTournamentsApiCall_ID == null)
                 {
                     result.success = false;
-                    result.message = nameof(this.Tournament_ID) + ", of table: " + this.tableName + "-- Cannot be null";
-                }
-                if (this.HostSite_ID == null)
-                {
-                    result.success = false;
-                    result.message = nameof(this.HostSite_ID) + ", of table: " + this.tableName + "-- Cannot be null";
+                    result.message = nameof(this.RelatedTournamentsApiCall_ID) + ", of table: " + this.tableName + "-- Cannot be null";
                 }
                 if (this.TournamentHostSite_ID == null)
                 {
