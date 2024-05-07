@@ -3,6 +3,7 @@ using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Enums;
+using DSharpPlus.Interactivity.EventHandling;
 using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.SlashCommands;
 
@@ -29,7 +30,7 @@ namespace TourneyPal.BotHandling
             this.Client.UseInteractivity(new InteractivityConfiguration()
             {
                 PollBehaviour = PollBehaviour.KeepEmojis,
-                Timeout = TimeSpan.FromMinutes(5),
+                Timeout = TimeSpan.FromMinutes(5)
             });
 
             SlashCommandsConfiguration slashCommandsConfiguration = new SlashCommandsConfiguration();
