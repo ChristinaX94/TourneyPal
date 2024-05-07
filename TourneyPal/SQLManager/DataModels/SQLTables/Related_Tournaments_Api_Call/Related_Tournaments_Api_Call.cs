@@ -2,16 +2,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 using TourneyPal.Commons;
 
-namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament_Api_Data
+namespace TourneyPal.SQLManager.DataModels.SQLTables.Related_Tournaments_Api_Call
 {
-    public class Tournament_Api_Data : Model
+    public class Related_Tournaments_Api_Call : Model
     {
-        
+
         public override Result load(MySqlDataReader reader)
         {
             Result result = new Result();
@@ -19,7 +18,7 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament_Api_Data
             {
                 while (reader.Read())
                 {
-                    Tournament_Api_DataRow row = new Tournament_Api_DataRow(GetType().Name);
+                    Related_Tournaments_Api_CallRow row = new Related_Tournaments_Api_CallRow(GetType().Name);
                     result = row.loadRow(reader);
                     if (!result.success)
                     {
@@ -43,5 +42,6 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament_Api_Data
         {
             throw new NotImplementedException();
         }
+
     }
 }

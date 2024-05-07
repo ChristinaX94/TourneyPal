@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace TourneyPal.DataHandling.DataObjects
 {
 
-    public class Tournament
+    public class TournamentData
     {
         public int? ID { get; set; }
         public string Name { get; set; }
@@ -25,6 +25,8 @@ namespace TourneyPal.DataHandling.DataObjects
         public string Game { get; set; }
         public List<string> Streams { get; set; }
         public string TournamentHostSite { get; set; }
+
+        public bool isModified { get; set; } = false;
     }
 
 }
