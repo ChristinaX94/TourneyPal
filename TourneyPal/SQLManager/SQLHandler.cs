@@ -1,5 +1,6 @@
 ﻿using MySql.Data.MySqlClient;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
@@ -33,25 +34,60 @@ namespace TourneyPal.SQLManager
             return null;
         }
 
-        public Result saveData(string character, byte[] picture, string url)
+        public Result saveData(Model model)
         {
             Result result = new Result();
             try
             {
-                var parameters = new List<MySqlParameter>();
+                var connection = new SQLConnection();
 
-                string query = "INSERT INTO aac.data (e7character,picture,url) VALUES(@character, @picture, @url);";
+                if (model.rows == null ||
+                   model.rows.Count == 0)
+                {
+                    result.success = true;
+                    result.message = "Nothing to save on " + model.GetType().Name;
+                    return result;
+                }
 
-                parameters.Add(new MySqlParameter("@character", character));
-                parameters.Add(new MySqlParameter("@url", url));
+                var type = model.rows.FirstOrDefault().GetType();
+                var rowProperties = type.GetProperties().Select(x => x.Name).ToList();
+                rowProperties.Remove("ID");
 
-                var imageParameter = new MySqlParameter("@picture", MySqlDbType.LongBlob, picture.Length);
-                imageParameter.Value = picture;
+                //example
+                var properties = string.Join(",", rowProperties);
+                var propertiesAii = string.Join(", @", rowProperties);
+                string insertQuery = "insert into " + connection.database + "." + type.Name + " (" + properties + ") values ";
+                string updateQuery = "update " + connection.database + "." + type.Name + " set " + properties[0] + "=" + propertiesAii[0] + "...;";
+                //example
 
-                parameters.Add(imageParameter);
+                var inserts = model.rows.Where(x => x.ID == 0).ToArray();
+                var insertQueryStrs = new List<string>();
+                foreach (var row in inserts)
+                {
+                    var pos = Array.IndexOf(inserts, row);
+                    var parametersStr = string.Join(pos + ", @", rowProperties);
+                    string insertQueryRow = "(" + parametersStr + ")";
+                    insertQueryStrs.Add(insertQueryRow);
 
-                SQLItem sql = new SQLItem(query, parameters);
+                    var parameters = new List<MySqlParameter>();
+                    foreach(var property in rowProperties)
+                    {
+                        parameters.Add(new MySqlParameter("@"+property+pos.ToString(), row.GetType().GetProperty(property).GetValue(row,null)));
+                    }
+                    
+                }
+                //var parameters = new List<MySqlParameter>();
 
+                //string query = "INSERT INTO aac.data (e7character,picture,url) VALUES(@character, @picture, @url);";
+
+
+                //parameters.Add(new MySqlParameter("@character", character));
+                //parameters.Add(new MySqlParameter("@url", url));
+
+                //SQLItem sql = new SQLItem(query, parameters);
+
+
+                return connection.Save(new SQLItem(insertQuery, null), model);
 
                 //result = conn.cycleAppend(sql);
                 if (!result.success)

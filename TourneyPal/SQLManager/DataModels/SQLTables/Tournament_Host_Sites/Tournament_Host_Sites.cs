@@ -38,7 +38,7 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament_Host_Sites
 
         }
 
-        public override Result delete(MySqlDataReader reader)
+        public override Result validate()
         {
             throw new NotImplementedException();
         }
