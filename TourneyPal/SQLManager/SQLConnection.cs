@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.PortableExecutable;
 using System.Text;
 using System.Threading.Tasks;
 using TourneyPal.Commons;
@@ -151,11 +152,17 @@ namespace TourneyPal.SQLManager
             return model;
         }
 
-        public Result Save(SQLItem sql)
+        public Result Save(SQLItem sql, Model model)
         {
             Result result = new Result();
             try
             {
+                result = model.save();
+                if (!result.success)
+                {
+                    return result;
+                }
+
                 result = connect();
                 if (!result.success)
                 {
