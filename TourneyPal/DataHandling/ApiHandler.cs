@@ -30,7 +30,7 @@ namespace TourneyPal.DataHandling
 
         public ApiHandler()
         {
-            handleData();
+            _ = handleDataAsync();
             //TODO: delete
             //handleData("1gthtrfs");
 
@@ -52,7 +52,7 @@ namespace TourneyPal.DataHandling
                         continue;
                     }
 
-                    handleData();
+                    _ = handleDataAsync();
                 }
             }
             catch (Exception ex)
@@ -61,19 +61,30 @@ namespace TourneyPal.DataHandling
             }
         }
 
-        public void handleData() 
+        public async Task handleDataAsync() 
         {
             try
             {
                 //getData
-                var TournamentData = CallStartGGApiAsync();
-                if (TournamentData?.Result?.data?.tournaments?.nodes == null)
+                var apiResponseData = await ConnectAndGetData_StartGG();
+                if (apiResponseData == null ||
+                    String.IsNullOrEmpty(apiResponseData.ApiResponse))
+                {
+                    return;
+                }
+
+                var TournamentData = CallStartGGApiAsync(apiResponseData.ApiResponse);
+                if (TournamentData?.data?.tournaments?.nodes == null)
                 {
                     return;
                 }
 
                 //setData
                 SetDataToSystem(TournamentData);
+
+                //finalize apiRequestdata
+                apiResponseData.StartGGTournaments = TournamentData.data.tournaments.nodes.Select(x => x.id).ToList();
+                DataObjects.GeneralData.addApiRequestedData(apiResponseData);
             }
             catch (Exception ex)
             {
@@ -81,11 +92,11 @@ namespace TourneyPal.DataHandling
             }
         }
 
-        private void SetDataToSystem(Task<StartGGJsonObject.Root?> tournamentData)
+        private void SetDataToSystem(StartGGJsonObject.Root tournamentData)
         {
             try
             {
-                foreach (var tournament in tournamentData.Result.data.tournaments.nodes)
+                foreach (var tournament in tournamentData.data.tournaments.nodes)
                 {
                     var systemTourney = new TournamentData()
                     {
@@ -116,18 +127,10 @@ namespace TourneyPal.DataHandling
             }
         }
 
-        public async Task<StartGGJsonObject.Root?> CallStartGGApiAsync()
+        public StartGGJsonObject.Root? CallStartGGApiAsync(string responseData)
         {
             try
             {
-                Console.WriteLine("Calling Api: " + System.DateTime.Now);
-
-                var responseData = await ConnectAndGetData_StartGG();
-                if (String.IsNullOrEmpty(responseData))
-                {
-                    return null;
-                }
-
                 StartGGJsonObject.Root startGGData = JsonConvert.DeserializeObject<StartGGJsonObject.Root>(responseData);
                 var noEvents = startGGData.data.tournaments.nodes.Where(x => x.events.Count == 0).ToList();
                 if(noEvents !=null)
@@ -148,10 +151,11 @@ namespace TourneyPal.DataHandling
             return null;
         }
 
-        private async Task<string> ConnectAndGetData_StartGG()
+        private async Task<ApiRequestedDataHandler?> ConnectAndGetData_StartGG()
         {
             try
             {
+                Console.WriteLine("Calling Api: " + System.DateTime.Now);
                 var json = new StartGGConnectionData.StartGGJsonFormatter();
 
                 using (HttpClient client = new HttpClient())
@@ -172,7 +176,7 @@ namespace TourneyPal.DataHandling
                         if (response?.StatusCode != System.Net.HttpStatusCode.OK)
                         {
                             Console.WriteLine("Invalid Status after startGG API call: " + response?.StatusCode);
-                            return string.Empty;
+                            return null;
                         }
 
                         var responseString = await response.Content.ReadAsStringAsync();
@@ -180,10 +184,16 @@ namespace TourneyPal.DataHandling
                             responseString.Contains("error"))
                         {
                             Console.WriteLine("Invalid Response after startGG API call");
-                            return string.Empty;
+                            return null;
                         }
                         
-                        return responseString;
+                        return new ApiRequestedDataHandler 
+                        { 
+                            ApiRequestJson = JsonConvert.SerializeObject(json),
+                            ApiRequestContent = request.ToString(),
+                            ApiResponse = responseString,
+                            HostSite = (int)GeneralData.General.TournamentSiteHost.Start
+                        };
                     }
                 }
             }
@@ -191,7 +201,7 @@ namespace TourneyPal.DataHandling
             {
                 Console.WriteLine("EXCEPTION: " + ex.Message);
             }
-            return string.Empty;
+            return null;
         }
 
         public void handleData(string tournamentID)

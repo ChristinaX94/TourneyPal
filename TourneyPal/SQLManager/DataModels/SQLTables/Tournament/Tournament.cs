@@ -11,7 +11,7 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament
 {
     public class Tournament : Model
     {
-        public override Result delete(MySqlDataReader reader)
+        public override Result validate()
         {
             throw new NotImplementedException();
         }

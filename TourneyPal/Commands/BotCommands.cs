@@ -46,8 +46,7 @@ namespace TourneyPal
                     await ctx.CreateResponseAsync("No Data").ConfigureAwait(false);
                 }
 
-                await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent(". . .")).ConfigureAwait(false);
-                await ctx.Channel.SendMessageAsync(member.Mention).ConfigureAwait(false);
+                await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent(member.Mention).AddMention(mention: new UserMention(ctx.User))).ConfigureAwait(false);
                 foreach (var tourney in TourneyPal.DataHandling.DataObjects.GeneralData.TournamentsData)
                 {
                     DiscordEmbed embed = new DiscordEmbedBuilder
