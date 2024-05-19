@@ -85,6 +85,9 @@ namespace TourneyPal.DataHandling
                 //finalize apiRequestdata
                 apiResponseData.StartGGTournaments = TournamentData.data.tournaments.nodes.Select(x => x.id).ToList();
                 DataObjects.GeneralData.addApiRequestedData(apiResponseData);
+
+                DataObjects.GeneralData.saveTournaments();
+
             }
             catch (Exception ex)
             {

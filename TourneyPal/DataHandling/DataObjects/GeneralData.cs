@@ -125,20 +125,16 @@ namespace TourneyPal.DataHandling.DataObjects
                 var listToSave =TournamentsData.Where(x=>x.isModified).ToList();
                 foreach (var item in listToSave)
                 {
-                    TournamentRow tournamentDataRow = new TournamentRow(nameof(tournaments));
-
-                    if (item.ID == 0)
+                    TournamentRow tournamentDataRow = (TournamentRow)tournaments.rows.FirstOrDefault(x => ((TournamentRow)x).TournamentHostSite_ID == item.ID); 
+                    
+                    if (tournamentDataRow == null)
                     {
+                        tournamentDataRow = new TournamentRow(nameof(tournaments));
                         tournamentDataRow.insertNewRowData();
                         tournaments.rows.Add(tournamentDataRow);
                     }
                     else
                     {
-                        tournamentDataRow = (TournamentRow)tournaments.rows.FirstOrDefault(x => ((TournamentRow)x).TournamentHostSite_ID == item.ID);
-                        if (tournamentDataRow == null)
-                        {
-                            throw new NullReferenceException();
-                        }
                         tournamentDataRow.insertRowData();
                     }
 
@@ -158,10 +154,10 @@ namespace TourneyPal.DataHandling.DataObjects
                     tournamentDataRow.NumberOfAttendees = item.NumberOfAttendees;
                     tournamentDataRow.Game_ID = games.rows.Where(x => ((GameRow)x).Title.Equals(item.Game))?.Select(y => y.ID).FirstOrDefault();
                     tournamentDataRow.IsExpired = item.StartsAT >= General.getDate();
-
-                    sql.saveData(new Tournament());
                 }
                 //save stuff
+
+                sql.saveData(tournaments);
                 ApiRequestedData = new List<ApiRequestedDataHandler>();
             }
             catch (Exception ex)

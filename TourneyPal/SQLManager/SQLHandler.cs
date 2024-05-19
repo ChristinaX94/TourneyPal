@@ -48,7 +48,7 @@ namespace TourneyPal.SQLManager
                     result.message = "Nothing to save on " + model.GetType().Name;
                     return result;
                 }
-
+                var typeMain = model.GetType();
                 var type = model.rows.FirstOrDefault().GetType();
                 var rowProperties = type.GetProperties().Select(x => x.Name).ToList();
                 rowProperties.Remove("ID");
@@ -56,26 +56,28 @@ namespace TourneyPal.SQLManager
                 //example
                 var properties = string.Join(",", rowProperties);
                 var propertiesAii = string.Join(", @", rowProperties);
-                string insertQuery = "insert into " + connection.database + "." + type.Name + " (" + properties + ") values ";
-                string updateQuery = "update " + connection.database + "." + type.Name + " set " + properties[0] + "=" + propertiesAii[0] + "...;";
+                string insertQuery = "insert into " + connection.database + "." + typeMain.Name + " (" + properties + ") values ";
+                string updateQuery = "update " + connection.database + "." + typeMain.Name + " set " + properties[0] + "=" + propertiesAii[0] + "...;";
                 //example
 
                 var inserts = model.rows.Where(x => x.ID == 0).ToArray();
                 var insertQueryStrs = new List<string>();
+                var parametersIns = new List<MySqlParameter>();
                 foreach (var row in inserts)
                 {
                     var pos = Array.IndexOf(inserts, row);
-                    var parametersStr = string.Join(pos + ", @", rowProperties);
+                    var parametersStr = "@" + string.Join(pos + ", @", rowProperties)+pos;
                     string insertQueryRow = "(" + parametersStr + ")";
                     insertQueryStrs.Add(insertQueryRow);
 
-                    var parameters = new List<MySqlParameter>();
+                    
                     foreach(var property in rowProperties)
                     {
-                        parameters.Add(new MySqlParameter("@"+property+pos.ToString(), row.GetType().GetProperty(property).GetValue(row,null)));
+                        parametersIns.Add(new MySqlParameter("@"+property+pos.ToString(), row.GetType().GetProperty(property).GetValue(row,null)));
                     }
-                    
                 }
+
+                insertQuery = insertQuery + string.Join(",", insertQueryStrs);
                 //var parameters = new List<MySqlParameter>();
 
                 //string query = "INSERT INTO aac.data (e7character,picture,url) VALUES(@character, @picture, @url);";
@@ -87,7 +89,7 @@ namespace TourneyPal.SQLManager
                 //SQLItem sql = new SQLItem(query, parameters);
 
 
-                return connection.Save(new SQLItem(insertQuery, null), model);
+                return connection.Save(new SQLItem(insertQuery, parametersIns), model);
 
                 //result = conn.cycleAppend(sql);
                 if (!result.success)

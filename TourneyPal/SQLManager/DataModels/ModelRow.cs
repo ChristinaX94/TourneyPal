@@ -79,6 +79,8 @@ namespace TourneyPal.SQLManager.DataModels
                     result.success = false;
                     result.message = nameof(this.DateInserted) + ", of table: " + this.tableName + "-- Cannot be null";
                 }
+
+                result.success = true;
             }
             catch (Exception ex)
             {
