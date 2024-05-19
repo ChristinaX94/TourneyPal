@@ -37,11 +37,6 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Game
             return result;
 
         }
-
-        public override Result validate()
-        {
-            throw new NotImplementedException();
-        }
     }
 
 }

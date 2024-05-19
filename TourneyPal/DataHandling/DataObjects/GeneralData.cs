@@ -34,9 +34,9 @@ namespace TourneyPal.DataHandling.DataObjects
 
             foreach (TournamentRow tournament in tournaments.rows)
             {
-                var TournamentData = new TournamentData()
+                TournamentsData.Add(new TournamentData()
                 {
-                    ID = tournament.ID,
+                    ID = tournament.TournamentHostSite_ID,
                     Name = tournament.Name,
                     CountryCode = tournament.CountryCode,
                     City = tournament.City,
@@ -49,10 +49,10 @@ namespace TourneyPal.DataHandling.DataObjects
                     VenueName = tournament.VenueName,
                     RegistrationOpen = tournament.IsExpired,
                     NumberOfAttendees = tournament.NumberOfAttendees,
-                    Game = games.rows.Where(x=>x.ID== tournament.Game_ID)?.Select(y=> ((GameRow)y).Title).FirstOrDefault(),
+                    Game = games.rows.Where(x => x.ID == tournament.Game_ID)?.Select(y => ((GameRow)y).Title).FirstOrDefault(),
                     Streams = streams.rows.Where(x => ((StreamRow)x).Tournament_ID == tournament.ID)?.Select(y => "https://www.twitch.tv/" + ((StreamRow)y).Title).ToList(),
                     TournamentHostSite = tournamentHostSite.rows.Where(x => x.ID == tournament.TournamentHostSite_ID)?.Select(y => ((Tournament_Host_SitesRow)y).Site).FirstOrDefault(),
-                };
+                });
             }
 
         }
@@ -84,11 +84,13 @@ namespace TourneyPal.DataHandling.DataObjects
 
                 var tournamentEdited = !(existingTournament.Online == tournament.Online &&
                                         existingTournament.StartsAT == tournament.StartsAT &&
+                                        existingTournament.NumberOfAttendees == tournament.NumberOfAttendees &&
                                         existingTournament.VenueAddress.Equals(tournament.VenueAddress));
                 if (tournamentEdited)
                 {
                     existingTournament.Online = tournament.Online;
                     existingTournament.StartsAT = tournament.StartsAT;
+                    existingTournament.NumberOfAttendees = tournament.NumberOfAttendees;
                     existingTournament.VenueAddress = tournament.VenueAddress;
                     existingTournament.isModified = true;
                     return;

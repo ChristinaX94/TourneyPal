@@ -85,6 +85,8 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Game_On_Tournament_Host_Sit
                     result.success = false;
                     result.message = nameof(this.SpecificHostGameID) + ", of table: " + this.tableName + "-- Cannot be null";
                 }
+
+                result.success = true;
             }
             catch (Exception ex)
             {
