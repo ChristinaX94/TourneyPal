@@ -80,6 +80,8 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Stream
                     result.success = false;
                     result.message = nameof(this.Title) + ", of table: " + this.tableName + "-- Cannot be null";
                 }
+
+                result.success = true;
             }
             catch (Exception ex)
             {

@@ -213,6 +213,8 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament
                     result.message = nameof(this.IsExpired) + ", of table: " + this.tableName + "-- Cannot be null";
                 }
 
+                result.success = true;
+
             }
             catch (Exception ex)
             {

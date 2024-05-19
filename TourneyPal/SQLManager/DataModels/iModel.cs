@@ -11,9 +11,10 @@ namespace TourneyPal.SQLManager.DataModels
     public interface iModel
     {
         public Result load(MySqlDataReader reader);
+        
+        public Result save();
 
-        public Result delete(MySqlDataReader reader);
+        public Result validate();
 
-        public Result save(MySqlDataReader reader);
     }
 }

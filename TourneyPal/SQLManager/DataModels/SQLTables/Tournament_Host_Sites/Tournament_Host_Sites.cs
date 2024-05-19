@@ -35,13 +35,6 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament_Host_Sites
                 result.message = ex.Message;
             }
             return result;
-
         }
-
-        public override Result delete(MySqlDataReader reader)
-        {
-            throw new NotImplementedException();
-        }
-
     }
 }
