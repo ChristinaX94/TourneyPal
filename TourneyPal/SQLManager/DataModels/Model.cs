@@ -14,29 +14,36 @@ namespace TourneyPal.SQLManager.DataModels
 
         public abstract Result load(MySqlDataReader reader);
 
-        public abstract Result delete(MySqlDataReader reader);
-
-        public virtual Result save(MySqlDataReader reader)
+        public Result save()
         {
             Result result = new Result();
             try
             {
-                if (this.rows == null ||
-                   this.rows.Count == 0)
+
+                result = this.validate();
+                if (!result.success)
                 {
-                    result.success = true;
-                    result.message = "Nothing to save on " + GetType().Name;
+                    result.success = false;
                     return result;
                 }
 
+                return result;
+            }
+            catch (Exception ex)
+            {
+                result.success = false;
+                result.message = ex.Message;
+            }
+            return result;
+        }
+
+        public Result validate()
+        {
+            Result result = new Result();
+            try
+            {
                 foreach (var row in rows)
                 {
-                    result = row.ID == 0 ? row.insertNewRowData() : row.insertRowData();
-                    if (!result.success)
-                    {
-                        result.success = false;
-                        return result;
-                    }
 
                     result = row.validateRow();
                     if (!result.success)
