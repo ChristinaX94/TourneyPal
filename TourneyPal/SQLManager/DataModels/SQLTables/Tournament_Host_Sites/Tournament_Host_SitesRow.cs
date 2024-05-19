@@ -98,6 +98,8 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament_Host_Sites
                     result.success = false;
                     result.message = nameof(this.Endpoint) + ", of table: " + this.tableName + "-- Cannot be null";
                 }
+
+                result.success = true;
             }
             catch (Exception ex)
             {

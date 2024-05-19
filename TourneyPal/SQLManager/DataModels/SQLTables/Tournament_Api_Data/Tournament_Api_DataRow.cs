@@ -101,6 +101,8 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament_Api_Data
                     result.success = false;
                     result.message = nameof(this.Response) + ", of table: " + this.tableName + "-- Cannot be null";
                 }
+
+                result.success = true;
             }
             catch (Exception ex)
             {

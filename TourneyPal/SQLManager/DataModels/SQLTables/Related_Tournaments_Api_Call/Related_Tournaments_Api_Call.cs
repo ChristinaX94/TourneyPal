@@ -38,10 +38,5 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Related_Tournaments_Api_Cal
 
         }
 
-        public override Result delete(MySqlDataReader reader)
-        {
-            throw new NotImplementedException();
-        }
-
     }
 }

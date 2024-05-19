@@ -1,14 +1,6 @@
 ﻿using MySql.Data.MySqlClient;
-using System;
-using System.Collections.Generic;
-using System.Data.Common;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TourneyPal.Commons;
 using TourneyPal.SQLManager.DataModels;
-using TourneyPal.SQLManager.DataModels.SQLTables.Game;
-using static TourneyPal.DataHandling.StartGGHelper.StartGGJsonObject;
 
 namespace TourneyPal.SQLManager
 {
@@ -33,29 +25,76 @@ namespace TourneyPal.SQLManager
             return null;
         }
 
-        public Result saveData(string character, byte[] picture, string url)
+        public Result saveData(Model model)
         {
             Result result = new Result();
             try
             {
-                var parameters = new List<MySqlParameter>();
+                var connection = new SQLConnection();
 
-                string query = "INSERT INTO aac.data (e7character,picture,url) VALUES(@character, @picture, @url);";
+                if (model?.rows == null ||
+                   model.rows.Count == 0)
+                {
+                    result.success = true;
+                    result.message = "Nothing to save on " + model?.GetType().Name;
+                    return result;
+                }
 
-                parameters.Add(new MySqlParameter("@character", character));
-                parameters.Add(new MySqlParameter("@url", url));
+                var tableType = model.GetType();
 
-                var imageParameter = new MySqlParameter("@picture", MySqlDbType.LongBlob, picture.Length);
-                imageParameter.Value = picture;
+                var rowType = model.rows.FirstOrDefault().GetType();
+                var rowProperties = rowType.GetProperties().Select(x => x.Name).ToList();
+                rowProperties.Remove(nameof(ModelRow.ID));
 
-                parameters.Add(imageParameter);
-
-                SQLItem sql = new SQLItem(query, parameters);
-
-
-                //result = conn.cycleAppend(sql);
+                result = insertData(model, connection, tableType, rowProperties);
                 if (!result.success)
                 {
+                    result.message = "Error inserting rows of " + tableType.Name;
+                    return result;
+                }
+
+                result = updateData(model, connection, tableType, rowProperties);
+                if (!result.success)
+                {
+                    result.message = "Error updating rows of " + tableType.Name;
+                    return result;
+                }
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                result.success = false;
+                result.message = ex.Message;
+            }
+            return result;
+        }
+
+        private Result insertData(Model model, SQLConnection connection, Type tableType, List<string> rowProperties)
+        {
+            var result = new Result();
+            try
+            {
+                if(model.rows.Where(x => x.ID == 0).Count() == 0)
+                {
+                    result.success = true;
+                    result.message = "Nothing to insert on " + model?.GetType().Name;
+                    return result;
+                }
+
+                //insert
+                var sqlInsert = getInsertQuery(model.rows.Where(x => x.ID == 0).ToArray(), connection, tableType, rowProperties);
+                if (sqlInsert == null)
+                {
+                    result.success = false;
+                    result.message = "Error creating insert save query of " + tableType.Name;
+                    return result;
+                }
+
+                result = connection.Save(sqlInsert, model);
+                if (!result.success)
+                {
+                    result.message = "Error inserting rows of " + tableType.Name;
                     return result;
                 }
             }
@@ -67,6 +106,112 @@ namespace TourneyPal.SQLManager
             return result;
         }
 
-       
+        private SQLItem getInsertQuery(ModelRow[] inserts, SQLConnection connection, Type tableType, List<string> rowProperties)
+        {
+            Result result = new Result();
+            string propertiesStr;
+            string insertQuery;
+            List<string> insertQueryStrs = new List<string>();
+            List<MySqlParameter> parametersIns = new List<MySqlParameter>();
+
+            try
+            {
+                propertiesStr = string.Join(",", rowProperties);
+                insertQuery = "insert into " + connection.database + "." + tableType.Name + " (" + propertiesStr + ") values ";
+                
+                foreach (var row in inserts)
+                {
+                    var pos = Array.IndexOf(inserts, row);
+                    var parametersStr = "@" + string.Join(pos + ", @", rowProperties) + pos;
+                    string insertQueryRow = "(" + parametersStr + ")";
+                    insertQueryStrs.Add(insertQueryRow);
+
+                    foreach (var property in rowProperties)
+                    {
+                        parametersIns.Add(new MySqlParameter("@" + property + pos.ToString(), row.GetType().GetProperty(property).GetValue(row, null)));
+                    }
+                }
+
+                insertQuery = insertQuery + string.Join(",", insertQueryStrs);
+
+                return new SQLItem(insertQuery, parametersIns);
+            }
+            catch (Exception ex)
+            {
+                result.success = false;
+                result.message = ex.Message;
+            }
+            return null;
+            
+        }
+
+        private Result updateData(Model model, SQLConnection connection, Type tableType, List<string> rowProperties)
+        {
+            var result = new Result();
+            try
+            {
+                if (model.rows.Where(x => x.ID > 0).Count() == 0)
+                {
+                    result.success = true;
+                    result.message = "Nothing to update on " + model?.GetType().Name;
+                    return result;
+                }
+
+                //update
+                var sqlUpdate = getUpdateQuery(model.rows.Where(x => x.ID > 0).ToArray(), connection, tableType, rowProperties);
+                if (sqlUpdate == null)
+                {
+                    result.success = false;
+                    result.message = "Error creating update save query of " + tableType.Name;
+                    return result;
+                }
+
+                result = connection.Save(sqlUpdate, model);
+                if (!result.success)
+                {
+                    result.message = "Error updating rows of " + tableType.Name;
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.success = false;
+                result.message = ex.Message;
+            }
+            return result;
+        }
+        private SQLItem getUpdateQuery(ModelRow[] updates, SQLConnection connection, Type tableType, List<string> rowProperties)
+        {
+            Result result = new Result();
+            List<string> updateQueries = new List<string>(); ;
+            List<MySqlParameter> parametersUpds = new List<MySqlParameter>();
+
+            try
+            {
+                foreach (var row in updates)
+                {
+                    var updateQueryStrs = new List<string>();
+                    var pos = Array.IndexOf(updates, row);
+                    
+                    foreach (var property in rowProperties)
+                    {
+                        string updateSetQueryRow = property + " = " + "@" + property + pos.ToString();
+                        
+                        updateQueryStrs.Add(updateSetQueryRow);
+
+                        parametersUpds.Add(new MySqlParameter("@" + property + pos.ToString(), row.GetType().GetProperty(property).GetValue(row, null)));
+                    }
+                    updateQueries.Add("update " + connection.database + "." + tableType.Name + " set " + string.Join(",", updateQueryStrs) + " where ID= " + row.ID +";");
+                }
+                return new SQLItem(string.Join("\n", updateQueries), parametersUpds);
+            }
+            catch (Exception ex)
+            {
+                result.success = false;
+                result.message = ex.Message;
+            }
+            return null;
+
+        }
     }
 }
