@@ -13,7 +13,22 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament
     {
         public override Result validate()
         {
-            throw new NotImplementedException();
+            Result result = new Result();
+            try
+            {
+                result = base.validate();
+                if (!result.success)
+                {
+                    return result;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                result.success = false;
+                result.message = ex.Message;
+            }
+            return result;
         }
 
         public override Result load(MySqlDataReader reader)
