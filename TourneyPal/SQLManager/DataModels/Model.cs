@@ -14,7 +14,7 @@ namespace TourneyPal.SQLManager.DataModels
 
         public abstract Result load(MySqlDataReader reader);
 
-        public virtual Result save()
+        public Result save()
         {
             Result result = new Result();
             try
@@ -37,7 +37,7 @@ namespace TourneyPal.SQLManager.DataModels
             return result;
         }
 
-        public virtual Result validate()
+        public Result validate()
         {
             Result result = new Result();
             try
