@@ -38,10 +38,5 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament_Api_Data
             return result;
 
         }
-
-        public override Result validate()
-        {
-            throw new NotImplementedException();
-        }
     }
 }

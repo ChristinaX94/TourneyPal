@@ -36,11 +36,5 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Stream
             return result;
 
         }
-
-        public override Result validate()
-        {
-            throw new NotImplementedException();
-        }
-
     }
 }

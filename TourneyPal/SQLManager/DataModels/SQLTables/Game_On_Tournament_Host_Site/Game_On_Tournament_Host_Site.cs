@@ -37,12 +37,5 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Game_On_Tournament_Host_Sit
             return result;
 
         }
-
-        public override Result validate()
-        {
-            throw new NotImplementedException();
-        }
-
-        
     }
 }
