@@ -14,10 +14,10 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament_Api_Data
         {
         }
 
-        public int? RelatedTournamentsApiCall_ID { get; private set; }
-        public int? TournamentHostSite_ID { get; private set; }
-        public string? Request { get; private set; }
-        public string? Response { get; private set; }
+        public int? TournamentHostSite_ID { get; set; }
+        public string? RequestJSON { get; set; }
+        public string? RequestContent { get; set; }
+        public string? Response { get; set; }
 
         public override Result loadRow(MySqlDataReader reader)
         {
@@ -30,15 +30,6 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament_Api_Data
                     return result;
                 }
 
-                //RelatedTournamentsApiCall_ID
-                var relatedTournamentsApiCall_ID = convertToInt(nameof(RelatedTournamentsApiCall_ID), reader[nameof(RelatedTournamentsApiCall_ID)]?.ToString());
-                if (relatedTournamentsApiCall_ID == null)
-                {
-                    result.success = false;
-                    return result;
-                }
-                RelatedTournamentsApiCall_ID = (int)relatedTournamentsApiCall_ID;
-
                 //TournamentHostSite_ID
                 var tournamentHostSite_ID = convertToInt(nameof(TournamentHostSite_ID), reader[nameof(TournamentHostSite_ID)]?.ToString());
                 if (tournamentHostSite_ID == null)
@@ -48,14 +39,11 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament_Api_Data
                 }
                 TournamentHostSite_ID = (int)tournamentHostSite_ID;
 
-                //Request
-                if (reader[nameof(Request)] == null ||
-                    string.IsNullOrEmpty(reader[nameof(Request)].ToString()))
-                {
-                    result.success = false;
-                    return result;
-                }
-                Request = reader[nameof(Request)].ToString();
+                //RequestJSON
+                RequestJSON = reader[nameof(RequestJSON)].ToString();
+
+                //RequestContent
+                RequestContent = reader[nameof(RequestContent)].ToString();
 
                 //Response
                 if (reader[nameof(Response)] == null ||
@@ -81,21 +69,12 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament_Api_Data
             Result result = new Result();
             try
             {
-                if (this.RelatedTournamentsApiCall_ID == null)
-                {
-                    result.success = false;
-                    result.message = nameof(this.RelatedTournamentsApiCall_ID) + ", of table: " + this.tableName + "-- Cannot be null";
-                }
                 if (this.TournamentHostSite_ID == null)
                 {
                     result.success = false;
                     result.message = nameof(this.TournamentHostSite_ID) + ", of table: " + this.tableName + "-- Cannot be null";
                 }
-                if (string.IsNullOrEmpty(this.Request))
-                {
-                    result.success = false;
-                    result.message = nameof(this.Request) + ", of table: " + this.tableName + "-- Cannot be null";
-                }
+                
                 if (string.IsNullOrEmpty(this.Response))
                 {
                     result.success = false;
