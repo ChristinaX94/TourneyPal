@@ -17,6 +17,11 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament_Api_Data
             Result result = new Result();
             try
             {
+                result = this.initializeRows();
+                if (!result.success)
+                {
+                    return result;
+                }
                 while (reader.Read())
                 {
                     Tournament_Api_DataRow row = new Tournament_Api_DataRow(GetType().Name);

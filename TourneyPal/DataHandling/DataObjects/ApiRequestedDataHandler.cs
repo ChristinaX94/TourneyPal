@@ -13,6 +13,6 @@ namespace TourneyPal.DataHandling.DataObjects
         public string ApiResponse { get; set; }
         public int HostSite { get; set; }
         public List<int> StartGGTournaments { get; set; }
-        public List<string> ChallongeTournaments { get; set; }
+        public List<int> ChallongeTournaments { get; set; }
     }
 }
