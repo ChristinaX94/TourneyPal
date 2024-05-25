@@ -15,8 +15,8 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Stream
         {
         }
 
-        public int? Tournament_ID { get; private set; }
-        public string? Title { get; private set; }
+        public int? Tournament_ID { get; set; }
+        public string? Title { get; set; }
 
         public override Result loadRow(MySqlDataReader reader)
         {

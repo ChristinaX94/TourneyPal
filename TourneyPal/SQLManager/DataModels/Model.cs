@@ -9,10 +9,26 @@ namespace TourneyPal.SQLManager.DataModels
 
         public Model()
         {
-            this.rows = new List<ModelRow>();
+            this.initializeRows();
         }
 
         public abstract Result load(MySqlDataReader reader);
+
+        public Result initializeRows()
+        {
+            Result result = new Result();
+            try
+            {
+                this.rows = new List<ModelRow>();
+                result.success = true;
+            }
+            catch (Exception ex)
+            {
+                result.success = false;
+                result.message = ex.Message;
+            }
+            return result;
+        }
 
         public Result save()
         {

@@ -56,7 +56,7 @@ namespace TourneyPal
                         Color = DiscordColor.Purple,
 
                     }
-                    .AddField("Site: ", tourney.TournamentHostSite+tourney.URL)
+                    .AddField("Site: ", tourney.HostSite + tourney.URL)
                     .AddField("Online: ", tourney.Online == null ? " - " : tourney.Online == true ? "Yes" : "No")
                     .AddField("Location: ", tourney.VenueAddress + ", " + tourney.City + ", "+ tourney.AddrState + ", " + tourney.CountryCode)
                     .AddField("Date (dd/mm/yyyy): ", tourney.StartsAT == null ? " - " : tourney.StartsAT.Value.Date.ToString("dd/MM/yyyy"))

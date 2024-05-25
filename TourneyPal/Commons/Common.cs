@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TourneyPal.GeneralData
+namespace TourneyPal
 {
-    public static class General
+    public static class Common
     {
         public enum YesNo
         {
