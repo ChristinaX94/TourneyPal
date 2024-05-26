@@ -12,7 +12,6 @@ namespace TourneyPal.DataHandling.DataObjects
         public string ApiRequestContent { get; set; }
         public string ApiResponse { get; set; }
         public int HostSite { get; set; }
-        public List<int> StartGGTournaments { get; set; }
-        public List<int> ChallongeTournaments { get; set; }
+        public List<int> Tournaments { get; set; }
     }
 }

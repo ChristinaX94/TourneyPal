@@ -60,8 +60,6 @@ namespace TourneyPal.SQLManager
                     return null;
                 }
 
-                model= loadModelData(model);
-
                 return model;
             }
             catch (Exception ex)
@@ -93,7 +91,7 @@ namespace TourneyPal.SQLManager
                     return result;
                 }
 
-                result = connection.Save(sqlInsert, model);
+                result = connection.SaveInsert(sqlInsert, model);
                 if (!result.success)
                 {
                     result.message = "Error inserting rows of " + tableType.Name;
@@ -168,7 +166,7 @@ namespace TourneyPal.SQLManager
                     return result;
                 }
 
-                result = connection.Save(sqlUpdate, model);
+                result = connection.SaveUpdate(sqlUpdate, model);
                 if (!result.success)
                 {
                     result.message = "Error updating rows of " + tableType.Name;
