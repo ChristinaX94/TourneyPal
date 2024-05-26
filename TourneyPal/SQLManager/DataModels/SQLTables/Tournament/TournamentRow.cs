@@ -15,7 +15,7 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament
         }
 
         public int? HostSite_ID { get; set; }
-        public int? TournamentHostSite_ID { get; set; }
+        public int? Tournament_ID { get; set; }
         public string? Name { get; set; }
         public string? CountryCode { get; set; }
         public string? City { get; set; }
@@ -51,14 +51,14 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament
                 }
                 HostSite_ID = (int)hostSite_ID;
 
-                //TournamentHostSite_ID
-                var tournamentHostSite_ID = convertToInt(nameof(TournamentHostSite_ID), reader[nameof(TournamentHostSite_ID)]?.ToString());
-                if (tournamentHostSite_ID == null)
+                //Tournament_ID
+                var tournament_ID = convertToInt(nameof(Tournament_ID), reader[nameof(Tournament_ID)]?.ToString());
+                if (tournament_ID == null)
                 {
                     result.success = false;
                     return result;
                 }
-                TournamentHostSite_ID = (int)tournamentHostSite_ID;
+                Tournament_ID = (int)tournament_ID;
 
                 //Name
                 Name = reader[nameof(Name)]?.ToString();
@@ -171,10 +171,10 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament
                     result.message = nameof(this.HostSite_ID) + ", of table: " + this.tableName + "-- Cannot be null";
                 }
 
-                if (this.TournamentHostSite_ID == null)
+                if (this.Tournament_ID == null)
                 {
                     result.success = false;
-                    result.message = nameof(this.TournamentHostSite_ID) + ", of table: " + this.tableName + "-- Cannot be null";
+                    result.message = nameof(this.Tournament_ID) + ", of table: " + this.tableName + "-- Cannot be null";
                 }
 
                 if (this.StartsAT == null)

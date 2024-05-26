@@ -152,7 +152,7 @@ namespace TourneyPal.SQLManager
             return model;
         }
 
-        public Result Save(SQLItem sql, Model model)
+        public Result SaveInsert(SQLItem sql, Model model)
         {
             Result result = new Result();
             try
@@ -169,7 +169,7 @@ namespace TourneyPal.SQLManager
                     return result;
                 }
 
-                result = executeQuery(sql);
+                result = executeInsertQuery(sql, model);
                 if (!result.success)
                 {
                     return result;
@@ -189,7 +189,79 @@ namespace TourneyPal.SQLManager
             return result;
         }
 
-        private Result executeQuery(SQLItem sql)
+        private Result executeInsertQuery(SQLItem sql, Model model)
+        {
+            Result result = new Result();
+            try
+            {
+                MySqlCommand cmd = getMySqlCommand(sql);
+                if (cmd == null)
+                {
+                    result.success = false;
+                    return result;
+                }
+
+                cmd.ExecuteNonQuery();
+
+                var lastinsertedID = (int)cmd.LastInsertedId;
+
+                if (lastinsertedID > 0)
+                {
+                    foreach (var row in model.rows)
+                    {
+                        row.setNewID(lastinsertedID);
+                        lastinsertedID++;
+                    }
+                }
+
+                result.success = true;
+            }
+            catch (Exception ex)
+            {
+                result.success = false;
+                result.message = ex.Message;
+            }
+            return result;
+        }
+
+        public Result SaveUpdate(SQLItem sql, Model model)
+        {
+            Result result = new Result();
+            try
+            {
+                result = model.save();
+                if (!result.success)
+                {
+                    return result;
+                }
+
+                result = connect();
+                if (!result.success)
+                {
+                    return result;
+                }
+
+                result = executeUpdateQuery(sql);
+                if (!result.success)
+                {
+                    return result;
+                }
+
+                result = disconnect();
+                if (!result.success)
+                {
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.success = false;
+                result.message = ex.Message;
+            }
+            return result;
+        }
+
+        private Result executeUpdateQuery(SQLItem sql)
         {
             Result result = new Result();
             try

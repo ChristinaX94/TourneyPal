@@ -30,14 +30,10 @@ namespace TourneyPal.DataHandling
 
         public ApiHandler()
         {
-            _ = handleDataAsync();
-            //TODO: delete
-            //handleData("1gthtrfs");
-
-            //updateDB
+            _ = this.examineAllDataAsync();
         }
 
-        
+
         public async Task runAsync()
         {
             try
@@ -52,7 +48,7 @@ namespace TourneyPal.DataHandling
                         continue;
                     }
 
-                    _ = handleDataAsync();
+                    _ = this.examineAllDataAsync();
                 }
             }
             catch (Exception ex)
@@ -61,7 +57,38 @@ namespace TourneyPal.DataHandling
             }
         }
 
-        public async Task handleDataAsync() 
+        private async Task examineAllDataAsync()
+        {
+            try
+            {
+                await handleStartGGDataAsync();
+                await handleChallongeDataASync();
+
+                GeneralData.saveFindings();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("EXCEPTION: " + ex.Message);
+            }
+
+        }
+
+        public async Task examineSingleChallongeRequest(string tournament)
+        {
+            try
+            {
+                await handleChallongeSingleDataASync(tournament);
+
+                GeneralData.saveFindings();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("EXCEPTION: " + ex.Message);
+            }
+
+        }
+
+        public async Task handleStartGGDataAsync() 
         {
             try
             {
@@ -83,75 +110,14 @@ namespace TourneyPal.DataHandling
                 SetDataToSystem(TournamentData);
 
                 //finalize apiRequestdata
-                apiResponseData.StartGGTournaments = TournamentData.data.tournaments.nodes.Select(x => x.id).ToList();
-                DataObjects.GeneralData.addApiRequestedData(apiResponseData);
-
-                DataObjects.GeneralData.saveTournaments();
+                apiResponseData.Tournaments = TournamentData.data.tournaments.nodes.Select(x => x.id).ToList();
+                GeneralData.addApiRequestedData(apiResponseData);
 
             }
             catch (Exception ex)
             {
                 Console.WriteLine("EXCEPTION: " + ex.Message);
             }
-        }
-
-        private void SetDataToSystem(StartGGJsonObject.Root tournamentData)
-        {
-            try
-            {
-                foreach (var tournament in tournamentData.data.tournaments.nodes)
-                {
-                    var systemTourney = new TournamentData()
-                    {
-                        ID = tournament.id,
-                        Name = tournament.name,
-                        CountryCode = tournament.countryCode,
-                        City = tournament.city,
-                        AddrState = tournament.addrState,
-                        StartsAT = tournament.startAt == null ? null : DateTime.UnixEpoch.AddSeconds(tournament.startAt),
-                        Online = tournament.isOnline,
-                        URL = tournament.url,
-                        State = tournament.state,
-                        VenueAddress = tournament.venueAddress,
-                        VenueName = tournament.venueName,
-                        RegistrationOpen = tournament.isRegistrationOpen,
-                        NumberOfAttendees = tournament.numAttendees,
-                        Game = tournament.events.Select(x => x.videogame?.name)?.FirstOrDefault(),
-                        Streams = tournament.streams?.Select(x => "https://www.twitch.tv/" + x.streamName)?.ToList(),
-                        TournamentHostSite = "https://www.start.gg/",
-                    };
-
-                    DataObjects.GeneralData.addTournament(systemTourney);
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("EXCEPTION: " + ex.Message);
-            }
-        }
-
-        public StartGGJsonObject.Root? CallStartGGApiAsync(string responseData)
-        {
-            try
-            {
-                StartGGJsonObject.Root startGGData = JsonConvert.DeserializeObject<StartGGJsonObject.Root>(responseData);
-                var noEvents = startGGData.data.tournaments.nodes.Where(x => x.events.Count == 0).ToList();
-                if(noEvents !=null)
-                {
-                    foreach(var item in noEvents)
-                    {
-                        startGGData.data.tournaments.nodes.Remove(item);
-                    }
-                    
-                }
-
-                return startGGData;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("EXCEPTION: " + ex.Message);
-            }
-            return null;
         }
 
         private async Task<ApiRequestedDataHandler?> ConnectAndGetData_StartGG()
@@ -189,13 +155,13 @@ namespace TourneyPal.DataHandling
                             Console.WriteLine("Invalid Response after startGG API call");
                             return null;
                         }
-                        
-                        return new ApiRequestedDataHandler 
-                        { 
+
+                        return new ApiRequestedDataHandler
+                        {
                             ApiRequestJson = JsonConvert.SerializeObject(json),
                             ApiRequestContent = request.ToString(),
                             ApiResponse = responseString,
-                            HostSite = (int)GeneralData.General.TournamentSiteHost.Start
+                            HostSite = (int)Common.TournamentSiteHost.Start
                         };
                     }
                 }
@@ -207,19 +173,57 @@ namespace TourneyPal.DataHandling
             return null;
         }
 
-        public void handleData(string tournamentID)
+        public StartGGJsonObject.Root? CallStartGGApiAsync(string responseData)
         {
             try
             {
-                //getData
-                var TournamentData = CallChallongeApiAsync(tournamentID);
-                if (TournamentData?.Result?.tournament == null)
+                StartGGJsonObject.Root startGGData = JsonConvert.DeserializeObject<StartGGJsonObject.Root>(responseData);
+                var noEvents = startGGData.data.tournaments.nodes.Where(x => x.events.Count == 0).ToList();
+                if (noEvents != null)
                 {
-                    return;
+                    foreach (var item in noEvents)
+                    {
+                        startGGData.data.tournaments.nodes.Remove(item);
+                    }
                 }
 
-                //setData
-                SetDataToSystem(TournamentData);
+                return startGGData;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("EXCEPTION: " + ex.Message);
+            }
+            return null;
+        }
+
+        private void SetDataToSystem(StartGGJsonObject.Root? tournamentData)
+        {
+            try
+            {
+                foreach (var tournament in tournamentData.data.tournaments.nodes)
+                {
+                    var systemTourney = new TournamentData()
+                    {
+                        ID = tournament.id,
+                        Name = tournament.name,
+                        CountryCode = tournament.countryCode,
+                        City = tournament.city,
+                        AddrState = tournament.addrState,
+                        StartsAT = tournament.startAt == null ? null : DateTime.UnixEpoch.AddSeconds(tournament.startAt),
+                        Online = tournament.isOnline,
+                        URL = tournament.url,
+                        State = tournament.state,
+                        VenueAddress = tournament.venueAddress,
+                        VenueName = tournament.venueName,
+                        RegistrationOpen = tournament.isRegistrationOpen,
+                        NumberOfAttendees = tournament.numAttendees==null ? 0: (int)tournament.numAttendees,
+                        Game = tournament.events.Select(x => x.videogame?.name)?.FirstOrDefault(),
+                        Streams = tournament.streams==null? new List<string>() : tournament.streams?.Select(x => "https://www.twitch.tv/" + x.streamName)?.ToList(),
+                        HostSite = Common.TournamentSiteHost.Start.AsString(EnumFormat.Description),
+                    };
+
+                    GeneralData.addTournament(systemTourney);
+                }
             }
             catch (Exception ex)
             {
@@ -227,11 +231,129 @@ namespace TourneyPal.DataHandling
             }
         }
 
-        private void SetDataToSystem(Task<ChallongeJsonObject.Root?> tournamentData)
+        public async Task handleChallongeDataASync()
         {
             try
             {
-                var tournament =tournamentData?.Result?.tournament;
+                foreach (var tournamentURL in DataObjects.GeneralData.TournamentsData
+                    .Where(x => x.HostSite.Equals(Common.TournamentSiteHost.Challonge.AsString(EnumFormat.Description)))
+                    .ToList()
+                    .Select(y=>y.URL))
+                {
+                    await handleChallongeSingleDataASync(tournamentURL);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("EXCEPTION: " + ex.Message);
+            }
+        }
+
+        private async Task handleChallongeSingleDataASync(string? tournamentURL)
+        {
+            try
+            {
+                var apiResponseData = await ConnectAndGetData_Challonge(tournamentURL);
+                if (apiResponseData == null ||
+                    String.IsNullOrEmpty(apiResponseData.ApiResponse))
+                {
+                    return;
+                }
+
+
+                //getData
+                var TournamentData = CallChallongeApiAsync(apiResponseData.ApiResponse);
+                if (TournamentData?.tournament == null)
+                {
+                    return;
+                }
+
+                if (TournamentData.tournament.game_name.ToLower().Remove(' ').Contains("soulcalibur") &&
+                    (TournamentData.tournament.game_name.ToLower().Remove(' ').Contains("6") 
+                    || TournamentData.tournament.game_name.ToLower().Remove(' ').Contains("vi")))
+                {
+                    return;
+                }
+
+                //setData
+                SetDataToSystem(TournamentData);
+
+                //finalize apiRequestdata
+                apiResponseData.Tournaments = new List<int> { TournamentData.tournament.id };
+                GeneralData.addApiRequestedData(apiResponseData);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("EXCEPTION: " + ex.Message);
+            }
+            
+        }
+
+        private async Task<ApiRequestedDataHandler?> ConnectAndGetData_Challonge(string tournamentID)
+        {
+            try
+            {
+                using (HttpClient client = new HttpClient())
+                {
+                    var uri = ChallongeConnectionData.getFullChallongeApiRequestURI(tournamentID);
+                    using (var response = await client.GetAsync(uri))
+                    {
+                        response.EnsureSuccessStatusCode();
+                        if (response?.StatusCode != System.Net.HttpStatusCode.OK)
+                        {
+                            Console.WriteLine("Invalid Status after Challonge API call: " + response?.StatusCode);
+                            return null;
+                        }
+
+                        var responseString = await response.Content.ReadAsStringAsync();
+                        if (String.IsNullOrEmpty(responseString) ||
+                            responseString.Contains("error"))
+                        {
+                            Console.WriteLine("Invalid Response after Challonge API call");
+                            return null;
+                        }
+
+                        return new ApiRequestedDataHandler
+                        {
+                            ApiRequestJson = uri,
+                            ApiRequestContent = string.Empty,
+                            ApiResponse = responseString,
+                            HostSite = (int)Common.TournamentSiteHost.Challonge
+                        };
+                    }
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("EXCEPTION: " + ex.Message);
+            }
+            return null;
+        }
+
+        public ChallongeJsonObject.Root? CallChallongeApiAsync(string responseData)
+        {
+            try
+            {
+                Console.WriteLine("Calling Challonge Api: " + System.DateTime.Now);
+
+                ChallongeJsonObject.Root challongeGGData = JsonConvert.DeserializeObject<ChallongeJsonObject.Root>(responseData);
+
+                return challongeGGData;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("EXCEPTION: " + ex.Message);
+            }
+            return null;
+        }
+
+        private void SetDataToSystem(ChallongeJsonObject.Root? tournamentData)
+        {
+            try
+            {
+                var tournament = tournamentData?.tournament;
 
                 var systemTourney = new TournamentData()
                 {
@@ -249,16 +371,11 @@ namespace TourneyPal.DataHandling
                     RegistrationOpen = tournament.open_signup,
                     NumberOfAttendees = tournament.participants_count,
                     Game = tournament.game_name,
-                    Streams = null,
-                    TournamentHostSite = "https://challonge.com/",
+                    Streams = new List<string>(),
+                    HostSite = Common.TournamentSiteHost.Challonge.AsString(EnumFormat.Description),
                 };
 
-                if(systemTourney.Game.ToLower().Remove(' ').Contains("soulcalibur"))
-                {
-                    DataObjects.GeneralData.addTournament(systemTourney);
-                }
-                
-
+                GeneralData.addTournament(systemTourney);
             }
             catch (Exception ex)
             {
@@ -266,65 +383,6 @@ namespace TourneyPal.DataHandling
             }
         }
 
-        public async Task<ChallongeJsonObject.Root?> CallChallongeApiAsync(string tournamentID)
-        {
-            try
-            {
-                Console.WriteLine("Calling Challonge Api: " + System.DateTime.Now);
-
-                var responseData = await ConnectAndGetData_Challonge(tournamentID);
-                if (String.IsNullOrEmpty(responseData))
-                {
-                    return null;
-                }
-
-                ChallongeJsonObject.Root challongeGGData = JsonConvert.DeserializeObject<ChallongeJsonObject.Root>(responseData);
-
-                return challongeGGData;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("EXCEPTION: " + ex.Message);
-            }
-            return null;
-        }
-
-        private async Task<string> ConnectAndGetData_Challonge(string tournamentID)
-        {
-            try
-            {
-                using (HttpClient client = new HttpClient())
-                {
-                    var uri = ChallongeConnectionData.getFullChallongeApiRequestURI(tournamentID);
-                    using (var response = await client.GetAsync(uri))
-                    {
-                        response.EnsureSuccessStatusCode();
-                        if (response?.StatusCode != System.Net.HttpStatusCode.OK)
-                        {
-                            Console.WriteLine("Invalid Status after Challonge API call: " + response?.StatusCode);
-                            return string.Empty;
-                        }
-
-                        var responseString = await response.Content.ReadAsStringAsync();
-                        if (String.IsNullOrEmpty(responseString) ||
-                            responseString.Contains("error"))
-                        {
-                            Console.WriteLine("Invalid Response after Challonge API call");
-                            return string.Empty;
-                        }
-
-                        return responseString;
-                    }
-                }
-
-
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("EXCEPTION: " + ex.Message);
-            }
-            return string.Empty;
-        }
 
     }
 }

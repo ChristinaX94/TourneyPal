@@ -13,7 +13,6 @@ namespace TourneyPal
             try
             {
                 Initialize();
-                //Test();
                 var tourneyPal = new Bot();
                 var apiHandler = new ApiHandler();
                 await Task.WhenAll(tourneyPal.runAsync(), apiHandler.runAsync());

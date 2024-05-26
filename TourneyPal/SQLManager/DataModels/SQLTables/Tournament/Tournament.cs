@@ -16,6 +16,12 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament
             Result result = new Result();
             try
             {
+                result = this.initializeRows();
+                if (!result.success)
+                {
+                    return result;
+                }
+
                 while (reader.Read())
                 {
                     TournamentRow row = new TournamentRow(GetType().Name);

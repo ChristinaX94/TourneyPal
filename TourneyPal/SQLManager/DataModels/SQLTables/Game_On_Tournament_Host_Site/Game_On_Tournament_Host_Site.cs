@@ -17,6 +17,12 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Game_On_Tournament_Host_Sit
             Result result = new Result();
             try
             {
+                result = this.initializeRows();
+                if (!result.success)
+                {
+                    return result;
+                }
+
                 while (reader.Read())
                 {
                     Game_On_Tournament_Host_SiteRow row = new Game_On_Tournament_Host_SiteRow(GetType().Name);
