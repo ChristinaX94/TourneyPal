@@ -203,11 +203,7 @@ namespace TourneyPal.DataHandling.DataObjects
             try
             {
                 var listSaved = TournamentsData.Where(x => x.isModified).ToList();
-                if (listSaved == null || listSaved.Count == 0)
-                {
-                    return;
-                }
-
+                
                 foreach (var request in ApiRequestedData)
                 {
                     var relatedTournaments = new Related_Tournaments_Api_Call();
@@ -227,21 +223,19 @@ namespace TourneyPal.DataHandling.DataObjects
                         return;
                     }
 
+                    if (listSaved == null || listSaved.Count == 0)
+                    {
+                        continue;
+                    }
                     var relatedTournamentIDs = new List<int>();
 
-                    if (request.StartGGTournaments!=null && request.StartGGTournaments.Count > 0)
+                    if (request.Tournaments!=null && request.Tournaments.Count > 0)
                     {
                         var listSavedStartGG = listSaved.Where(y => y.HostSite.Equals(Common.TournamentSiteHost.Start.AsString(EnumFormat.Description))).Select(x => x.ID).ToList();
-                        request.StartGGTournaments.RemoveAll(x => !listSavedStartGG.Contains(x));
-                        relatedTournamentIDs.AddRange(request.StartGGTournaments);
+                        request.Tournaments.RemoveAll(x => !listSavedStartGG.Contains(x));
+                        relatedTournamentIDs.AddRange(request.Tournaments);
                     }
-                    if (request.ChallongeTournaments != null && request.ChallongeTournaments.Count > 0)
-                    {
-                        var listSavedChallonge = listSaved.Where(y => y.HostSite.Equals(Common.TournamentSiteHost.Challonge.AsString(EnumFormat.Description))).Select(x => x.ID).ToList();
-                        request.ChallongeTournaments.RemoveAll(x => !listSavedChallonge.Contains(x));
-                        relatedTournamentIDs.AddRange(request.ChallongeTournaments);
-                    }
-
+                    
                     foreach(var relatedTournamentID in relatedTournamentIDs)
                     {
                         Related_Tournaments_Api_CallRow relatedTournament = new Related_Tournaments_Api_CallRow(nameof(relatedTournaments));
