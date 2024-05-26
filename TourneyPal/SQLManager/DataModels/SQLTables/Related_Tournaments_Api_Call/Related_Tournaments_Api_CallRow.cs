@@ -14,7 +14,9 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Related_Tournaments_Api_Cal
         {
         }
 
-        public int? Tournament_ID { get; private set; }
+        public int? Tournament_ID { get; set; }
+
+        public int? TournamentApiData_ID { get; set; }
 
         public override Result loadRow(MySqlDataReader reader)
         {
@@ -36,6 +38,15 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Related_Tournaments_Api_Cal
                 }
                 Tournament_ID = (int)tournament_ID;
 
+                //TournamentApiData_ID
+                var tournamentApiData_ID = convertToInt(nameof(TournamentApiData_ID), reader[nameof(TournamentApiData_ID)]?.ToString());
+                if (tournamentApiData_ID == null)
+                {
+                    result.success = false;
+                    return result;
+                }
+                TournamentApiData_ID = (int)tournamentApiData_ID;
+
                 result.success = true;
             }
             catch (Exception ex)
@@ -56,6 +67,8 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Related_Tournaments_Api_Cal
                     result.success = false;
                     result.message = nameof(this.Tournament_ID) + ", of table: " + this.tableName + "-- Cannot be null";
                 }
+
+                result.success = true;
             }
             catch (Exception ex)
             {
