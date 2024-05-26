@@ -217,7 +217,7 @@ namespace TourneyPal.DataHandling
                         VenueName = tournament.venueName,
                         RegistrationOpen = tournament.isRegistrationOpen,
                         NumberOfAttendees = tournament.numAttendees==null ? 0: (int)tournament.numAttendees,
-                        Game = tournament.events.Select(x => x.videogame?.name)?.FirstOrDefault(),
+                        Game = Common.getGameType(tournament.events.Select(x => x.videogame?.name)?.FirstOrDefault())?.AsString(EnumFormat.Description),
                         Streams = tournament.streams==null? new List<string>() : tournament.streams?.Select(x => "https://www.twitch.tv/" + x.streamName)?.ToList(),
                         HostSite = Common.TournamentSiteHost.Start.AsString(EnumFormat.Description),
                     };
@@ -267,10 +267,8 @@ namespace TourneyPal.DataHandling
                 {
                     return;
                 }
-
-                if (TournamentData.tournament.game_name.ToLower().Remove(' ').Contains("soulcalibur") &&
-                    (TournamentData.tournament.game_name.ToLower().Remove(' ').Contains("6") 
-                    || TournamentData.tournament.game_name.ToLower().Remove(' ').Contains("vi")))
+                
+                if(!Common.gameIsSoulCalibur6(TournamentData.tournament.game_name))
                 {
                     return;
                 }
@@ -370,7 +368,7 @@ namespace TourneyPal.DataHandling
                     VenueName = string.Empty,
                     RegistrationOpen = tournament.open_signup,
                     NumberOfAttendees = tournament.participants_count,
-                    Game = tournament.game_name,
+                    Game = Common.getGameType(tournament.game_name)?.AsString(EnumFormat.Description),
                     Streams = new List<string>(),
                     HostSite = Common.TournamentSiteHost.Challonge.AsString(EnumFormat.Description),
                 };
