@@ -1,4 +1,5 @@
 ﻿using MySql.Data.MySqlClient;
+using System.Runtime.Serialization;
 using TourneyPal.Commons;
 using TourneyPal.SQLManager.DataModels;
 
@@ -25,7 +26,7 @@ namespace TourneyPal.SQLManager
             return null;
         }
 
-        public Result saveData(Model model)
+        public Model saveData(Model model)
         {
             Result result = new Result();
             try
@@ -37,37 +38,36 @@ namespace TourneyPal.SQLManager
                 {
                     result.success = true;
                     result.message = "Nothing to save on " + model?.GetType().Name;
-                    return result;
+                    return null;
                 }
 
                 var tableType = model.GetType();
 
                 var rowType = model.rows.FirstOrDefault().GetType();
-                var rowProperties = rowType.GetProperties().Select(x => x.Name).ToList();
-                rowProperties.Remove(nameof(ModelRow.ID));
+                var rowProperties = rowType.GetProperties().Where(pi => !Attribute.IsDefined(pi, typeof(IgnoreDataMemberAttribute))).Select(x => x.Name).ToList();
 
                 result = insertData(model, connection, tableType, rowProperties);
                 if (!result.success)
                 {
                     result.message = "Error inserting rows of " + tableType.Name;
-                    return result;
+                    return null;
                 }
 
                 result = updateData(model, connection, tableType, rowProperties);
                 if (!result.success)
                 {
                     result.message = "Error updating rows of " + tableType.Name;
-                    return result;
+                    return null;
                 }
 
-                return result;
+                return model;
             }
             catch (Exception ex)
             {
                 result.success = false;
                 result.message = ex.Message;
             }
-            return result;
+            return null;
         }
 
         private Result insertData(Model model, SQLConnection connection, Type tableType, List<string> rowProperties)
@@ -91,7 +91,7 @@ namespace TourneyPal.SQLManager
                     return result;
                 }
 
-                result = connection.Save(sqlInsert, model);
+                result = connection.SaveInsert(sqlInsert, model);
                 if (!result.success)
                 {
                     result.message = "Error inserting rows of " + tableType.Name;
@@ -150,7 +150,7 @@ namespace TourneyPal.SQLManager
             var result = new Result();
             try
             {
-                if (model.rows.Where(x => x.ID > 0).Count() == 0)
+                if (model.rows.Where(x => x.ID > 0 && x.isModified).Count() == 0)
                 {
                     result.success = true;
                     result.message = "Nothing to update on " + model?.GetType().Name;
@@ -158,7 +158,7 @@ namespace TourneyPal.SQLManager
                 }
 
                 //update
-                var sqlUpdate = getUpdateQuery(model.rows.Where(x => x.ID > 0).ToArray(), connection, tableType, rowProperties);
+                var sqlUpdate = getUpdateQuery(model.rows.Where(x => x.ID > 0 && x.isModified).ToArray(), connection, tableType, rowProperties);
                 if (sqlUpdate == null)
                 {
                     result.success = false;
@@ -166,7 +166,7 @@ namespace TourneyPal.SQLManager
                     return result;
                 }
 
-                result = connection.Save(sqlUpdate, model);
+                result = connection.SaveUpdate(sqlUpdate, model);
                 if (!result.success)
                 {
                     result.message = "Error updating rows of " + tableType.Name;

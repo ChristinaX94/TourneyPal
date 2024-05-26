@@ -16,5 +16,7 @@ namespace TourneyPal.SQLManager.DataModels
 
         public Result validate();
 
+        public Result initializeRows();
+
     }
 }

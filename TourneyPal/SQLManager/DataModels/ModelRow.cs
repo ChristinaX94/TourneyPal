@@ -2,10 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using TourneyPal.Commons;
-using TourneyPal.GeneralData;
 
 namespace TourneyPal.SQLManager.DataModels
 {
@@ -14,12 +14,21 @@ namespace TourneyPal.SQLManager.DataModels
         public ModelRow(string? tableName)
         {
             this.tableName = tableName;
+            this.isModified = false;
         }
 
+        [IgnoreDataMember]
         protected string? tableName { get; set; }
+
+        [IgnoreDataMember]
         public int ID { get; private set; }
+
+        [IgnoreDataMember]
+        public bool isModified { get; set; }
+
         public DateTime? DateUpdated { get; private set; }
         public DateTime? DateInserted { get; private set; }
+
 
         public virtual Result loadRow(MySqlDataReader reader)
         {
@@ -95,8 +104,8 @@ namespace TourneyPal.SQLManager.DataModels
             Result result = new Result();
             try
             {
-                this.DateInserted = General.getDate();
-                this.DateUpdated = General.getDate();
+                this.DateInserted = Common.getDate();
+                this.DateUpdated = Common.getDate();
             }
             catch (Exception ex)
             {
@@ -106,12 +115,12 @@ namespace TourneyPal.SQLManager.DataModels
             return result;
         }
 
-        public Result insertRowData()
+        public Result updateRowData()
         {
             Result result = new Result();
             try
             {
-                this.DateUpdated = General.getDate();
+                this.DateUpdated = Common.getDate();
             }
             catch (Exception ex)
             {
@@ -179,6 +188,11 @@ namespace TourneyPal.SQLManager.DataModels
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
                 return null;
             }
+        }
+
+        public void setNewID(int newID)
+        {
+            this.ID = newID;
         }
     }
 }

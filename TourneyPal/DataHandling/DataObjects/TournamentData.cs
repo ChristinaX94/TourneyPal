@@ -21,10 +21,10 @@ namespace TourneyPal.DataHandling.DataObjects
         public string VenueAddress { get; set; }
         public string VenueName { get; set; }
         public bool? RegistrationOpen { get; set; }
-        public int? NumberOfAttendees { get; set; }
+        public int NumberOfAttendees { get; set; }
         public string Game { get; set; }
         public List<string> Streams { get; set; }
-        public string TournamentHostSite { get; set; }
+        public string HostSite { get; set; }
 
         public bool isModified { get; set; } = false;
     }

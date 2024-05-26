@@ -15,6 +15,12 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Stream
             Result result = new Result();
             try
             {
+                result = this.initializeRows();
+                if (!result.success)
+                {
+                    return result;
+                }
+
                 while (reader.Read())
                 {
                     StreamRow row = new StreamRow(GetType().Name);
