@@ -110,7 +110,7 @@ namespace TourneyPal.DataHandling
                 SetDataToSystem(TournamentData);
 
                 //finalize apiRequestdata
-                apiResponseData.StartGGTournaments = TournamentData.data.tournaments.nodes.Select(x => x.id).ToList();
+                apiResponseData.Tournaments = TournamentData.data.tournaments.nodes.Select(x => x.id).ToList();
                 GeneralData.addApiRequestedData(apiResponseData);
 
             }
@@ -279,7 +279,7 @@ namespace TourneyPal.DataHandling
                 SetDataToSystem(TournamentData);
 
                 //finalize apiRequestdata
-                apiResponseData.ChallongeTournaments = new List<int> { TournamentData.tournament.id };
+                apiResponseData.Tournaments = new List<int> { TournamentData.tournament.id };
                 GeneralData.addApiRequestedData(apiResponseData);
             }
             catch (Exception ex)

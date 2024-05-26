@@ -189,5 +189,10 @@ namespace TourneyPal.SQLManager.DataModels
                 return null;
             }
         }
+
+        public void setNewID(int newID)
+        {
+            this.ID = newID;
+        }
     }
 }
