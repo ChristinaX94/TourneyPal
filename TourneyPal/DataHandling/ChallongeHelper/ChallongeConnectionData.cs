@@ -12,18 +12,18 @@ namespace TourneyPal.DataHandling.ChallongeHelper
         /// <summary>
         /// Auth Token of Challonge
         /// </summary>
-        public const string ChallongeToken = "XIkXgh8o82D8ulgwJ4viTCd613Kq2SxPobjRv77l";
+        public static readonly string ChallongeToken = System.Configuration.ConfigurationManager.AppSettings["ChallongeToken"];
 
         /// <summary>
         /// Username of Challonge User
         /// </summary>
-        public const string ChallongeUser = "Frieden";
+        public static readonly string ChallongeUser = System.Configuration.ConfigurationManager.AppSettings["ChallongeUser"];
 
         /// <summary>
         /// API Endpoint of Challonge 
         /// https://username:api-key@api.challonge.com/v1/...
         /// </summary>
-        public const string ChallongeEndpoint = "https://"+ ChallongeUser + ":"+ ChallongeToken + "@api.challonge.com/v1/tournaments/";
+        public static readonly string ChallongeEndpoint = "https://"+ ChallongeUser + ":"+ ChallongeToken + "@api.challonge.com/v1/tournaments/";
 
         /// <summary>
         /// Always requesting Challonge data in json format
