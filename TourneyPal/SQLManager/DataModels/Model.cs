@@ -1,4 +1,6 @@
 ﻿using MySql.Data.MySqlClient;
+using System.Reflection;
+using TourneyPal.Commons;
 using Result = TourneyPal.Commons.Result;
 
 namespace TourneyPal.SQLManager.DataModels
@@ -25,7 +27,8 @@ namespace TourneyPal.SQLManager.DataModels
             catch (Exception ex)
             {
                 result.success = false;
-                result.message = ex.Message;
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return result;
         }
@@ -48,7 +51,8 @@ namespace TourneyPal.SQLManager.DataModels
             catch (Exception ex)
             {
                 result.success = false;
-                result.message = ex.Message;
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return result;
         }
@@ -73,7 +77,8 @@ namespace TourneyPal.SQLManager.DataModels
             catch (Exception ex)
             {
                 result.success = false;
-                result.message = ex.Message;
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return result;
         }

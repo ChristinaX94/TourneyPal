@@ -1,4 +1,6 @@
-﻿using TourneyPal.BotHandling;
+﻿using System.Reflection;
+using TourneyPal.BotHandling;
+using TourneyPal.Commons;
 using TourneyPal.DataHandling;
 using TourneyPal.DataHandling.DataObjects;
 using TourneyPal.SQLManager;
@@ -19,7 +21,8 @@ namespace TourneyPal
             }
             catch (Exception ex)
             {
-                Console.WriteLine("EXCEPTION: " + ex.Message);
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
         }
 
