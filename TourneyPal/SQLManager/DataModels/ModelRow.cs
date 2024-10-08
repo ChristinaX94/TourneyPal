@@ -1,7 +1,9 @@
-﻿using MySql.Data.MySqlClient;
+﻿using Google.Protobuf.WellKnownTypes;
+using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
@@ -67,7 +69,8 @@ namespace TourneyPal.SQLManager.DataModels
             catch (Exception ex)
             {
                 result.success = false;
-                result.message = ex.Message;
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return result;
         }
@@ -80,13 +83,15 @@ namespace TourneyPal.SQLManager.DataModels
                 if(this.DateUpdated == null)
                 {
                     result.success = false;
-                    result.message = nameof(this.DateUpdated) + ", of table: " + this.tableName + "-- Cannot be null";
+                    Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                               messageItem: nameof(this.DateUpdated) + ", of table: " + this.tableName + "-- Cannot be null");
                 }
 
                 if (this.DateInserted == null)
                 {
                     result.success = false;
-                    result.message = nameof(this.DateInserted) + ", of table: " + this.tableName + "-- Cannot be null";
+                    Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                               messageItem: nameof(this.DateInserted) + ", of table: " + this.tableName + "-- Cannot be null");
                 }
 
                 result.success = true;
@@ -94,7 +99,8 @@ namespace TourneyPal.SQLManager.DataModels
             catch (Exception ex)
             {
                 result.success = false;
-                result.message = ex.Message;
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return result;
         }
@@ -110,7 +116,8 @@ namespace TourneyPal.SQLManager.DataModels
             catch (Exception ex)
             {
                 result.success = false;
-                result.message = ex.Message;
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return result;
         }
@@ -125,7 +132,8 @@ namespace TourneyPal.SQLManager.DataModels
             catch (Exception ex)
             {
                 result.success = false;
-                result.message = ex.Message;
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return result;
         }
@@ -140,6 +148,7 @@ namespace TourneyPal.SQLManager.DataModels
             catch (Exception ex)
             {
                 Logger.log(messageItem: "Error converting " + name + ": " + value + ", of table: " + this.tableName,
+                           foundInItem: MethodBase.GetCurrentMethod(),
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
                 return null;
             }
@@ -155,6 +164,7 @@ namespace TourneyPal.SQLManager.DataModels
             catch (Exception ex)
             {
                 Logger.log(messageItem: "Error converting " + name + ": " + value + ", of table: " + this.tableName,
+                           foundInItem: MethodBase.GetCurrentMethod(),
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
                 return null;
             }
@@ -170,6 +180,7 @@ namespace TourneyPal.SQLManager.DataModels
             catch (Exception ex)
             {
                 Logger.log(messageItem: "Error converting " + name + ": " + value + ", of table: " + this.tableName,
+                           foundInItem: MethodBase.GetCurrentMethod(),
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
                 return null;
             }
@@ -185,6 +196,7 @@ namespace TourneyPal.SQLManager.DataModels
             catch (Exception ex)
             {
                 Logger.log(messageItem: "Error converting " + name + ": " + value + ", of table: " + this.tableName,
+                           foundInItem: MethodBase.GetCurrentMethod(),
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
                 return null;
             }

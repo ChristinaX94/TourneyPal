@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using TourneyPal.Commons;
@@ -65,7 +66,8 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament_Host_Sites
             catch (Exception ex)
             {
                 result.success = false;
-                result.message = ex.Message;
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return result;
         }
@@ -84,19 +86,19 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament_Host_Sites
                 if (string.IsNullOrEmpty(this.Site))
                 {
                     result.success = false;
-                    result.message = nameof(this.Site) + ", of table: " + this.tableName + "-- Cannot be null";
+                    Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: nameof(this.Site) + ", of table: " + this.tableName + "-- Cannot be null");
                 }
 
                 if (string.IsNullOrEmpty(this.Token))
                 {
                     result.success = false;
-                    result.message = nameof(this.Token) + ", of table: " + this.tableName + "-- Cannot be null";
+                    Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: nameof(this.Token) + ", of table: " + this.tableName + "-- Cannot be null");
                 }
 
                 if (string.IsNullOrEmpty(this.Endpoint))
                 {
                     result.success = false;
-                    result.message = nameof(this.Endpoint) + ", of table: " + this.tableName + "-- Cannot be null";
+                    Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: nameof(this.Endpoint) + ", of table: " + this.tableName + "-- Cannot be null");
                 }
 
                 result.success = true;
@@ -104,7 +106,8 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament_Host_Sites
             catch (Exception ex)
             {
                 result.success = false;
-                result.message = ex.Message;
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return result;
         }

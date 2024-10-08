@@ -7,17 +7,17 @@ using System.Text;
 using System.Threading.Tasks;
 using TourneyPal.Commons;
 
-namespace TourneyPal.SQLManager.DataModels.SQLTables.Related_Tournaments_Api_Call
+namespace TourneyPal.SQLManager.DataModels.SQLTables.Errorlogs
 {
-    public class Related_Tournaments_Api_CallRow : ModelRow
+    public class ErrorlogsRow : ModelRow
     {
-        public Related_Tournaments_Api_CallRow(string? tableName) : base(tableName)
+        public ErrorlogsRow(string? tableName) : base(tableName)
         {
         }
 
-        public int? Tournament_ID { get; set; }
-
-        public int? TournamentApiData_ID { get; set; }
+        public string? Message { get; set; }
+        public string? ExceptionMessage { get; set; }
+        public string? FoundIn { get; set; }
 
         public override Result loadRow(MySqlDataReader reader)
         {
@@ -30,23 +30,20 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Related_Tournaments_Api_Cal
                     return result;
                 }
 
-                //Tournament_ID
-                var tournament_ID = convertToInt(nameof(Tournament_ID), reader[nameof(Tournament_ID)]?.ToString());
-                if (tournament_ID == null)
-                {
-                    result.success = false;
-                    return result;
-                }
-                Tournament_ID = (int)tournament_ID;
+                //Message
+                Message = reader[nameof(Message)].ToString();
 
-                //TournamentApiData_ID
-                var tournamentApiData_ID = convertToInt(nameof(TournamentApiData_ID), reader[nameof(TournamentApiData_ID)]?.ToString());
-                if (tournamentApiData_ID == null)
+                //ExceptionMessage
+                ExceptionMessage = reader[nameof(ExceptionMessage)]?.ToString();
+
+                //FoundIn
+                if (reader[nameof(FoundIn)] == null ||
+                    string.IsNullOrEmpty(reader[nameof(FoundIn)].ToString()))
                 {
                     result.success = false;
                     return result;
                 }
-                TournamentApiData_ID = (int)tournamentApiData_ID;
+                FoundIn = reader[nameof(FoundIn)].ToString();
 
                 result.success = true;
             }
@@ -64,10 +61,16 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Related_Tournaments_Api_Cal
             Result result = new Result();
             try
             {
-                if (this.Tournament_ID == null)
+                result = base.validateRow();
+                if (!result.success)
+                {
+                    return result;
+                }
+
+                if (string.IsNullOrEmpty(this.FoundIn))
                 {
                     result.success = false;
-                    Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: nameof(this.Tournament_ID) + ", of table: " + this.tableName + "-- Cannot be null");
+                    Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: nameof(this.FoundIn) + ", of table: " + this.tableName + "-- Cannot be null");
                 }
 
                 result.success = true;
@@ -82,5 +85,4 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Related_Tournaments_Api_Cal
         }
 
     }
-
 }
