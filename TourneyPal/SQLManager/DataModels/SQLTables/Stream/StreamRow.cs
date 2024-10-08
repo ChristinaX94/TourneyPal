@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
@@ -53,7 +54,8 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Stream
             catch (Exception ex)
             {
                 result.success = false;
-                result.message = ex.Message;
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return result;
         }
@@ -72,13 +74,13 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Stream
                 if (this.Tournament_ID == null)
                 {
                     result.success = false;
-                    result.message = nameof(this.Tournament_ID) + ", of table: " + this.tableName + "-- Cannot be null";
+                    Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: nameof(this.Tournament_ID) + ", of table: " + this.tableName + "-- Cannot be null");
                 }
 
                 if (string.IsNullOrEmpty(this.Title))
                 {
                     result.success = false;
-                    result.message = nameof(this.Title) + ", of table: " + this.tableName + "-- Cannot be null";
+                    Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: nameof(this.Title) + ", of table: " + this.tableName + "-- Cannot be null");
                 }
 
                 result.success = true;
@@ -86,7 +88,8 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Stream
             catch (Exception ex)
             {
                 result.success = false;
-                result.message = ex.Message;
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return result;
         }

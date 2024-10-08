@@ -1,15 +1,17 @@
 ﻿using MySql.Data.MySqlClient;
+using Mysqlx.Crud;
+using System.Reflection;
 using System.Runtime.Serialization;
 using TourneyPal.Commons;
 using TourneyPal.SQLManager.DataModels;
+using Type = System.Type;
 
 namespace TourneyPal.SQLManager
 {
-    public class SQLHandler
+    public static class SQLHandler
     {
-        public Model loadModelData(Model model)
+        public static Model? loadModelData(Model model)
         {
-            Result result = new Result();
             try
             {
                 var connection = new SQLConnection();
@@ -20,15 +22,15 @@ namespace TourneyPal.SQLManager
             }
             catch (Exception ex)
             {
-                result.success = false;
-                result.message = ex.Message;
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(), 
+                           messageItem: "Error loading model",
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return null;
         }
 
-        public Model saveData(Model model)
+        public static Model saveData(Model model)
         {
-            Result result = new Result();
             try
             {
                 var connection = new SQLConnection();
@@ -36,8 +38,7 @@ namespace TourneyPal.SQLManager
                 if (model?.rows == null ||
                    model.rows.Count == 0)
                 {
-                    result.success = true;
-                    result.message = "Nothing to save on " + model?.GetType().Name;
+                    Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: "Nothing to save on " + model?.GetType().Name);
                     return null;
                 }
 
@@ -46,17 +47,17 @@ namespace TourneyPal.SQLManager
                 var rowType = model.rows.FirstOrDefault().GetType();
                 var rowProperties = rowType.GetProperties().Where(pi => !Attribute.IsDefined(pi, typeof(IgnoreDataMemberAttribute))).Select(x => x.Name).ToList();
 
-                result = insertData(model, connection, tableType, rowProperties);
+                var result = insertData(model, connection, tableType, rowProperties);
                 if (!result.success)
                 {
-                    result.message = "Error inserting rows of " + tableType.Name;
+                    Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: "Error inserting rows of " + tableType.Name);
                     return null;
                 }
 
                 result = updateData(model, connection, tableType, rowProperties);
                 if (!result.success)
                 {
-                    result.message = "Error updating rows of " + tableType.Name;
+                    Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: "Error updating rows of " + tableType.Name);
                     return null;
                 }
 
@@ -64,13 +65,14 @@ namespace TourneyPal.SQLManager
             }
             catch (Exception ex)
             {
-                result.success = false;
-                result.message = ex.Message;
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                           messageItem: "Error loading model",
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return null;
         }
 
-        private Result insertData(Model model, SQLConnection connection, Type tableType, List<string> rowProperties)
+        private static Result insertData(Model model, SQLConnection connection, Type tableType, List<string> rowProperties)
         {
             var result = new Result();
             try
@@ -78,7 +80,7 @@ namespace TourneyPal.SQLManager
                 if(model.rows.Where(x => x.ID == 0).Count() == 0)
                 {
                     result.success = true;
-                    result.message = "Nothing to insert on " + model?.GetType().Name;
+                    Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: "Nothing to insert on " + model?.GetType().Name);
                     return result;
                 }
 
@@ -87,28 +89,28 @@ namespace TourneyPal.SQLManager
                 if (sqlInsert == null)
                 {
                     result.success = false;
-                    result.message = "Error creating insert save query of " + tableType.Name;
+                    Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: "Error creating insert save query of " + tableType.Name);
                     return result;
                 }
 
                 result = connection.SaveInsert(sqlInsert, model);
                 if (!result.success)
                 {
-                    result.message = "Error inserting rows of " + tableType.Name;
+                    Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: "Error inserting rows of " + tableType.Name);
                     return result;
                 }
             }
             catch (Exception ex)
             {
                 result.success = false;
-                result.message = ex.Message;
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return result;
         }
 
-        private SQLItem getInsertQuery(ModelRow[] inserts, SQLConnection connection, Type tableType, List<string> rowProperties)
+        private static SQLItem getInsertQuery(ModelRow[] inserts, SQLConnection connection, Type tableType, List<string> rowProperties)
         {
-            Result result = new Result();
             string propertiesStr;
             string insertQuery;
             List<string> insertQueryStrs = new List<string>();
@@ -138,14 +140,14 @@ namespace TourneyPal.SQLManager
             }
             catch (Exception ex)
             {
-                result.success = false;
-                result.message = ex.Message;
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return null;
             
         }
 
-        private Result updateData(Model model, SQLConnection connection, Type tableType, List<string> rowProperties)
+        private static Result updateData(Model model, SQLConnection connection, Type tableType, List<string> rowProperties)
         {
             var result = new Result();
             try
@@ -153,7 +155,7 @@ namespace TourneyPal.SQLManager
                 if (model.rows.Where(x => x.ID > 0 && x.isModified).Count() == 0)
                 {
                     result.success = true;
-                    result.message = "Nothing to update on " + model?.GetType().Name;
+                    Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: "Nothing to update on " + model?.GetType().Name);
                     return result;
                 }
 
@@ -162,25 +164,26 @@ namespace TourneyPal.SQLManager
                 if (sqlUpdate == null)
                 {
                     result.success = false;
-                    result.message = "Error creating update save query of " + tableType.Name;
+                    Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: "Error creating update save query of " + tableType.Name);
                     return result;
                 }
 
                 result = connection.SaveUpdate(sqlUpdate, model);
                 if (!result.success)
                 {
-                    result.message = "Error updating rows of " + tableType.Name;
+                    Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: "Error updating rows of " + tableType.Name);
                     return result;
                 }
             }
             catch (Exception ex)
             {
                 result.success = false;
-                result.message = ex.Message;
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return result;
         }
-        private SQLItem getUpdateQuery(ModelRow[] updates, SQLConnection connection, Type tableType, List<string> rowProperties)
+        private static SQLItem? getUpdateQuery(ModelRow[] updates, SQLConnection connection, Type tableType, List<string> rowProperties)
         {
             Result result = new Result();
             List<string> updateQueries = new List<string>(); ;
@@ -208,7 +211,8 @@ namespace TourneyPal.SQLManager
             catch (Exception ex)
             {
                 result.success = false;
-                result.message = ex.Message;
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return null;
 

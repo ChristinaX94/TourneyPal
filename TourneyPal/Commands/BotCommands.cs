@@ -5,6 +5,9 @@ using DSharpPlus.Interactivity.Enums;
 using DSharpPlus.Interactivity.EventHandling;
 using DSharpPlus.Interactivity.Extensions;
 using DSharp​Plus.SlashCommands;
+using Google.Protobuf.WellKnownTypes;
+using System.Reflection;
+using TourneyPal.Commons;
 
 namespace TourneyPal
 {
@@ -85,8 +88,8 @@ namespace TourneyPal
             }
             catch (Exception ex)
             {
-
-                throw;
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
         }
 
@@ -104,7 +107,8 @@ namespace TourneyPal
             }
             catch (Exception ex)
             {
-                Console.WriteLine("EXCEPTION: " + ex.Message);
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
                 list = new List<Page>();
             }
             return list;

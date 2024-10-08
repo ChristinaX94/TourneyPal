@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using TourneyPal.Commons;
@@ -149,7 +150,8 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament
             catch (Exception ex)
             {
                 result.success = false;
-                result.message = ex.Message;
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return result;
         }
@@ -168,49 +170,49 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament
                 if (this.HostSite_ID == null)
                 {
                     result.success = false;
-                    result.message = nameof(this.HostSite_ID) + ", of table: " + this.tableName + "-- Cannot be null";
+                    Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: nameof(this.HostSite_ID) + ", of table: " + this.tableName + "-- Cannot be null");
                 }
 
                 if (this.Tournament_ID == null)
                 {
                     result.success = false;
-                    result.message = nameof(this.Tournament_ID) + ", of table: " + this.tableName + "-- Cannot be null";
+                    Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: nameof(this.Tournament_ID) + ", of table: " + this.tableName + "-- Cannot be null");
                 }
 
                 if (this.StartsAT == null)
                 {
                     result.success = false;
-                    result.message = nameof(this.StartsAT) + ", of table: " + this.tableName + "-- Cannot be null";
+                    Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: nameof(this.StartsAT) + ", of table: " + this.tableName + "-- Cannot be null");
                 }
 
                 if (this.Online == null)
                 {
                     result.success = false;
-                    result.message = nameof(this.Online) + ", of table: " + this.tableName + "-- Cannot be null";
+                    Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: nameof(this.Online) + ", of table: " + this.tableName + "-- Cannot be null");
                 }
 
                 if (string.IsNullOrEmpty(this.URL))
                 {
                     result.success = false;
-                    result.message = nameof(this.URL) + ", of table: " + this.tableName + "-- Cannot be null";
+                    Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: nameof(this.URL) + ", of table: " + this.tableName + "-- Cannot be null");
                 }
 
                 if (this.RegistrationOpen == null)
                 {
                     result.success = false;
-                    result.message = nameof(this.RegistrationOpen) + ", of table: " + this.tableName + "-- Cannot be null";
+                    Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: nameof(this.RegistrationOpen) + ", of table: " + this.tableName + "-- Cannot be null");
                 }
 
                 if (this.Game_ID == null)
                 {
                     result.success = false;
-                    result.message = nameof(this.Game_ID) + ", of table: " + this.tableName + "-- Cannot be null";
+                    Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: nameof(this.Game_ID) + ", of table: " + this.tableName + "-- Cannot be null");
                 }
 
                 if (this.IsExpired == null)
                 {
                     result.success = false;
-                    result.message = nameof(this.IsExpired) + ", of table: " + this.tableName + "-- Cannot be null";
+                    Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: nameof(this.IsExpired) + ", of table: " + this.tableName + "-- Cannot be null");
                 }
 
                 result.success = true;
@@ -219,7 +221,8 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament
             catch (Exception ex)
             {
                 result.success = false;
-                result.message = ex.Message;
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return result;
         }

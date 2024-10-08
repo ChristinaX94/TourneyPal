@@ -3,14 +3,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 using TourneyPal.Commons;
+using TourneyPal.SQLManager.DataModels.SQLTables.Game;
 
-namespace TourneyPal.SQLManager.DataModels.SQLTables.Game
+namespace TourneyPal.SQLManager.DataModels.SQLTables.Errorlogs
 {
-    public class Game : Model
+    public class Errorlogs : Model
     {
         public override Result load(MySqlDataReader reader)
         {
@@ -25,7 +25,7 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Game
 
                 while (reader.Read())
                 {
-                    GameRow row = new GameRow(GetType().Name);
+                    ErrorlogsRow row = new ErrorlogsRow(GetType().Name);
                     result = row.loadRow(reader);
                     if (!result.success)
                     {

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using TourneyPal.Commons;
@@ -59,7 +60,8 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament_Api_Data
             catch (Exception ex)
             {
                 result.success = false;
-                result.message = ex.Message;
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return result;
         }
@@ -72,13 +74,13 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament_Api_Data
                 if (this.TournamentHostSite_ID == null)
                 {
                     result.success = false;
-                    result.message = nameof(this.TournamentHostSite_ID) + ", of table: " + this.tableName + "-- Cannot be null";
+                    Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: nameof(this.TournamentHostSite_ID) + ", of table: " + this.tableName + "-- Cannot be null");
                 }
                 
                 if (string.IsNullOrEmpty(this.Response))
                 {
                     result.success = false;
-                    result.message = nameof(this.Response) + ", of table: " + this.tableName + "-- Cannot be null";
+                    Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: nameof(this.Response) + ", of table: " + this.tableName + "-- Cannot be null");
                 }
 
                 result.success = true;
@@ -86,7 +88,8 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament_Api_Data
             catch (Exception ex)
             {
                 result.success = false;
-                result.message = ex.Message;
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return result;
         }
