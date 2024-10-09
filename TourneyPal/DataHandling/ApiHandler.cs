@@ -17,6 +17,8 @@ using TourneyPal.DataHandling.DataObjects;
 using EnumsNET;
 using TourneyPal.DataHandling.ChallongeHelper;
 using System.Net;
+using System.Reflection;
+using TourneyPal.Commons;
 
 namespace TourneyPal.DataHandling
 {
@@ -53,7 +55,8 @@ namespace TourneyPal.DataHandling
             }
             catch (Exception ex)
             {
-                Console.WriteLine("EXCEPTION: " + ex.Message);
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
         }
 
@@ -68,7 +71,8 @@ namespace TourneyPal.DataHandling
             }
             catch (Exception ex)
             {
-                Console.WriteLine("EXCEPTION: " + ex.Message);
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
 
         }
@@ -83,7 +87,8 @@ namespace TourneyPal.DataHandling
             }
             catch (Exception ex)
             {
-                Console.WriteLine("EXCEPTION: " + ex.Message);
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
 
         }
@@ -116,7 +121,8 @@ namespace TourneyPal.DataHandling
             }
             catch (Exception ex)
             {
-                Console.WriteLine("EXCEPTION: " + ex.Message);
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
         }
 
@@ -168,7 +174,8 @@ namespace TourneyPal.DataHandling
             }
             catch (Exception ex)
             {
-                Console.WriteLine("EXCEPTION: " + ex.Message);
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return null;
         }
@@ -191,7 +198,8 @@ namespace TourneyPal.DataHandling
             }
             catch (Exception ex)
             {
-                Console.WriteLine("EXCEPTION: " + ex.Message);
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return null;
         }
@@ -209,7 +217,7 @@ namespace TourneyPal.DataHandling
                         CountryCode = tournament.countryCode,
                         City = tournament.city,
                         AddrState = tournament.addrState,
-                        StartsAT = tournament.startAt == null ? null : DateTime.UnixEpoch.AddSeconds(tournament.startAt),
+                        StartsAT = DateTime.UnixEpoch.AddSeconds(tournament.startAt),
                         Online = tournament.isOnline,
                         URL = tournament.url,
                         State = tournament.state,
@@ -227,7 +235,8 @@ namespace TourneyPal.DataHandling
             }
             catch (Exception ex)
             {
-                Console.WriteLine("EXCEPTION: " + ex.Message);
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
         }
 
@@ -245,7 +254,8 @@ namespace TourneyPal.DataHandling
             }
             catch (Exception ex)
             {
-                Console.WriteLine("EXCEPTION: " + ex.Message);
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
         }
 
@@ -282,7 +292,8 @@ namespace TourneyPal.DataHandling
             }
             catch (Exception ex)
             {
-                Console.WriteLine("EXCEPTION: " + ex.Message);
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             
         }
@@ -325,7 +336,8 @@ namespace TourneyPal.DataHandling
             }
             catch (Exception ex)
             {
-                Console.WriteLine("EXCEPTION: " + ex.Message);
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return null;
         }
@@ -342,7 +354,8 @@ namespace TourneyPal.DataHandling
             }
             catch (Exception ex)
             {
-                Console.WriteLine("EXCEPTION: " + ex.Message);
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return null;
         }
@@ -377,7 +390,8 @@ namespace TourneyPal.DataHandling
             }
             catch (Exception ex)
             {
-                Console.WriteLine("EXCEPTION: " + ex.Message);
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
         }
 

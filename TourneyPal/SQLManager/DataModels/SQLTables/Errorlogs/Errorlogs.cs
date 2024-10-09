@@ -6,13 +6,12 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using TourneyPal.Commons;
-using static TourneyPal.SQLManager.DataModels.SQLTables.Game_On_Tournament_Host_Site.Game_On_Tournament_Host_Site;
+using TourneyPal.SQLManager.DataModels.SQLTables.Game;
 
-namespace TourneyPal.SQLManager.DataModels.SQLTables.Game_On_Tournament_Host_Site
+namespace TourneyPal.SQLManager.DataModels.SQLTables.Errorlogs
 {
-    public class Game_On_Tournament_Host_Site : Model
+    public class Errorlogs : Model
     {
-
         public override bool load(MySqlDataReader reader)
         {
             bool result = false;
@@ -26,12 +25,13 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Game_On_Tournament_Host_Sit
 
                 while (reader.Read())
                 {
-                    Game_On_Tournament_Host_SiteRow row = new Game_On_Tournament_Host_SiteRow(GetType().Name);
+                    ErrorlogsRow row = new ErrorlogsRow(GetType().Name);
                     result = row.loadRow(reader);
                     if (!result)
                     {
                         return result;
                     }
+
                     rows.Add(row);
                 }
                 result = true;
@@ -46,4 +46,5 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Game_On_Tournament_Host_Sit
 
         }
     }
+
 }
