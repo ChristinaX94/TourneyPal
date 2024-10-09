@@ -1,5 +1,4 @@
-﻿using Google.Protobuf.WellKnownTypes;
-using MySql.Data.MySqlClient;
+﻿using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,16 +31,16 @@ namespace TourneyPal.SQLManager.DataModels
         public DateTime? DateInserted { get; private set; }
 
 
-        public virtual Result loadRow(MySqlDataReader reader)
+        public virtual bool loadRow(MySqlDataReader reader)
         {
-            Result result = new Result();
+            bool result = false;
             try
             {
                 //ID
                 var id = convertToInt(nameof(this.ID), reader[nameof(this.ID)]?.ToString());
                 if (id == null)
                 {
-                    result.success = false;
+                    result = false;
                     return result;
                 }
                 this.ID = (int)id;
@@ -50,7 +49,7 @@ namespace TourneyPal.SQLManager.DataModels
                 var dateUpdated = convertToDateTime(nameof(this.DateUpdated), reader[nameof(this.DateUpdated)]?.ToString());
                 if (dateUpdated == null)
                 {
-                    result.success = false;
+                    result = false;
                     return result;
                 }
                 this.DateUpdated = (DateTime)dateUpdated;
@@ -59,55 +58,55 @@ namespace TourneyPal.SQLManager.DataModels
                 var dateInserted = convertToDateTime(nameof(this.DateInserted), reader[nameof(this.DateInserted)]?.ToString());
                 if (dateInserted == null)
                 {
-                    result.success = false;
+                    result = false;
                     return result;
                 }
                 this.DateInserted = (DateTime)dateInserted;
 
-                result.success = true;
+                result = true;
             }
             catch (Exception ex)
             {
-                result.success = false;
+                result = false;
                 Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return result;
         }
 
-        public virtual Result validateRow()
+        public virtual bool validateRow()
         {
-            Result result = new Result();
+            bool result = false;
             try
             {
                 if(this.DateUpdated == null)
                 {
-                    result.success = false;
+                    result = false;
                     Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
                                messageItem: nameof(this.DateUpdated) + ", of table: " + this.tableName + "-- Cannot be null");
                 }
 
                 if (this.DateInserted == null)
                 {
-                    result.success = false;
+                    result = false;
                     Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
                                messageItem: nameof(this.DateInserted) + ", of table: " + this.tableName + "-- Cannot be null");
                 }
 
-                result.success = true;
+                result = true;
             }
             catch (Exception ex)
             {
-                result.success = false;
+                result = false;
                 Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return result;
         }
 
-        public Result insertNewRowData()
+        public bool insertNewRowData()
         {
-            Result result = new Result();
+            bool result = false;
             try
             {
                 this.DateInserted = Common.getDate();
@@ -115,23 +114,23 @@ namespace TourneyPal.SQLManager.DataModels
             }
             catch (Exception ex)
             {
-                result.success = false;
+                result = false;
                 Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return result;
         }
 
-        public Result updateRowData()
+        public bool updateRowData()
         {
-            Result result = new Result();
+            bool result = false;
             try
             {
                 this.DateUpdated = Common.getDate();
             }
             catch (Exception ex)
             {
-                result.success = false;
+                result = false;
                 Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }

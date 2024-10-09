@@ -1,7 +1,6 @@
 ﻿using MySql.Data.MySqlClient;
 using System.Reflection;
 using TourneyPal.Commons;
-using Result = TourneyPal.Commons.Result;
 
 namespace TourneyPal.SQLManager.DataModels
 {
@@ -14,35 +13,35 @@ namespace TourneyPal.SQLManager.DataModels
             this.initializeRows();
         }
 
-        public abstract Result load(MySqlDataReader reader);
+        public abstract bool load(MySqlDataReader reader);
 
-        public Result initializeRows()
+        public bool initializeRows()
         {
-            Result result = new Result();
+            bool result = false;
             try
             {
                 this.rows = new List<ModelRow>();
-                result.success = true;
+                result = true;
             }
             catch (Exception ex)
             {
-                result.success = false;
+                result = false;
                 Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return result;
         }
 
-        public Result save()
+        public bool save()
         {
-            Result result = new Result();
+            bool result = false;
             try
             {
 
                 result = this.validate();
-                if (!result.success)
+                if (!result)
                 {
-                    result.success = false;
+                    result = false;
                     return result;
                 }
 
@@ -50,25 +49,25 @@ namespace TourneyPal.SQLManager.DataModels
             }
             catch (Exception ex)
             {
-                result.success = false;
+                result = false;
                 Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return result;
         }
 
-        public Result validate()
+        public bool validate()
         {
-            Result result = new Result();
+            bool result = false;
             try
             {
                 foreach (var row in rows)
                 {
 
                     result = row.validateRow();
-                    if (!result.success)
+                    if (!result)
                     {
-                        result.success = false;
+                        result = false;
                         return result;
                     }
                 }
@@ -76,7 +75,7 @@ namespace TourneyPal.SQLManager.DataModels
             }
             catch (Exception ex)
             {
-                result.success = false;
+                result = false;
                 Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
