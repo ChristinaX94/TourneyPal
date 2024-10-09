@@ -20,13 +20,13 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament_Host_Sites
         public string? Token { get; private set; }
         public string? DataFormat { get; private set; }
 
-        public override Result loadRow(MySqlDataReader reader)
+        public override bool loadRow(MySqlDataReader reader)
         {
-            Result result = new Result();
+            bool result = false;
             try
             {
                 result = base.loadRow(reader);
-                if (!result.success)
+                if (!result)
                 {
                     return result;
                 }
@@ -35,7 +35,7 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament_Host_Sites
                 if (reader[nameof(Site)] == null ||
                     string.IsNullOrEmpty(reader[nameof(Site)].ToString()))
                 {
-                    result.success = false;
+                    result = false;
                     return result;
                 }
                 Site = reader[nameof(Site)].ToString();
@@ -44,7 +44,7 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament_Host_Sites
                 if (reader[nameof(Endpoint)] == null ||
                     string.IsNullOrEmpty(reader[nameof(Endpoint)].ToString()))
                 {
-                    result.success = false;
+                    result = false;
                     return result;
                 }
                 Endpoint = reader[nameof(Endpoint)].ToString();
@@ -53,7 +53,7 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament_Host_Sites
                 if (reader[nameof(Token)] == null ||
                     string.IsNullOrEmpty(reader[nameof(Token)].ToString()))
                 {
-                    result.success = false;
+                    result = false;
                     return result;
                 }
                 Token = reader[nameof(Token)].ToString();
@@ -61,51 +61,51 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament_Host_Sites
                 //DataFormat
                 DataFormat = reader[nameof(DataFormat)]?.ToString();
 
-                result.success = true;
+                result = true;
             }
             catch (Exception ex)
             {
-                result.success = false;
+                result = false;
                 Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return result;
         }
 
-        public override Result validateRow()
+        public override bool validateRow()
         {
-            Result result = new Result();
+            bool result = false;
             try
             {
                 result = base.validateRow();
-                if (!result.success)
+                if (!result)
                 {
                     return result;
                 }
 
                 if (string.IsNullOrEmpty(this.Site))
                 {
-                    result.success = false;
+                    result = false;
                     Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: nameof(this.Site) + ", of table: " + this.tableName + "-- Cannot be null");
                 }
 
                 if (string.IsNullOrEmpty(this.Token))
                 {
-                    result.success = false;
+                    result = false;
                     Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: nameof(this.Token) + ", of table: " + this.tableName + "-- Cannot be null");
                 }
 
                 if (string.IsNullOrEmpty(this.Endpoint))
                 {
-                    result.success = false;
+                    result = false;
                     Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: nameof(this.Endpoint) + ", of table: " + this.tableName + "-- Cannot be null");
                 }
 
-                result.success = true;
+                result = true;
             }
             catch (Exception ex)
             {
-                result.success = false;
+                result = false;
                 Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }

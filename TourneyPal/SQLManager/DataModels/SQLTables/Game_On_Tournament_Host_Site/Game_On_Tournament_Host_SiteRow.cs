@@ -19,13 +19,13 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Game_On_Tournament_Host_Sit
         public int? HostSite_ID { get; private set; }
         public int? SpecificHostGameID { get; private set; }
 
-        public override Result loadRow(MySqlDataReader reader)
+        public override bool loadRow(MySqlDataReader reader)
         {
-            Result result = new Result();
+            bool result = false;
             try
             {
                 result = base.loadRow(reader);
-                if (!result.success)
+                if (!result)
                 {
                     return result;
                 }
@@ -48,51 +48,51 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Game_On_Tournament_Host_Sit
                     SpecificHostGameID = convertToInt(nameof(SpecificHostGameID), reader[nameof(SpecificHostGameID)]?.ToString());
                 }
 
-                result.success = true;
+                result = true;
             }
             catch (Exception ex)
             {
-                result.success = false;
+                result = false;
                 Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return result;
         }
 
-        public override Result validateRow()
+        public override bool validateRow()
         {
-            Result result = new Result();
+            bool result = false;
             try
             {
                 result = base.validateRow();
-                if (!result.success)
+                if (!result)
                 {
                     return result;
                 }
 
                 if (this.Game_ID == null)
                 {
-                    result.success = false;
+                    result = false;
                     Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: nameof(this.Game_ID) + ", of table: " + this.tableName + "-- Cannot be null");
                 }
 
                 if (this.HostSite_ID == null)
                 {
-                    result.success = false;
+                    result = false;
                     Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: nameof(this.HostSite_ID) + ", of table: " + this.tableName + "-- Cannot be null");
                 }
 
                 if (this.SpecificHostGameID == null)
                 {
-                    result.success = false;
+                    result = false;
                     Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: nameof(this.SpecificHostGameID) + ", of table: " + this.tableName + "-- Cannot be null");
                 }
 
-                result.success = true;
+                result = true;
             }
             catch (Exception ex)
             {
-                result.success = false;
+                result = false;
                 Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }

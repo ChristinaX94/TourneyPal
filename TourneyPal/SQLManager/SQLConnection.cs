@@ -1,7 +1,15 @@
 ﻿using MySql.Data.MySqlClient;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
+using System.Reflection.PortableExecutable;
+using System.Text;
+using System.Threading.Tasks;
 using TourneyPal.Commons;
+using TourneyPal.SQLManager;
 using TourneyPal.SQLManager.DataModels;
+using static Mysqlx.Expect.Open.Types.Condition.Types;
 
 namespace TourneyPal.SQLManager
 {
@@ -22,38 +30,37 @@ namespace TourneyPal.SQLManager
             password = System.Configuration.ConfigurationManager.AppSettings["password"];
         }
 
-        private Result connect()
+        private bool connect()
         {
-            Result result = new Result();
+            bool result = false;
             try
             {
                 string connectionString = "SERVER=" + server + ";DATABASE=" + database + ";UID=" + username + ";password=" + password;
                 connection = new MySqlConnection(connectionString);
                 connection.Open();
-                result.success = true;
+                result = true;
             }
             catch (Exception ex)
             {
-                result.success = false;
+                result = false;
                 Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return result;
         }
 
-        private Result disconnect()
+        private bool disconnect()
         {
-            Result result = new Result();
+            bool result = false;
             try
             {
                 connection.Close();
-                result.success = true;
+                result = true;
             }
             catch (Exception ex)
             {
-                result.success = false;
-                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
-                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
+                result = false;
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(), exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return result;
         }
@@ -62,25 +69,27 @@ namespace TourneyPal.SQLManager
 
         public Model Load(SQLItem sql, Model model)
         {
-            Result result = new Result();
+            bool result = false;
             try
             {
                 result = connect();
-                if (!result.success)
+                if (!result)
                 {
-                    Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: "Error connecting");
+                    Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                           messageItem: "Error connecting");
                     return null;
                 }
 
                 model = executeReadQuery(sql, model);
                 if (model == null)
                 {
-                    Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: "Error executing sql query: " + sql.query);
+                    Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                           messageItem: "Error executing sql query: " + sql.query);
                     return null;
                 }
 
                 result = disconnect();
-                if (!result.success)
+                if (!result)
                 {
                     Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: "Error Disconnecting");
                     return null;
@@ -90,13 +99,13 @@ namespace TourneyPal.SQLManager
             }
             catch (Exception ex)
             {
-                result.success = false;
+                result = false;
                 Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             finally
             {
-                if (!disconnect().success)
+                if (!disconnect())
                 {
                     Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: "Error Disconnecting");
                 }
@@ -106,13 +115,13 @@ namespace TourneyPal.SQLManager
 
         private Model executeReadQuery(SQLItem sql, Model model)
         {
-            Result result = new Result();
+            bool result = false;
             try
             {
                 MySqlCommand cmd = getMySqlCommand(sql);
                 if (cmd == null)
                 {
-                    Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: "Error getting sql command");
+                    result = false;
                     return null;
                 }
 
@@ -120,71 +129,69 @@ namespace TourneyPal.SQLManager
 
                 MySqlDataReader reader = cmd.ExecuteReader();
                 result = model.load(reader);
-                if (!result.success)
+                if (!result)
                 {
-                    Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: "Error loading "+ model?.GetType().Name);
                     return null;
                 }
 
-                result.success = true;
+                result = true;
 
             }
             catch (Exception ex)
             {
-                result.success = false;
+                result = false;
                 Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return model;
         }
 
-        public Result SaveInsert(SQLItem sql, Model model)
+        public bool SaveInsert(SQLItem sql, Model model)
         {
-            Result result = new Result();
+            bool result = false;
             try
             {
                 result = model.save();
-                if (!result.success)
+                if (!result)
                 {
                     return result;
                 }
 
                 result = connect();
-                if (!result.success)
+                if (!result)
                 {
                     return result;
                 }
 
                 result = executeInsertQuery(sql, model);
-                if (!result.success)
+                if (!result)
                 {
                     return result;
                 }
 
                 result = disconnect();
-                if (!result.success)
+                if (!result)
                 {
                     return result;
                 }
             }
             catch (Exception ex)
             {
-                result.success = false;
-                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
-                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
+                result = false;
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(), exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return result;
         }
 
-        private Result executeInsertQuery(SQLItem sql, Model model)
+        private bool executeInsertQuery(SQLItem sql, Model model)
         {
-            Result result = new Result();
+            bool result = false;
             try
             {
                 MySqlCommand cmd = getMySqlCommand(sql);
                 if (cmd == null)
                 {
-                    result.success = false;
+                    result = false;
                     return result;
                 }
 
@@ -201,76 +208,73 @@ namespace TourneyPal.SQLManager
                     }
                 }
 
-                result.success = true;
+                result = true;
             }
             catch (Exception ex)
             {
-                result.success = false;
-                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
-                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
+                result = false;
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(), exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return result;
         }
 
-        public Result SaveUpdate(SQLItem sql, Model model)
+        public bool SaveUpdate(SQLItem sql, Model model)
         {
-            Result result = new Result();
+            bool result = false;
             try
             {
                 result = model.save();
-                if (!result.success)
+                if (!result)
                 {
                     return result;
                 }
 
                 result = connect();
-                if (!result.success)
+                if (!result)
                 {
                     return result;
                 }
 
                 result = executeUpdateQuery(sql);
-                if (!result.success)
+                if (!result)
                 {
                     return result;
                 }
 
                 result = disconnect();
-                if (!result.success)
+                if (!result)
                 {
                     return result;
                 }
             }
             catch (Exception ex)
             {
-                result.success = false;
-                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
-                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
+                result = false;
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(), exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return result;
         }
 
-        private Result executeUpdateQuery(SQLItem sql)
+        private bool executeUpdateQuery(SQLItem sql)
         {
-            Result result = new Result();
+            bool result = false;
             try
             {
                 MySqlCommand cmd = getMySqlCommand(sql);
                 if (cmd == null)
                 {
-                    result.success = false;
+                    result = false;
                     return result;
                 }
 
                 cmd.ExecuteNonQuery();
 
-                result.success = true;
+                result = true;
             }
             catch (Exception ex)
             {
-                result.success = false;
-                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
-                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
+                result = false;
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(), exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return result;
         }
@@ -293,8 +297,6 @@ namespace TourneyPal.SQLManager
             }
             catch (Exception ex)
             {
-                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
-                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return null;
         }

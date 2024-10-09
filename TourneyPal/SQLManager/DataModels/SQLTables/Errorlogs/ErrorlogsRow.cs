@@ -19,13 +19,13 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Errorlogs
         public string? ExceptionMessage { get; set; }
         public string? FoundIn { get; set; }
 
-        public override Result loadRow(MySqlDataReader reader)
+        public override bool loadRow(MySqlDataReader reader)
         {
-            Result result = new Result();
+            bool result = false;
             try
             {
                 result = base.loadRow(reader);
-                if (!result.success)
+                if (!result)
                 {
                     return result;
                 }
@@ -40,44 +40,44 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Errorlogs
                 if (reader[nameof(FoundIn)] == null ||
                     string.IsNullOrEmpty(reader[nameof(FoundIn)].ToString()))
                 {
-                    result.success = false;
+                    result = false;
                     return result;
                 }
                 FoundIn = reader[nameof(FoundIn)].ToString();
 
-                result.success = true;
+                result = true;
             }
             catch (Exception ex)
             {
-                result.success = false;
+                result = false;
                 Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return result;
         }
 
-        public override Result validateRow()
+        public override bool validateRow()
         {
-            Result result = new Result();
+            bool result = false;
             try
             {
                 result = base.validateRow();
-                if (!result.success)
+                if (!result)
                 {
                     return result;
                 }
 
                 if (string.IsNullOrEmpty(this.FoundIn))
                 {
-                    result.success = false;
+                    result = false;
                     Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: nameof(this.FoundIn) + ", of table: " + this.tableName + "-- Cannot be null");
                 }
 
-                result.success = true;
+                result = true;
             }
             catch (Exception ex)
             {
-                result.success = false;
+                result = false;
                 Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
