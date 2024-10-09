@@ -8,6 +8,8 @@ using Tournament = TourneyPal.SQLManager.DataModels.SQLTables.Tournament.Tournam
 using TourneyPal.SQLManager.DataModels.SQLTables.Related_Tournaments_Api_Call;
 using TourneyPal.SQLManager.DataModels.SQLTables.Tournament_Api_Data;
 using EnumsNET;
+using System.Reflection;
+using TourneyPal.Commons;
 
 namespace TourneyPal.DataHandling.DataObjects
 {
@@ -17,9 +19,6 @@ namespace TourneyPal.DataHandling.DataObjects
         private static Stream streams { get; set; }
         private static Game games { get; set; }
         private static Tournament_Host_Sites tournamentHostSites { get; set; }
-
-        private static SQLHandler sql { get; set; }
-
         public static List<TournamentData> TournamentsData { get; private set; }
         public static List<ApiRequestedDataHandler> ApiRequestedData { get; private set; }
 
@@ -54,12 +53,10 @@ namespace TourneyPal.DataHandling.DataObjects
 
         private static void InitializeInternalDBObjects()
         {
-            sql = new SQLHandler();
-
-            tournaments = (Tournament)sql.loadModelData(new Tournament());
-            streams = (Stream)sql.loadModelData(new Stream());
-            games = (Game)sql.loadModelData(new Game());
-            tournamentHostSites = (Tournament_Host_Sites)sql.loadModelData(new Tournament_Host_Sites());
+            tournaments = (Tournament)SQLHandler.loadModelData(new Tournament());
+            streams = (Stream)SQLHandler.loadModelData(new Stream());
+            games = (Game)SQLHandler.loadModelData(new Game());
+            tournamentHostSites = (Tournament_Host_Sites)SQLHandler.loadModelData(new Tournament_Host_Sites());
 
             TournamentsData = new List<TournamentData>();
             ApiRequestedData = new List<ApiRequestedDataHandler>();
@@ -93,7 +90,8 @@ namespace TourneyPal.DataHandling.DataObjects
             }
             catch (Exception ex)
             {
-                Console.WriteLine("EXCEPTION: " + ex.Message);
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
         }
 
@@ -109,7 +107,8 @@ namespace TourneyPal.DataHandling.DataObjects
             }
             catch (Exception ex)
             {
-                Console.WriteLine("EXCEPTION: " + ex.Message);
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
         }
 
@@ -122,7 +121,8 @@ namespace TourneyPal.DataHandling.DataObjects
             }
             catch (Exception ex)
             {
-                Console.WriteLine("EXCEPTION: " + ex.Message);
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
         }
 
@@ -188,13 +188,14 @@ namespace TourneyPal.DataHandling.DataObjects
                     }
                 }
 
-                tournaments = (Tournament)sql.saveData(tournaments);
-                streams = (Stream)sql.saveData(streams);
+                tournaments = (Tournament)SQLHandler.saveData(tournaments);
+                streams = (Stream)SQLHandler.saveData(streams);
                 
             }
             catch (Exception ex)
             {
-                Console.WriteLine("EXCEPTION: " + ex.Message);
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
         }
 
@@ -217,7 +218,7 @@ namespace TourneyPal.DataHandling.DataObjects
                     apiRow.TournamentHostSite_ID = request.HostSite;
                     apiData.rows.Add(apiRow);
 
-                    apiData = (Tournament_Api_Data)sql.saveData(apiData);
+                    apiData = (Tournament_Api_Data)SQLHandler.saveData(apiData);
                     if (apiData == null)
                     {
                         return;
@@ -245,7 +246,7 @@ namespace TourneyPal.DataHandling.DataObjects
                         relatedTournaments.rows.Add(relatedTournament);
                     }
 
-                    relatedTournaments = (Related_Tournaments_Api_Call)sql.saveData(relatedTournaments);
+                    relatedTournaments = (Related_Tournaments_Api_Call)SQLHandler.saveData(relatedTournaments);
                     if (relatedTournaments == null)
                     {
                         return;
@@ -258,7 +259,8 @@ namespace TourneyPal.DataHandling.DataObjects
             }
             catch (Exception ex)
             {
-                Console.WriteLine("EXCEPTION: " + ex.Message);
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
         }
     }

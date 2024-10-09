@@ -9,12 +9,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DSharpPlus" Version="4.4.6" />
-    <PackageReference Include="DSharpPlus.Interactivity" Version="4.4.6" />
-    <PackageReference Include="DSharpPlus.SlashCommands" Version="4.4.6" />
-    <PackageReference Include="Enums.NET" Version="4.0.2" />
-    <PackageReference Include="MySql.Data" Version="8.3.0" />
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.0" />
+    <PackageReference Include="DSharpPlus" Version="4.5.0" />
+    <PackageReference Include="DSharpPlus.Interactivity" Version="4.5.0" />
+    <PackageReference Include="DSharpPlus.SlashCommands" Version="4.5.0" />
+    <PackageReference Include="Enums.NET" Version="5.0.0" />
+    <PackageReference Include="MySql.Data" Version="9.0.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.1" />
   </ItemGroup>
 
 </Project>

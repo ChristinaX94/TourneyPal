@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using TourneyPal.Commons;
@@ -18,13 +19,13 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Related_Tournaments_Api_Cal
 
         public int? TournamentApiData_ID { get; set; }
 
-        public override Result loadRow(MySqlDataReader reader)
+        public override bool loadRow(MySqlDataReader reader)
         {
-            Result result = new Result();
+            bool result = false;
             try
             {
                 result = base.loadRow(reader);
-                if (!result.success)
+                if (!result)
                 {
                     return result;
                 }
@@ -33,7 +34,7 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Related_Tournaments_Api_Cal
                 var tournament_ID = convertToInt(nameof(Tournament_ID), reader[nameof(Tournament_ID)]?.ToString());
                 if (tournament_ID == null)
                 {
-                    result.success = false;
+                    result = false;
                     return result;
                 }
                 Tournament_ID = (int)tournament_ID;
@@ -42,38 +43,40 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Related_Tournaments_Api_Cal
                 var tournamentApiData_ID = convertToInt(nameof(TournamentApiData_ID), reader[nameof(TournamentApiData_ID)]?.ToString());
                 if (tournamentApiData_ID == null)
                 {
-                    result.success = false;
+                    result = false;
                     return result;
                 }
                 TournamentApiData_ID = (int)tournamentApiData_ID;
 
-                result.success = true;
+                result = true;
             }
             catch (Exception ex)
             {
-                result.success = false;
-                result.message = ex.Message;
+                result = false;
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return result;
         }
 
-        public override Result validateRow()
+        public override bool validateRow()
         {
-            Result result = new Result();
+            bool result = false;
             try
             {
                 if (this.Tournament_ID == null)
                 {
-                    result.success = false;
-                    result.message = nameof(this.Tournament_ID) + ", of table: " + this.tableName + "-- Cannot be null";
+                    result = false;
+                    Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: nameof(this.Tournament_ID) + ", of table: " + this.tableName + "-- Cannot be null");
                 }
 
-                result.success = true;
+                result = true;
             }
             catch (Exception ex)
             {
-                result.success = false;
-                result.message = ex.Message;
+                result = false;
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return result;
         }

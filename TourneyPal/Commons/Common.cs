@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using TourneyPal.Commons;
 using TourneyPal.DataHandling.DataObjects;
 
 namespace TourneyPal
@@ -60,7 +62,8 @@ namespace TourneyPal
             }
             catch (Exception ex)
             {
-                Console.WriteLine("EXCEPTION: " + ex.Message);
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return false;
         }
@@ -84,7 +87,8 @@ namespace TourneyPal
             }
             catch (Exception ex)
             {
-                Console.WriteLine("EXCEPTION: " + ex.Message);
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return false;
         }
@@ -107,7 +111,8 @@ namespace TourneyPal
             }
             catch (Exception ex)
             {
-                Console.WriteLine("EXCEPTION: " + ex.Message);
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return false;
         }
@@ -131,7 +136,8 @@ namespace TourneyPal
             }
             catch (Exception ex)
             {
-                Console.WriteLine("EXCEPTION: " + ex.Message);
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return false;
         }
@@ -167,7 +173,8 @@ namespace TourneyPal
             }
             catch (Exception ex)
             {
-                Console.WriteLine("EXCEPTION: " + ex.Message);
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return null;
         }

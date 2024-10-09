@@ -7,15 +7,17 @@ using System.Text;
 using System.Threading.Tasks;
 using TourneyPal.Commons;
 
-namespace TourneyPal.SQLManager.DataModels.SQLTables.Game
+namespace TourneyPal.SQLManager.DataModels.SQLTables.Errorlogs
 {
-    public class GameRow : ModelRow
+    public class ErrorlogsRow : ModelRow
     {
-        public GameRow(string? tableName) : base(tableName)
+        public ErrorlogsRow(string? tableName) : base(tableName)
         {
         }
 
-        public string? Title { get; private set; }
+        public string? Message { get; set; }
+        public string? ExceptionMessage { get; set; }
+        public string? FoundIn { get; set; }
 
         public override bool loadRow(MySqlDataReader reader)
         {
@@ -28,14 +30,20 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Game
                     return result;
                 }
 
-                //Title
-                if (reader[nameof(Title)] == null ||
-                    string.IsNullOrEmpty(reader[nameof(Title)].ToString()))
+                //Message
+                Message = reader[nameof(Message)].ToString();
+
+                //ExceptionMessage
+                ExceptionMessage = reader[nameof(ExceptionMessage)]?.ToString();
+
+                //FoundIn
+                if (reader[nameof(FoundIn)] == null ||
+                    string.IsNullOrEmpty(reader[nameof(FoundIn)].ToString()))
                 {
                     result = false;
                     return result;
                 }
-                Title = reader[nameof(Title)].ToString();
+                FoundIn = reader[nameof(FoundIn)].ToString();
 
                 result = true;
             }
@@ -59,10 +67,10 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Game
                     return result;
                 }
 
-                if (string.IsNullOrEmpty(this.Title))
+                if (string.IsNullOrEmpty(this.FoundIn))
                 {
                     result = false;
-                    Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: nameof(this.Title) + ", of table: " + this.tableName + "-- Cannot be null");
+                    Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: nameof(this.FoundIn) + ", of table: " + this.tableName + "-- Cannot be null");
                 }
 
                 result = true;
