@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,13 +12,13 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Game
 {
     public class Game : Model
     {
-        public override Result load(MySqlDataReader reader)
+        public override bool load(MySqlDataReader reader)
         {
-            Result result = new Result();
+            bool result = false;
             try
             {
                 result = this.initializeRows();
-                if (!result.success)
+                if (!result)
                 {
                     return result;
                 }
@@ -26,19 +27,20 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Game
                 {
                     GameRow row = new GameRow(GetType().Name);
                     result = row.loadRow(reader);
-                    if (!result.success)
+                    if (!result)
                     {
                         return result;
                     }
 
                     rows.Add(row);
                 }
-                result.success = true;
+                result = true;
             }
             catch (Exception ex)
             {
-                result.success = false;
-                result.message = ex.Message;
+                result = false;
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return result;
 
