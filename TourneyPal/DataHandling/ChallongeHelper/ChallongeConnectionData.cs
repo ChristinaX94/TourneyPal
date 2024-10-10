@@ -12,12 +12,12 @@ namespace TourneyPal.DataHandling.ChallongeHelper
         /// <summary>
         /// Auth Token of Challonge
         /// </summary>
-        public static readonly string ChallongeToken = System.Configuration.ConfigurationManager.AppSettings["ChallongeToken"];
+        public static readonly string ChallongeToken = System.Configuration.ConfigurationManager.AppSettings["ChallongeToken"]!;
 
         /// <summary>
         /// Username of Challonge User
         /// </summary>
-        public static readonly string ChallongeUser = System.Configuration.ConfigurationManager.AppSettings["ChallongeUser"];
+        public static readonly string ChallongeUser = System.Configuration.ConfigurationManager.AppSettings["ChallongeUser"]!;
 
         /// <summary>
         /// API Endpoint of Challonge 
