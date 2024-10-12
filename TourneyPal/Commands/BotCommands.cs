@@ -1,12 +1,6 @@
 ﻿using DSharpPlus;
 using DSharpPlus.Entities;
-using DSharpPlus.Interactivity;
-using DSharpPlus.Interactivity.Enums;
-using DSharpPlus.Interactivity.EventHandling;
-using DSharpPlus.Interactivity.Extensions;
 using DSharp​Plus.SlashCommands;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using TourneyPal.Commons;
 using TourneyPal.DataHandling.DataObjects;
@@ -38,7 +32,8 @@ namespace TourneyPal
             try
             {
                 List<DiscordEmbed> embeds = GetEmbeds(GeneralData.TournamentsData.Where(x => DateOnly.FromDateTime((DateTime)x.StartsAT) >= DateOnly.FromDateTime(DateTime.Now)).OrderBy(x => x.StartsAT).ThenBy(x => x.ID).ToList());
-                await setPages(ctx, embeds).ConfigureAwait(false);
+                await setPages(ctx, embeds, ctx.InteractionId).ConfigureAwait(false);
+
             }
             catch (Exception ex)
             {
@@ -53,7 +48,7 @@ namespace TourneyPal
             try
             {
                 List<DiscordEmbed> embeds = GetEmbeds(GeneralData.TournamentsData.Where(x => DateOnly.FromDateTime((DateTime)x.StartsAT) < DateOnly.FromDateTime(DateTime.Now)).OrderBy(x => x.StartsAT).ThenBy(x => x.ID).ToList());
-                await setPages(ctx, embeds).ConfigureAwait(false);
+                await setPages(ctx, embeds, ctx.InteractionId).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -76,7 +71,7 @@ namespace TourneyPal
                     upcomingTournamentPos = GeneralData.TournamentsData.IndexOf(upcomingTournament);
                 }
 
-                await setPages(ctx, embeds, upcomingTournamentPos).ConfigureAwait(false);
+                await setPages(ctx, embeds, ctx.InteractionId, upcomingTournamentPos).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -86,7 +81,7 @@ namespace TourneyPal
         }
 
         [SlashCommand("tourneyIn", "Posts all registered Tournaments in Specific Country")]
-        public async Task AddAsync(InteractionContext ctx, [Option("country", "2 character Country Code")] string country)
+        public async Task PostTourneyIn(InteractionContext ctx, [Option("country", "2 character Country Code")] string country)
         {
             try
             {
@@ -96,7 +91,7 @@ namespace TourneyPal
                 }
                 
                 List<DiscordEmbed> embeds = GetEmbeds(GeneralData.TournamentsData.Where(x => x.CountryCode.Equals(country) && DateOnly.FromDateTime((DateTime)x.StartsAT) >= DateOnly.FromDateTime(DateTime.Now)).OrderBy(x => x.StartsAT).ThenBy(x => x.ID).ToList());
-                await setPages(ctx, embeds).ConfigureAwait(false);
+                await setPages(ctx, embeds, ctx.InteractionId).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -106,7 +101,7 @@ namespace TourneyPal
         }
         
 
-        private async Task setPages(InteractionContext ctx, List<DiscordEmbed> embeds, int selectedPos=0)
+        private async Task setPages(InteractionContext ctx, List<DiscordEmbed> embeds, ulong interactionID = 0, int selectedPos=0)
         {
             try
             {
@@ -126,6 +121,11 @@ namespace TourneyPal
                 ctx.Client.ComponentInteractionCreated += async (s, e) =>
                 {
                     if(e.Message?.Embeds == null)
+                    {
+                        return;
+                    }
+
+                    if (interactionID != e.Message.Interaction.Id)
                     {
                         return;
                     }
@@ -192,7 +192,7 @@ namespace TourneyPal
                     }
                     .AddField("Site: ", tourney.HostSite + tourney.URL)
                     .AddField("Online: ", tourney.Online == null ? " - " : tourney.Online == true ? "Yes" : "No")
-                    .AddField("Country Code: ", tourney.CountryCode)
+                    .AddField("Country Code: ", string.IsNullOrEmpty(tourney.CountryCode)? " - ":tourney.CountryCode)
                     .AddField("Location: ", tourney.VenueAddress + ", " + tourney.City + ", " + tourney.AddrState + ", " + tourney.CountryCode)
                     .AddField("Date (dd/mm/yyyy): ", tourney.StartsAT == null ? " - " : tourney.StartsAT.Value.Date.ToString("dd/MM/yyyy"))
                     .AddField("Streams: ", tourney.Streams == null || tourney.Streams.Count == 0 ? " - " : string.Join("\n", tourney.Streams))
