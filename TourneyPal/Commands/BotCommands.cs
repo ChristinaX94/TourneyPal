@@ -1,5 +1,6 @@
 ﻿using DSharpPlus;
 using DSharpPlus.Entities;
+using DSharpPlus.EventArgs;
 using DSharp​Plus.SlashCommands;
 using System.Reflection;
 using TourneyPal.Commons;
@@ -13,6 +14,7 @@ namespace TourneyPal
         {
         }
 
+        #region Commands
         [SlashCommand("ping", "pings bot")]
         public async Task Ping(InteractionContext ctx)
         {
@@ -31,7 +33,7 @@ namespace TourneyPal
         {
             try
             {
-                List<DiscordEmbed> embeds = GetEmbeds(GeneralData.TournamentsData.Where(x => DateOnly.FromDateTime((DateTime)x.StartsAT) >= DateOnly.FromDateTime(DateTime.Now)).OrderBy(x => x.StartsAT).ThenBy(x => x.ID).ToList());
+                List<DiscordEmbed> embeds = GetEmbeds(GeneralData.TournamentsData.Where(x=> x.StartsAT >= Common.getDate()).ToList());
                 await setPages(ctx, embeds, ctx.InteractionId).ConfigureAwait(false);
 
             }
@@ -47,7 +49,7 @@ namespace TourneyPal
         {
             try
             {
-                List<DiscordEmbed> embeds = GetEmbeds(GeneralData.TournamentsData.Where(x => DateOnly.FromDateTime((DateTime)x.StartsAT) < DateOnly.FromDateTime(DateTime.Now)).OrderBy(x => x.StartsAT).ThenBy(x => x.ID).ToList());
+                List<DiscordEmbed> embeds = GetEmbeds(GeneralData.TournamentsData.Where(x => x.StartsAT < Common.getDate()).ToList());
                 await setPages(ctx, embeds, ctx.InteractionId).ConfigureAwait(false);
             }
             catch (Exception ex)
@@ -62,9 +64,9 @@ namespace TourneyPal
         {
             try
             {
-                List<DiscordEmbed> embeds = GetEmbeds(GeneralData.TournamentsData.OrderBy(x => DateOnly.FromDateTime((DateTime)x.StartsAT)).ThenBy(x => x.ID).ToList());
+                List<DiscordEmbed> embeds = GetEmbeds(GeneralData.TournamentsData);
 
-                var upcomingTournament = GeneralData.TournamentsData.OrderBy(x => DateOnly.FromDateTime((DateTime)x.StartsAT)).ThenBy(x => x.ID).FirstOrDefault(x => DateOnly.FromDateTime((DateTime)x.StartsAT) >= DateOnly.FromDateTime(DateTime.Now));
+                var upcomingTournament = GeneralData.TournamentsData.FirstOrDefault(x => x.StartsAT >= Common.getDate());
                 var upcomingTournamentPos = 0;
                 if (upcomingTournament != null)
                 {
@@ -90,7 +92,9 @@ namespace TourneyPal
                     await ctx.CreateResponseAsync("Country must contain 2 characters!").ConfigureAwait(false);
                 }
                 
-                List<DiscordEmbed> embeds = GetEmbeds(GeneralData.TournamentsData.Where(x => x.CountryCode.Equals(country) && DateOnly.FromDateTime((DateTime)x.StartsAT) >= DateOnly.FromDateTime(DateTime.Now)).OrderBy(x => x.StartsAT).ThenBy(x => x.ID).ToList());
+                List<DiscordEmbed> embeds = GetEmbeds(GeneralData.TournamentsData
+                                                    .Where(x => x.CountryCode.Equals(country) && x.StartsAT >= Common.getDate()).ToList());
+                
                 await setPages(ctx, embeds, ctx.InteractionId).ConfigureAwait(false);
             }
             catch (Exception ex)
@@ -99,13 +103,38 @@ namespace TourneyPal
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
         }
-        
 
-        private async Task setPages(InteractionContext ctx, List<DiscordEmbed> embeds, ulong interactionID = 0, int selectedPos=0)
+        [SlashCommand("search", "Searches a tournament based on URL. If it is located in Challonge, it gets registered.")]
+        public async Task SearchTourneyIn(InteractionContext ctx, [Option("URL", "Url of Tournament")] string URL)
         {
             try
             {
-                var pos = selectedPos;
+                if (string.IsNullOrEmpty(URL))
+                {
+                    await ctx.CreateResponseAsync("Invalid URL!").ConfigureAwait(false);
+                }
+                var embed = GeneralData.TournamentsData.FirstOrDefault(x => x.URL.Equals(URL));
+                if (embed==null)
+                {
+                    //ApiHandler.examineSingleChallongeRequest(URL);
+                }
+                List <DiscordEmbed> embeds = GetEmbeds( new List<TournamentData>() { embed } );
+                await setPages(ctx, embeds, ctx.InteractionId).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
+            }
+        }
+
+        #endregion
+
+        #region ActionHandlers
+        private async Task setPages(InteractionContext ctx, List<DiscordEmbed> embeds, ulong interactionID = 0, int selectedPos = 0)
+        {
+            try
+            {
                 if (embeds.Count == 0)
                 {
                     await ctx.CreateResponseAsync("No Data").ConfigureAwait(false);
@@ -114,41 +143,17 @@ namespace TourneyPal
                 await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder()
                     .WithContent(ctx.Member.Mention)
                     .AddMention(mention: new UserMention(ctx.User))
-                    .AddEmbed(embeds[pos])
-                    .AddComponents(getButtons(ctx.Client, embeds[pos].Fields[0].Value)))
+                    .AddEmbed(embeds[selectedPos])
+                    .AddComponents(getButtons(ctx.Client, embeds[selectedPos].Fields[0].Value)))
                     .ConfigureAwait(false);
 
                 ctx.Client.ComponentInteractionCreated += async (s, e) =>
                 {
-                    if(e.Message?.Embeds == null)
-                    {
-                        return;
-                    }
-
                     if (interactionID != e.Message.Interaction.Id)
                     {
                         return;
                     }
-
-                    var selectedEmbed = embeds.FirstOrDefault(x => x.Fields[x.Fields.Count - 1].Value.Equals(e.Message.Embeds.FirstOrDefault().Fields[x.Fields.Count - 1].Value));
-                    pos = embeds.IndexOf(selectedEmbed);
-                    if (pos==-1)
-                    {
-                        return;
-                    }
-
-                    if (e.Id.Equals("Righty") && pos < embeds.Count - 1)
-                    {
-                        pos++;
-                    }
-                    if (e.Id.Equals("Lefty") && pos > 0)
-                    {
-                        pos--;
-                    }
-
-                    await e.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage, new DiscordInteractionResponseBuilder()
-                        .AddEmbed(embeds[pos])
-                        .AddComponents(getButtons(ctx.Client, embeds[pos].Fields[0].Value)));
+                    await HandlePageChange(ctx, embeds, e).ConfigureAwait(false);
                 };
 
             }
@@ -156,6 +161,71 @@ namespace TourneyPal
             {
                 Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
+            }
+        }
+
+        private async Task HandlePageChange(InteractionContext ctx,
+                                            List<DiscordEmbed> embeds,
+                                            ComponentInteractionCreateEventArgs e)
+        {
+            await ValidatePageChangeAction(e).ConfigureAwait(false);
+            int pos = GetNextPagePosition(embeds, e);
+            if (pos > -1)
+            {
+                await e.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage, new DiscordInteractionResponseBuilder()
+                .AddEmbed(embeds[pos])
+                .AddComponents(getButtons(ctx.Client, embeds[pos].Fields[0].Value))).ConfigureAwait(false);
+            }
+            await Task.CompletedTask;
+        }
+        #endregion
+
+        #region Helpers
+        
+        private static int GetNextPagePosition(List<DiscordEmbed> embeds, ComponentInteractionCreateEventArgs e)
+        {
+            var selectedEmbed = embeds.FirstOrDefault(x => x.Fields[x.Fields.Count - 1].Value.Equals(e.Message.Embeds.FirstOrDefault().Fields[x.Fields.Count - 1].Value));
+            
+            if (selectedEmbed == null ||
+                embeds.IndexOf(selectedEmbed) == -1)
+            {
+                return -1;
+            }
+
+            var pos = embeds.IndexOf(selectedEmbed);
+
+            if (e.Id.Equals("Righty") && pos < embeds.Count - 1)
+            {
+                pos++;
+            }
+            if (e.Id.Equals("Lefty") && pos > 0)
+            {
+                pos--;
+            }
+
+            return pos;
+        }
+
+        private static async Task ValidatePageChangeAction(ComponentInteractionCreateEventArgs e)
+        {
+            if (e.Message?.Embeds == null)
+            {
+                await e.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage,
+                    new DiscordInteractionResponseBuilder().WithContent("Session Expired")).ConfigureAwait(false);
+            }
+
+            if (DateTimeOffset.Now.Subtract(e.Message.CreationTimestamp).TotalMinutes > Common.PageButtonTimeoutMinutes)
+            {
+                if (e.Message.Embeds.FirstOrDefault() == null)
+                {
+                    await e.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage,
+                    new DiscordInteractionResponseBuilder().WithContent("Session Expired")).ConfigureAwait(false);
+                }
+                else
+                {
+                    await e.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage,
+                    new DiscordInteractionResponseBuilder().AddEmbed(e.Message.Embeds.FirstOrDefault())).ConfigureAwait(false);
+                }
             }
         }
 
@@ -212,6 +282,7 @@ namespace TourneyPal
             
             return embeds;
         }
+        #endregion
     }
 
 }
