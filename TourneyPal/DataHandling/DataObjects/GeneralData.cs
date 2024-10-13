@@ -118,6 +118,20 @@ namespace TourneyPal.DataHandling.DataObjects
             {
                 saveTournaments();
                 saveApiRequestedData();
+                sortTournaments();
+            }
+            catch (Exception ex)
+            {
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
+            }
+        }
+
+        public static void sortTournaments()
+        {
+            try
+            {
+                TournamentsData = TournamentsData.OrderBy(x=>x.StartsAT).ToList();
             }
             catch (Exception ex)
             {
