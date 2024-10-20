@@ -16,7 +16,7 @@ namespace TourneyPal.DataHandling.StartGGHelper
         /// <summary>
         /// Auth Token of start.gg  
         /// </summary>
-        public static readonly string StartGGToken = System.Configuration.ConfigurationManager.AppSettings["StartGGToken"];
+        public static readonly string StartGGToken = System.Configuration.ConfigurationManager.AppSettings["StartGGToken"]!;
 
         /// <summary>
         /// Query for start.gg  
