@@ -127,19 +127,6 @@ namespace TourneyPal.DataHandling.DataObjects
             }
         }
 
-        public static void sortTournaments()
-        {
-            try
-            {
-                TournamentsData = TournamentsData.OrderBy(x=>x.StartsAT).ToList();
-            }
-            catch (Exception ex)
-            {
-                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
-                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
-            }
-        }
-
         private static void saveTournaments()
         {
             try
@@ -270,6 +257,19 @@ namespace TourneyPal.DataHandling.DataObjects
 
                 TournamentsData.ForEach(x => x.isModified = false);
                 ApiRequestedData = new List<ApiRequestedDataHandler>();
+            }
+            catch (Exception ex)
+            {
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
+            }
+        }
+
+        public static void sortTournaments()
+        {
+            try
+            {
+                TournamentsData = TournamentsData.OrderBy(x => x.StartsAT).ToList();
             }
             catch (Exception ex)
             {
