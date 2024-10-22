@@ -10,6 +10,7 @@ using TourneyPal.SQLManager.DataModels.SQLTables.Tournament_Api_Data;
 using EnumsNET;
 using System.Reflection;
 using TourneyPal.Commons;
+using TourneyPal.Data.Commons;
 
 namespace TourneyPal.DataHandling.DataObjects
 {
