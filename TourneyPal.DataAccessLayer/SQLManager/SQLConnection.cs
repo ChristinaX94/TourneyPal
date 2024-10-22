@@ -1,6 +1,7 @@
 ﻿using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.PortableExecutable;
@@ -24,10 +25,10 @@ namespace TourneyPal.SQLManager
 
         public SQLConnection()
         {
-            server = System.Configuration.ConfigurationManager.AppSettings["server"];
-            database = System.Configuration.ConfigurationManager.AppSettings["database"];
-            username = System.Configuration.ConfigurationManager.AppSettings["username"];
-            password = System.Configuration.ConfigurationManager.AppSettings["password"];
+            server = ConfigurationManager.AppSettings["server"];
+            database = ConfigurationManager.AppSettings["database"];
+            username = ConfigurationManager.AppSettings["username"];
+            password = ConfigurationManager.AppSettings["password"];
         }
 
         private bool connect()

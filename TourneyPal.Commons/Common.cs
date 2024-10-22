@@ -1,17 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using TourneyPal.Commons;
-using TourneyPal.DataHandling.DataObjects;
+﻿using System.ComponentModel;
 
 namespace TourneyPal
 {
     public static class Common
     {
+
+        
         public enum YesNo
         {
             No = 0,
@@ -64,8 +58,8 @@ namespace TourneyPal
             }
             catch (Exception ex)
             {
-                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
-                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
+                //Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                //           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return false;
         }
@@ -89,8 +83,8 @@ namespace TourneyPal
             }
             catch (Exception ex)
             {
-                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
-                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
+                //Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                //           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return false;
         }
@@ -113,8 +107,8 @@ namespace TourneyPal
             }
             catch (Exception ex)
             {
-                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
-                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
+                //Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                //           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return false;
         }
@@ -138,8 +132,8 @@ namespace TourneyPal
             }
             catch (Exception ex)
             {
-                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
-                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
+                //Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                //           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return false;
         }
@@ -175,8 +169,8 @@ namespace TourneyPal
             }
             catch (Exception ex)
             {
-                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
-                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
+                //Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                //           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return null;
         }
