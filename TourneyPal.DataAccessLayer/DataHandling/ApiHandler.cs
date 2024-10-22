@@ -1,6 +1,4 @@
-﻿using DSharpPlus.SlashCommands;
-using DSharpPlus;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,6 +17,7 @@ using TourneyPal.DataHandling.ChallongeHelper;
 using System.Net;
 using System.Reflection;
 using TourneyPal.Commons;
+using TourneyPal.Data.Commons;
 
 namespace TourneyPal.DataHandling
 {
@@ -210,7 +209,7 @@ namespace TourneyPal.DataHandling
             {
                 foreach (var tournament in tournamentData.data.tournaments.nodes)
                 {
-                    var systemTourney = new TournamentData()
+                    var systemTourney = new Data.Commons.TournamentData()
                     {
                         ID = tournament.id,
                         Name = tournament.name,
