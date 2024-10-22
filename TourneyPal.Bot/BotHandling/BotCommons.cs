@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TourneyPal.Service;
 
-namespace TourneyPal.Bot.BotHandling
+namespace TourneyPal.BotHandling
 {
     public static class BotCommons
     {
