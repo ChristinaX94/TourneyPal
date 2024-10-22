@@ -18,6 +18,7 @@ using System.Net;
 using System.Reflection;
 using TourneyPal.Commons;
 using TourneyPal.Data.Commons;
+using TourneyPal.DataAccessLayer.DataHandling;
 
 namespace TourneyPal.DataHandling
 {
@@ -215,7 +216,7 @@ namespace TourneyPal.DataHandling
                         VenueName = tournament.venueName,
                         RegistrationOpen = tournament.isRegistrationOpen,
                         NumberOfAttendees = tournament.numAttendees==null ? 0: (int)tournament.numAttendees,
-                        Game = Common.getGameType(tournament.events.Select(x => x.videogame?.name)?.FirstOrDefault())?.AsString(EnumFormat.Description),
+                        Game = GameValidation.getGameType(tournament.events.Select(x => x.videogame?.name)?.FirstOrDefault())?.AsString(EnumFormat.Description),
                         Streams = tournament.streams==null? new List<string>() : tournament.streams?.Select(x => "https://www.twitch.tv/" + x.streamName)?.ToList(),
                         HostSite = Common.TournamentSiteHost.Start.AsString(EnumFormat.Description),
                     };
@@ -268,7 +269,7 @@ namespace TourneyPal.DataHandling
                     return;
                 }
                 
-                if(!Common.gameIsSoulCalibur6(TournamentData.tournament.game_name))
+                if(!GameValidation.gameIsSoulCalibur6(TournamentData.tournament.game_name))
                 {
                     return;
                 }
@@ -371,7 +372,7 @@ namespace TourneyPal.DataHandling
                     VenueName = string.Empty,
                     RegistrationOpen = tournament.open_signup,
                     NumberOfAttendees = tournament.participants_count,
-                    Game = Common.getGameType(tournament.game_name)?.AsString(EnumFormat.Description),
+                    Game = GameValidation.getGameType(tournament.game_name)?.AsString(EnumFormat.Description),
                     Streams = new List<string>(),
                     HostSite = Common.TournamentSiteHost.Challonge.AsString(EnumFormat.Description),
                 };
