@@ -22,34 +22,25 @@ using TourneyPal.Data.Commons;
 namespace TourneyPal.DataHandling
 {
     
-    public class ApiHandler
+    public static class ApiHandler
     {
-        /// <summary>
-        /// 9 am (EET) 
-        /// </summary>
-        public const int TimeOfDayRefreshData = 9;
-
-        public ApiHandler()
-        {
-            _ = this.examineAllDataAsync();
-        }
-
-
-        public async Task runAsync()
+        public static async Task runAsync()
         {
             try
             {
+                _ = examineAllDataAsync();
+
                 var timer = new PeriodicTimer(TimeSpan.FromHours(1));
                 var time = System.DateTime.Now;
                 while (await timer.WaitForNextTickAsync())
                 {
                     time = System.DateTime.Now;
-                    if (time.Hour != TimeOfDayRefreshData)
+                    if (time.Hour != Common.TimeOfDayRefreshData)
                     {
                         continue;
                     }
 
-                    _ = this.examineAllDataAsync();
+                    _ = examineAllDataAsync();
                 }
             }
             catch (Exception ex)
@@ -59,7 +50,7 @@ namespace TourneyPal.DataHandling
             }
         }
 
-        private async Task examineAllDataAsync()
+        private static async Task examineAllDataAsync()
         {
             try
             {
@@ -76,7 +67,7 @@ namespace TourneyPal.DataHandling
 
         }
 
-        public async Task examineSingleChallongeRequest(string tournament)
+        public static async Task examineSingleChallongeRequest(string tournament)
         {
             try
             {
@@ -92,7 +83,7 @@ namespace TourneyPal.DataHandling
 
         }
 
-        public async Task handleStartGGDataAsync() 
+        public static async Task handleStartGGDataAsync() 
         {
             try
             {
@@ -125,7 +116,7 @@ namespace TourneyPal.DataHandling
             }
         }
 
-        private async Task<ApiRequestedDataHandler?> ConnectAndGetData_StartGG()
+        private static async Task<ApiRequestedDataHandler?> ConnectAndGetData_StartGG()
         {
             try
             {
@@ -179,7 +170,7 @@ namespace TourneyPal.DataHandling
             return null;
         }
 
-        public StartGGJsonObject.Root? CallStartGGApiAsync(string responseData)
+        public static StartGGJsonObject.Root? CallStartGGApiAsync(string responseData)
         {
             try
             {
@@ -203,7 +194,7 @@ namespace TourneyPal.DataHandling
             return null;
         }
 
-        private void SetDataToSystem(StartGGJsonObject.Root? tournamentData)
+        private static void SetDataToSystem(StartGGJsonObject.Root? tournamentData)
         {
             try
             {
@@ -239,7 +230,7 @@ namespace TourneyPal.DataHandling
             }
         }
 
-        public async Task handleChallongeDataASync()
+        public static async Task handleChallongeDataASync()
         {
             try
             {
@@ -258,7 +249,7 @@ namespace TourneyPal.DataHandling
             }
         }
 
-        private async Task handleChallongeSingleDataASync(string? tournamentURL)
+        private static async Task handleChallongeSingleDataASync(string? tournamentURL)
         {
             try
             {
@@ -297,7 +288,7 @@ namespace TourneyPal.DataHandling
             
         }
 
-        private async Task<ApiRequestedDataHandler?> ConnectAndGetData_Challonge(string tournamentID)
+        private static async Task<ApiRequestedDataHandler?> ConnectAndGetData_Challonge(string tournamentID)
         {
             try
             {
@@ -341,7 +332,7 @@ namespace TourneyPal.DataHandling
             return null;
         }
 
-        public ChallongeJsonObject.Root? CallChallongeApiAsync(string responseData)
+        public static ChallongeJsonObject.Root? CallChallongeApiAsync(string responseData)
         {
             try
             {
@@ -359,7 +350,7 @@ namespace TourneyPal.DataHandling
             return null;
         }
 
-        private void SetDataToSystem(ChallongeJsonObject.Root? tournamentData)
+        private static void SetDataToSystem(ChallongeJsonObject.Root? tournamentData)
         {
             try
             {

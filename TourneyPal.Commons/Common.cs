@@ -5,7 +5,11 @@ namespace TourneyPal
     public static class Common
     {
 
-        
+        /// <summary>
+        /// 9 am (EET) 
+        /// </summary>
+        public const int TimeOfDayRefreshData = 9;
+
         public enum YesNo
         {
             No = 0,
