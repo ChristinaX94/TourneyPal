@@ -3,7 +3,7 @@ using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharp​Plus.SlashCommands;
 using System.Reflection;
-using TourneyPal.Data.Commons;
+using TourneyPal.Commons.DataObjects;
 using TourneyPal.Service;
 
 namespace TourneyPal.BotHandling
@@ -92,6 +92,7 @@ namespace TourneyPal.BotHandling
                 if (string.IsNullOrEmpty(country) || country.ToArray().Length != 2)
                 {
                     await ctx.CreateResponseAsync("Country must contain 2 characters!").ConfigureAwait(false);
+                    return;
                 }
 
                 List<DiscordEmbed> embeds = GetEmbeds(BotCommons.service.getNewTournamentsByCountryCode(country));
@@ -113,11 +114,13 @@ namespace TourneyPal.BotHandling
                 if (string.IsNullOrEmpty(URL))
                 {
                     await ctx.CreateResponseAsync("Invalid URL!").ConfigureAwait(false);
+                    return;
                 }
                 var embed = BotCommons.service.getTournamentByURL(URL).Result;
                 if (embed == null)
                 {
                     await ctx.CreateResponseAsync("No tournament found!").ConfigureAwait(false);
+                    return;
                 }
                 List<DiscordEmbed> embeds = GetEmbeds(new List<TournamentData>() { embed });
                 await setPages(ctx, embeds, ctx.InteractionId).ConfigureAwait(false);
@@ -139,6 +142,7 @@ namespace TourneyPal.BotHandling
                 if (embeds.Count == 0)
                 {
                     await ctx.CreateResponseAsync("No Data").ConfigureAwait(false);
+                    return;
                 }
 
                 await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder()

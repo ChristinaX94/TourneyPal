@@ -1,5 +1,5 @@
 ﻿using System.Reflection;
-using TourneyPal.Data.Commons;
+using TourneyPal.Commons.DataObjects;
 
 namespace TourneyPal.Service
 {
