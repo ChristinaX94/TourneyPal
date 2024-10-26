@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.Metrics;
-using System.Linq;
-using System.Reflection;
-using System.Security.Policy;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Reflection;
+using TourneyPal.Api;
 using TourneyPal.Commons;
-using TourneyPal.Data.Commons;
-using TourneyPal.DataHandling;
-using TourneyPal.DataHandling.DataObjects;
+using TourneyPal.Commons.DataObjects;
+using TourneyPal.DataAccessLayer.DataHandling;
 
 namespace TourneyPal.Service
 {
@@ -23,6 +16,61 @@ namespace TourneyPal.Service
         public void InitializeData()
         {
             GeneralData.GeneralDataInitialize();
+
+            CallApiAndSave();
+        }
+
+        private async Task CallApiAndSave()
+        {
+            var response = await ApiHandler.examineAllDataAsync(GeneralData.GetChallongeTournamentUrls());
+            if (!response.Success)
+            {
+                Log(response.Error.FoundInItem, response.Error.MessageItem, response.Error.ExceptionMessageItem);
+            }
+            else
+            {
+                GeneralData.SaveFindings(response.Tournaments, response.Requests);
+            }
+        }
+
+        public async Task RunApiHandler()
+        {
+            await Task.WhenAll(RunAsync());
+        }
+
+        private async Task RunAsync()
+        {
+            try
+            {
+                var timer = new PeriodicTimer(TimeSpan.FromHours(1));
+                while (await timer.WaitForNextTickAsync())
+                {
+                    if (Common.getDate().Hour != Common.TimeOfDayRefreshData)
+                    {
+                        continue;
+                    }
+
+                    CallApiAndSave();
+                }
+            }
+            catch (Exception ex)
+            {
+                Log(foundInItem: MethodBase.GetCurrentMethod(),
+                    exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
+            }
+        }
+
+        public async Task SearchChallongeEntry(string url)
+        {
+            var response = await ApiHandler.examineSingleChallongeRequest(url);
+            if (!response.Success)
+            {
+                Log(response.Error.FoundInItem, response.Error.MessageItem, response.Error.ExceptionMessageItem);
+            }
+            else
+            {
+                GeneralData.SaveFindings(response.Tournaments, response.Requests);
+            }
         }
 
         public void Log(MethodBase? foundInItem, string? messageItem = null, string? exceptionMessageItem = null)
@@ -30,15 +78,7 @@ namespace TourneyPal.Service
             Logger.log(foundInItem, messageItem, exceptionMessageItem);
         }
 
-        public async Task RunApiHandler()
-        {
-            await Task.WhenAll(ApiHandler.runAsync());
-        }
-
-        public async Task SearchChallongeEntry(string url)
-        {
-            await ApiHandler.examineSingleChallongeRequest(url);
-        }
+        
 
         public List<TournamentData> getNewTournaments()
         {

@@ -18,7 +18,7 @@ namespace TourneyPal
 
         public static readonly int PageButtonTimeoutMinutes = 5;
 
-        public static DateTime? getDate()
+        public static DateTime getDate()
         {
             return DateTime.Now;
         }
@@ -31,7 +31,7 @@ namespace TourneyPal
             Challonge = 2
         }
 
-        public enum Games
+        public enum Game
         {
             [Description("Soul Calibur VI")]
             SoulCalibur6 = 1,
