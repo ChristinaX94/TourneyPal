@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TourneyPal.DataHandling.DataObjects
+namespace TourneyPal.Commons.DataObjects.ApiResponseModels
 {
     public class ApiRequestedDataHandler
     {

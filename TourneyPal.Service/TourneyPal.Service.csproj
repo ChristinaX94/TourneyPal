@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+	<ProjectReference Include="..\TourneyPal.ApiRequests\TourneyPal.ApiRequests.csproj" />
 	<ProjectReference Include="..\TourneyPal.DataAccessLayer\TourneyPal.DataAccessLayer.csproj" />
   </ItemGroup>
 </Project>

@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TourneyPal.DataAccessLayer"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TourneyPal.Bot", "TourneyPal.Bot\TourneyPal.Bot.csproj", "{984650DE-D034-4CCE-92C1-53DC2CF06DE9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TourneyPal.ApiRequests", "TourneyPal.ApiRequests\TourneyPal.ApiRequests.csproj", "{320339DE-AD6F-486D-8399-A089800B6629}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{984650DE-D034-4CCE-92C1-53DC2CF06DE9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{984650DE-D034-4CCE-92C1-53DC2CF06DE9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{984650DE-D034-4CCE-92C1-53DC2CF06DE9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{320339DE-AD6F-486D-8399-A089800B6629}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{320339DE-AD6F-486D-8399-A089800B6629}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{320339DE-AD6F-486D-8399-A089800B6629}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{320339DE-AD6F-486D-8399-A089800B6629}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

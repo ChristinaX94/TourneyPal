@@ -1,4 +1,4 @@
-﻿namespace TourneyPal.Data.Commons
+﻿namespace TourneyPal.Commons.DataObjects
 {
 
     public class TournamentData
