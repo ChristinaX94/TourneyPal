@@ -3,17 +3,13 @@ using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharp​Plus.SlashCommands;
 using System.Reflection;
-using TourneyPal.Commons;
-using TourneyPal.DataHandling.DataObjects;
+using TourneyPal.Commons.DataObjects;
+using TourneyPal.Service;
 
-namespace TourneyPal
+namespace TourneyPal.BotHandling
 {
     public class BotCommands : ApplicationCommandModule
     {
-        public BotCommands()
-        {
-        }
-
         #region Commands
         [SlashCommand("ping", "pings bot")]
         public async Task Ping(InteractionContext ctx)
@@ -24,22 +20,27 @@ namespace TourneyPal
             Console.WriteLine("server: " + server);
             Console.WriteLine("member: " + member);
 
-            await ctx.CreateResponseAsync("Pong").ConfigureAwait(false);
+            await ctx.CreateResponseAsync("Pong from Bot").ConfigureAwait(false);
         }
 
-        
+        [SlashCommand("pingService", "pings bot")]
+        public async Task PingService(InteractionContext ctx)
+        {
+            await ctx.CreateResponseAsync(BotCommons.service.Ping()).ConfigureAwait(false);
+        }
+
         [SlashCommand("post", "Posts all upcoming Tournaments up to one year")]
         public async Task Post(InteractionContext ctx)
         {
             try
             {
-                List<DiscordEmbed> embeds = GetEmbeds(GeneralData.TournamentsData.Where(x=> x.StartsAT >= Common.getDate()).ToList());
+                List<DiscordEmbed> embeds = GetEmbeds(BotCommons.service.getNewTournaments());
                 await setPages(ctx, embeds, ctx.InteractionId).ConfigureAwait(false);
 
             }
             catch (Exception ex)
             {
-                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                BotCommons.service.Log(foundInItem: MethodBase.GetCurrentMethod(),
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
         }
@@ -49,12 +50,12 @@ namespace TourneyPal
         {
             try
             {
-                List<DiscordEmbed> embeds = GetEmbeds(GeneralData.TournamentsData.Where(x => x.StartsAT < Common.getDate()).ToList());
+                List<DiscordEmbed> embeds = GetEmbeds(BotCommons.service.getOldTournaments());
                 await setPages(ctx, embeds, ctx.InteractionId).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
-                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                BotCommons.service.Log(foundInItem: MethodBase.GetCurrentMethod(),
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
         }
@@ -64,20 +65,21 @@ namespace TourneyPal
         {
             try
             {
-                List<DiscordEmbed> embeds = GetEmbeds(GeneralData.TournamentsData);
+                List<TournamentData> tournaments = BotCommons.service.getAllTournaments();
+                List<DiscordEmbed> embeds = GetEmbeds(tournaments);
 
-                var upcomingTournament = GeneralData.TournamentsData.FirstOrDefault(x => x.StartsAT >= Common.getDate());
+                var upcomingTournament = tournaments.FirstOrDefault(x => x.StartsAT >= Common.getDate());
                 var upcomingTournamentPos = 0;
                 if (upcomingTournament != null)
                 {
-                    upcomingTournamentPos = GeneralData.TournamentsData.IndexOf(upcomingTournament);
+                    upcomingTournamentPos = tournaments.IndexOf(upcomingTournament);
                 }
 
                 await setPages(ctx, embeds, ctx.InteractionId, upcomingTournamentPos).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
-                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                BotCommons.service.Log(foundInItem: MethodBase.GetCurrentMethod(),
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
         }
@@ -87,19 +89,19 @@ namespace TourneyPal
         {
             try
             {
-                if (string.IsNullOrEmpty(country) || country.ToArray().Length!=2)
+                if (string.IsNullOrEmpty(country) || country.ToArray().Length != 2)
                 {
                     await ctx.CreateResponseAsync("Country must contain 2 characters!").ConfigureAwait(false);
+                    return;
                 }
-                
-                List<DiscordEmbed> embeds = GetEmbeds(GeneralData.TournamentsData
-                                                    .Where(x => x.CountryCode.Equals(country) && x.StartsAT >= Common.getDate()).ToList());
-                
+
+                List<DiscordEmbed> embeds = GetEmbeds(BotCommons.service.getNewTournamentsByCountryCode(country));
+
                 await setPages(ctx, embeds, ctx.InteractionId).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
-                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                BotCommons.service.Log(foundInItem: MethodBase.GetCurrentMethod(),
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
         }
@@ -112,18 +114,20 @@ namespace TourneyPal
                 if (string.IsNullOrEmpty(URL))
                 {
                     await ctx.CreateResponseAsync("Invalid URL!").ConfigureAwait(false);
+                    return;
                 }
-                var embed = GeneralData.TournamentsData.FirstOrDefault(x => x.URL.Equals(URL));
-                if (embed==null)
+                var embed = BotCommons.service.getTournamentByURL(URL).Result;
+                if (embed == null)
                 {
-                    //ApiHandler.examineSingleChallongeRequest(URL);
+                    await ctx.CreateResponseAsync("No tournament found!").ConfigureAwait(false);
+                    return;
                 }
-                List <DiscordEmbed> embeds = GetEmbeds( new List<TournamentData>() { embed } );
+                List<DiscordEmbed> embeds = GetEmbeds(new List<TournamentData>() { embed });
                 await setPages(ctx, embeds, ctx.InteractionId).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
-                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                BotCommons.service.Log(foundInItem: MethodBase.GetCurrentMethod(),
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
         }
@@ -138,6 +142,7 @@ namespace TourneyPal
                 if (embeds.Count == 0)
                 {
                     await ctx.CreateResponseAsync("No Data").ConfigureAwait(false);
+                    return;
                 }
 
                 await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder()
@@ -159,7 +164,7 @@ namespace TourneyPal
             }
             catch (Exception ex)
             {
-                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                BotCommons.service.Log(foundInItem: MethodBase.GetCurrentMethod(),
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
         }
@@ -181,11 +186,11 @@ namespace TourneyPal
         #endregion
 
         #region Helpers
-        
+
         private static int GetNextPagePosition(List<DiscordEmbed> embeds, ComponentInteractionCreateEventArgs e)
         {
             var selectedEmbed = embeds.FirstOrDefault(x => x.Fields[x.Fields.Count - 1].Value.Equals(e.Message.Embeds.FirstOrDefault().Fields[x.Fields.Count - 1].Value));
-            
+
             if (selectedEmbed == null ||
                 embeds.IndexOf(selectedEmbed) == -1)
             {
@@ -240,7 +245,7 @@ namespace TourneyPal
             }
             catch (Exception ex)
             {
-                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                BotCommons.service.Log(foundInItem: MethodBase.GetCurrentMethod(),
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return new List<DiscordComponent>() { };
@@ -262,7 +267,7 @@ namespace TourneyPal
                     }
                     .AddField("Site: ", tourney.HostSite + tourney.URL)
                     .AddField("Online: ", tourney.Online == null ? " - " : tourney.Online == true ? "Yes" : "No")
-                    .AddField("Country Code: ", string.IsNullOrEmpty(tourney.CountryCode)? " - ":tourney.CountryCode)
+                    .AddField("Country Code: ", string.IsNullOrEmpty(tourney.CountryCode) ? " - " : tourney.CountryCode)
                     .AddField("Location: ", tourney.VenueAddress + ", " + tourney.City + ", " + tourney.AddrState + ", " + tourney.CountryCode)
                     .AddField("Date (dd/mm/yyyy): ", tourney.StartsAT == null ? " - " : tourney.StartsAT.Value.Date.ToString("dd/MM/yyyy"))
                     .AddField("Streams: ", tourney.Streams == null || tourney.Streams.Count == 0 ? " - " : string.Join("\n", tourney.Streams))
@@ -275,11 +280,11 @@ namespace TourneyPal
             }
             catch (Exception ex)
             {
-                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                BotCommons.service.Log(foundInItem: MethodBase.GetCurrentMethod(),
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
                 embeds = new List<DiscordEmbed>();
             }
-            
+
             return embeds;
         }
         #endregion

@@ -10,8 +10,10 @@ using TourneyPal.SQLManager.DataModels.SQLTables.Tournament_Api_Data;
 using EnumsNET;
 using System.Reflection;
 using TourneyPal.Commons;
+using TourneyPal.Commons.DataObjects;
+using TourneyPal.Commons.DataObjects.ApiResponseModels;
 
-namespace TourneyPal.DataHandling.DataObjects
+namespace TourneyPal.DataAccessLayer.DataHandling
 {
     public static class GeneralData
     {
@@ -20,7 +22,6 @@ namespace TourneyPal.DataHandling.DataObjects
         private static Game games { get; set; }
         private static Tournament_Host_Sites tournamentHostSites { get; set; }
         public static List<TournamentData> TournamentsData { get; private set; }
-        public static List<ApiRequestedDataHandler> ApiRequestedData { get; private set; }
 
         public static void GeneralDataInitialize()
         {
@@ -59,34 +60,17 @@ namespace TourneyPal.DataHandling.DataObjects
             tournamentHostSites = (Tournament_Host_Sites)SQLHandler.loadModelData(new Tournament_Host_Sites());
 
             TournamentsData = new List<TournamentData>();
-            ApiRequestedData = new List<ApiRequestedDataHandler>();
+            
         }
 
-        public static void addTournament(TournamentData tournament)
+        public static void SaveFindings(List<TournamentData> tournaments, List<ApiRequestedDataHandler> requests)
         {
             try
             {
-                var existingTournament = TournamentsData.FirstOrDefault(x => x.ID == tournament.ID);
-                if(existingTournament == null)
-                {
-                    tournament.isModified = true;
-                    TournamentsData.Add(tournament);
-                    return;
-                }
-
-                var tournamentEdited = !(existingTournament.Online == tournament.Online &&
-                                        existingTournament.StartsAT == tournament.StartsAT &&
-                                        existingTournament.NumberOfAttendees == tournament.NumberOfAttendees &&
-                                        existingTournament.VenueAddress.Equals(tournament.VenueAddress));
-                if (tournamentEdited)
-                {
-                    existingTournament.Online = tournament.Online;
-                    existingTournament.StartsAT = tournament.StartsAT;
-                    existingTournament.NumberOfAttendees = tournament.NumberOfAttendees;
-                    existingTournament.VenueAddress = tournament.VenueAddress;
-                    existingTournament.isModified = true;
-                    return;
-                }
+                AddTournaments(tournaments);
+                SaveTournaments();
+                SaveApiRequestedData(requests);
+                SortTournaments();
             }
             catch (Exception ex)
             {
@@ -95,15 +79,34 @@ namespace TourneyPal.DataHandling.DataObjects
             }
         }
 
-        public static void addApiRequestedData(ApiRequestedDataHandler requestinfo)
+        private static void AddTournaments(List<TournamentData> tournaments)
         {
             try
             {
-                if(ApiRequestedData == null)
+                foreach (var tournament in tournaments)
                 {
-                    ApiRequestedData = new List<ApiRequestedDataHandler>();
+                    var existingTournament = TournamentsData.FirstOrDefault(x => x.ID == tournament.ID);
+                    if (existingTournament == null)
+                    {
+                        tournament.isModified = true;
+                        TournamentsData.Add(tournament);
+                        return;
+                    }
+
+                    var tournamentEdited = !(existingTournament.Online == tournament.Online &&
+                                            existingTournament.StartsAT == tournament.StartsAT &&
+                                            existingTournament.NumberOfAttendees == tournament.NumberOfAttendees &&
+                                            existingTournament.VenueAddress.Equals(tournament.VenueAddress));
+                    if (tournamentEdited)
+                    {
+                        existingTournament.Online = tournament.Online;
+                        existingTournament.StartsAT = tournament.StartsAT;
+                        existingTournament.NumberOfAttendees = tournament.NumberOfAttendees;
+                        existingTournament.VenueAddress = tournament.VenueAddress;
+                        existingTournament.isModified = true;
+                        return;
+                    }
                 }
-                ApiRequestedData.Add(requestinfo);
             }
             catch (Exception ex)
             {
@@ -111,36 +114,20 @@ namespace TourneyPal.DataHandling.DataObjects
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
         }
-
-        public static void saveFindings()
+        private static void SaveTournaments()
         {
             try
             {
-                saveTournaments();
-                saveApiRequestedData();
-                sortTournaments();
-            }
-            catch (Exception ex)
-            {
-                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
-                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
-            }
-        }
-
-        private static void saveTournaments()
-        {
-            try
-            {
-                var listToSave =TournamentsData.Where(x=>x.isModified).ToList();
-                if(listToSave== null || listToSave.Count == 0)
+                var listToSave = TournamentsData.Where(x => x.isModified).ToList();
+                if (listToSave == null || listToSave.Count == 0)
                 {
                     return;
                 }
 
                 foreach (var item in listToSave)
                 {
-                    TournamentRow tournamentDataRow = (TournamentRow)tournaments.rows.FirstOrDefault(x => ((TournamentRow)x).Tournament_ID == item.ID); 
-                    
+                    TournamentRow tournamentDataRow = (TournamentRow)tournaments.rows.FirstOrDefault(x => ((TournamentRow)x).Tournament_ID == item.ID);
+
                     if (tournamentDataRow == null)
                     {
                         tournamentDataRow = new TournamentRow(nameof(tournaments));
@@ -191,7 +178,7 @@ namespace TourneyPal.DataHandling.DataObjects
 
                 tournaments = (Tournament)SQLHandler.saveData(tournaments);
                 streams = (Stream)SQLHandler.saveData(streams);
-                
+
             }
             catch (Exception ex)
             {
@@ -199,14 +186,13 @@ namespace TourneyPal.DataHandling.DataObjects
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
         }
-
-        private static void saveApiRequestedData()
+        private static void SaveApiRequestedData(List<ApiRequestedDataHandler> requests)
         {
             try
             {
                 var listSaved = TournamentsData.Where(x => x.isModified).ToList();
-                
-                foreach (var request in ApiRequestedData)
+
+                foreach (var request in requests)
                 {
                     var relatedTournaments = new Related_Tournaments_Api_Call();
                     var apiData = new Tournament_Api_Data();
@@ -231,14 +217,14 @@ namespace TourneyPal.DataHandling.DataObjects
                     }
                     var relatedTournamentIDs = new List<int>();
 
-                    if (request.Tournaments!=null && request.Tournaments.Count > 0)
+                    if (request.Tournaments != null && request.Tournaments.Count > 0)
                     {
                         var listSavedStartGG = listSaved.Where(y => y.HostSite.Equals(Common.TournamentSiteHost.Start.AsString(EnumFormat.Description))).Select(x => x.ID).ToList();
                         request.Tournaments.RemoveAll(x => !listSavedStartGG.Contains(x));
                         relatedTournamentIDs.AddRange(request.Tournaments);
                     }
-                    
-                    foreach(var relatedTournamentID in relatedTournamentIDs)
+
+                    foreach (var relatedTournamentID in relatedTournamentIDs)
                     {
                         Related_Tournaments_Api_CallRow relatedTournament = new Related_Tournaments_Api_CallRow(nameof(relatedTournaments));
                         relatedTournament.insertNewRowData();
@@ -254,9 +240,7 @@ namespace TourneyPal.DataHandling.DataObjects
                     }
                 }
 
-
                 TournamentsData.ForEach(x => x.isModified = false);
-                ApiRequestedData = new List<ApiRequestedDataHandler>();
             }
             catch (Exception ex)
             {
@@ -264,8 +248,7 @@ namespace TourneyPal.DataHandling.DataObjects
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
         }
-
-        public static void sortTournaments()
+        private static void SortTournaments()
         {
             try
             {
@@ -276,6 +259,11 @@ namespace TourneyPal.DataHandling.DataObjects
                 Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
+        }
+
+        public static List<string> GetChallongeTournamentUrls()
+        {
+            return TournamentsData.Where(x => x.HostSite.Equals(Common.TournamentSiteHost.Challonge.AsString(EnumFormat.Description))).Select(y => y.URL).ToList()??new List<string>();
         }
     }
 }
