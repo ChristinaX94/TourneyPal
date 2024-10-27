@@ -3,7 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.3.32825.248
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TourneyPal", "TourneyPal\TourneyPal.csproj", "{55058A97-3905-43B9-BBB6-C60B247F30C0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TourneyPal.Service", "TourneyPal.Service\TourneyPal.Service.csproj", "{C2CB3FC8-ED2E-43D5-AEE3-CFFC5CE4F0E5}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TourneyPal.Commons", "TourneyPal.Commons\TourneyPal.Commons.csproj", "{2E1BE5C2-872E-4A03-B0A0-23E232E209BE}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TourneyPal.DataAccessLayer", "TourneyPal.DataAccessLayer\TourneyPal.DataAccessLayer.csproj", "{7D38D495-9712-4CF0-8A4F-231871ABFE74}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TourneyPal.Bot", "TourneyPal.Bot\TourneyPal.Bot.csproj", "{984650DE-D034-4CCE-92C1-53DC2CF06DE9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TourneyPal.ApiRequests", "TourneyPal.ApiRequests\TourneyPal.ApiRequests.csproj", "{320339DE-AD6F-486D-8399-A089800B6629}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +19,26 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{55058A97-3905-43B9-BBB6-C60B247F30C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{55058A97-3905-43B9-BBB6-C60B247F30C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{55058A97-3905-43B9-BBB6-C60B247F30C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{55058A97-3905-43B9-BBB6-C60B247F30C0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C2CB3FC8-ED2E-43D5-AEE3-CFFC5CE4F0E5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C2CB3FC8-ED2E-43D5-AEE3-CFFC5CE4F0E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C2CB3FC8-ED2E-43D5-AEE3-CFFC5CE4F0E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C2CB3FC8-ED2E-43D5-AEE3-CFFC5CE4F0E5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2E1BE5C2-872E-4A03-B0A0-23E232E209BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E1BE5C2-872E-4A03-B0A0-23E232E209BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2E1BE5C2-872E-4A03-B0A0-23E232E209BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2E1BE5C2-872E-4A03-B0A0-23E232E209BE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7D38D495-9712-4CF0-8A4F-231871ABFE74}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D38D495-9712-4CF0-8A4F-231871ABFE74}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7D38D495-9712-4CF0-8A4F-231871ABFE74}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7D38D495-9712-4CF0-8A4F-231871ABFE74}.Release|Any CPU.Build.0 = Release|Any CPU
+		{984650DE-D034-4CCE-92C1-53DC2CF06DE9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{984650DE-D034-4CCE-92C1-53DC2CF06DE9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{984650DE-D034-4CCE-92C1-53DC2CF06DE9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{984650DE-D034-4CCE-92C1-53DC2CF06DE9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{320339DE-AD6F-486D-8399-A089800B6629}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{320339DE-AD6F-486D-8399-A089800B6629}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{320339DE-AD6F-486D-8399-A089800B6629}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{320339DE-AD6F-486D-8399-A089800B6629}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
