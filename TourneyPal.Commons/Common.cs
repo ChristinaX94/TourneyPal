@@ -18,6 +18,8 @@ namespace TourneyPal
 
         public static readonly int PageButtonTimeoutMinutes = 5;
 
+        public static readonly int TourneyDataPageRows = 5;
+
         public static DateTime getDate()
         {
             return DateTime.Now;

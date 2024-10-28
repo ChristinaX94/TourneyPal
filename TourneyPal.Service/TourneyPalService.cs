@@ -78,7 +78,10 @@ namespace TourneyPal.Service
             Logger.log(foundInItem, messageItem, exceptionMessageItem);
         }
 
-        
+        public TournamentData? getTournamentByName(string name)
+        {
+            return GeneralData.TournamentsData.FirstOrDefault(x => x.Name.Equals(name));
+        }
 
         public List<TournamentData> getNewTournaments()
         {
@@ -100,16 +103,15 @@ namespace TourneyPal.Service
             return GeneralData.TournamentsData.Where(x => x.CountryCode.Equals(countryCode) && x.StartsAT >= Common.getDate()).ToList();
         }
 
-        public async Task<TournamentData?> getTournamentByURL(string url)
+        public List<TournamentData> searchTournaments(string term)
         {
-            var tournamentFound = GeneralData.TournamentsData.FirstOrDefault(x => x.URL.Equals(url));
-            if (tournamentFound == null) 
-            {
-                await SearchChallongeEntry(url);
-                tournamentFound = GeneralData.TournamentsData.FirstOrDefault(x => x.URL.Equals(url));
-            }
+            return GeneralData.TournamentsData.Where(x => x.Name.ToLower().Contains(term.ToLower()) && x.StartsAT >= Common.getDate()).ToList();
+        }
 
-            return tournamentFound;
+        public async Task<TournamentData?> getChallongeTournamentByURL(string url)
+        {
+            await SearchChallongeEntry(url);
+            return GeneralData.TournamentsData.FirstOrDefault(x => x.URL.Equals(url));
         }
     }
 }

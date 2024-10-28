@@ -1,10 +1,10 @@
 ﻿using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+using DSharpPlus.Interactivity.Extensions;
 using DSharp​Plus.SlashCommands;
 using System.Reflection;
 using TourneyPal.Commons.DataObjects;
-using TourneyPal.Service;
 
 namespace TourneyPal.BotHandling
 {
@@ -106,17 +106,66 @@ namespace TourneyPal.BotHandling
             }
         }
 
-        [SlashCommand("search", "Searches a tournament based on URL. If it is located in Challonge, it gets registered.")]
-        public async Task SearchTourneyIn(InteractionContext ctx, [Option("URL", "Url of Tournament")] string URL)
+        [SlashCommand("searchTournament", "Searches a tournament based on title and shows results that are a match")]
+        public async Task SearchTournament(InteractionContext ctx, [Option("SearchTerm", "Use a search term")] string term)
         {
             try
             {
+                if (string.IsNullOrEmpty(term))
+                {
+                    await ctx.CreateResponseAsync("Search term is empty!").ConfigureAwait(false);
+                    return;
+                }
+
+                var data = BotCommons.service.searchTournaments(term);
+                var embeds = GetDataEmbeds(data);
+
+                await setDataPages(ctx, embeds, ctx.InteractionId).ConfigureAwait(false);
+
+                await ctx.FollowUpAsync(new DiscordFollowupMessageBuilder() { Content = "Respond with a number of choice to continue." });
+
+                int choice = -1;
+                var result = await ctx.Channel.GetNextMessageAsync(ctx.User);
+
+                //if (!result.TimedOut) await ctx.FollowUpAsync(new DiscordFollowupMessageBuilder() { Content = "Action confirmed." });
+                if (!result.TimedOut)
+                {
+                    var ok = Int32.TryParse(result.Result.Content, out choice);
+                    if (!ok || choice<=0 || choice>data.Count) { await ctx.FollowUpAsync(new DiscordFollowupMessageBuilder() { Content = "Invalid input." }); return; }
+
+                    
+                    DiscordEmbed embedSelected = GetEmbeds(new List<TournamentData>(){ data[choice-1] }).FirstOrDefault();
+                    var url = embedSelected.Fields.FirstOrDefault(x => x.Name.Contains("Site")).Value;
+                    await ctx.FollowUpAsync(new DiscordFollowupMessageBuilder().AddEmbed(embedSelected).AddComponents(getLinkButton(url)));
+                }
+            }
+            catch (Exception ex)
+            {
+                BotCommons.service.Log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
+            }
+        }
+
+        #region RestrictedCommands
+        [SlashCommand("registerChallongeTournament", "Searches a Challonge tournament based on URL and it gets registered.")]
+        public async Task RegisterChallongeTournament(InteractionContext ctx, [Option("URL", "Url of Tournament")] string URL)
+        {
+            try
+            {
+                Permissions userPermissions = ctx.Member.Permissions;
+
+                if (!userPermissions.HasPermission(Permissions.Administrator))
+                {
+                    await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("You don't have the required permissions"));
+                    return;
+                }
+
                 if (string.IsNullOrEmpty(URL))
                 {
                     await ctx.CreateResponseAsync("Invalid URL!").ConfigureAwait(false);
                     return;
                 }
-                var embed = BotCommons.service.getTournamentByURL(URL).Result;
+                var embed = BotCommons.service.getChallongeTournamentByURL(URL).Result;
                 if (embed == null)
                 {
                     await ctx.CreateResponseAsync("No tournament found!").ConfigureAwait(false);
@@ -131,6 +180,7 @@ namespace TourneyPal.BotHandling
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
         }
+        #endregion
 
         #endregion
 
@@ -141,15 +191,24 @@ namespace TourneyPal.BotHandling
             {
                 if (embeds.Count == 0)
                 {
-                    await ctx.CreateResponseAsync("No Data").ConfigureAwait(false);
+                    await ctx.CreateResponseAsync("No Data Found!").ConfigureAwait(false);
                     return;
                 }
+
+                var url = embeds[selectedPos].Fields.FirstOrDefault(x => x.Name.Contains("Site"));
+                if (string.IsNullOrEmpty(url?.Value))
+                {
+                    await ctx.CreateResponseAsync("Error! No URL found!").ConfigureAwait(false);
+                    return;
+                }
+
+                var buttons = embeds.Count > 1 ? getButtons(ctx.Client, url.Value) : getLinkButton(url.Value);
 
                 await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder()
                     .WithContent(ctx.Member.Mention)
                     .AddMention(mention: new UserMention(ctx.User))
                     .AddEmbed(embeds[selectedPos])
-                    .AddComponents(getButtons(ctx.Client, embeds[selectedPos].Fields[0].Value)))
+                    .AddComponents(buttons))
                     .ConfigureAwait(false);
 
                 ctx.Client.ComponentInteractionCreated += async (s, e) =>
@@ -169,19 +228,69 @@ namespace TourneyPal.BotHandling
             }
         }
 
+        private async Task setDataPages(InteractionContext ctx, List<DiscordEmbed> embeds, ulong interactionID = 0, int selectedPos = 0)
+        {
+            try
+            {
+                if (embeds.Count == 0)
+                {
+                    await ctx.CreateResponseAsync("No Data").ConfigureAwait(false);
+                    return;
+                }
+
+                var component = new DiscordInteractionResponseBuilder()
+                    .WithContent(ctx.Member.Mention)
+                    .AddMention(mention: new UserMention(ctx.User))
+                    .AddEmbed(embeds[selectedPos]);
+
+                if (embeds.Count > 1)
+                {
+                    component.AddComponents(getButtons(ctx.Client));
+                }
+
+                await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, component).ConfigureAwait(false);
+
+                ctx.Client.ComponentInteractionCreated += async (s, e) =>
+                {
+                    if (interactionID != e.Message.Interaction.Id)
+                    {
+                        return;
+                    }
+                    await HandlePageChange(ctx, embeds, e).ConfigureAwait(false);
+                };
+            }
+            catch (Exception ex)
+            {
+                BotCommons.service.Log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
+            }
+        }
+
         private async Task HandlePageChange(InteractionContext ctx,
                                             List<DiscordEmbed> embeds,
                                             ComponentInteractionCreateEventArgs e)
         {
-            await ValidatePageChangeAction(e).ConfigureAwait(false);
-            int pos = GetNextPagePosition(embeds, e);
-            if (pos > -1)
+            try
             {
-                await e.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage, new DiscordInteractionResponseBuilder()
-                .AddEmbed(embeds[pos])
-                .AddComponents(getButtons(ctx.Client, embeds[pos].Fields[0].Value))).ConfigureAwait(false);
+                if (!await ValidatePageChangeAction(e).ConfigureAwait(false))
+                {
+                    return;
+                }
+
+                int pos = GetNextPagePosition(embeds, e);
+                if (pos > -1)
+                {
+                    var url = embeds[pos].Fields.FirstOrDefault(x => x.Name.Contains("Site"))?.Value;
+                    await e.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage, new DiscordInteractionResponseBuilder()
+                    .AddEmbed(embeds[pos])
+                    .AddComponents(getButtons(ctx.Client, url))).ConfigureAwait(false);
+                }
             }
-            await Task.CompletedTask;
+            catch (Exception ex)
+            {
+                BotCommons.service.Log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
+            }
         }
         #endregion
 
@@ -189,59 +298,100 @@ namespace TourneyPal.BotHandling
 
         private static int GetNextPagePosition(List<DiscordEmbed> embeds, ComponentInteractionCreateEventArgs e)
         {
-            var selectedEmbed = embeds.FirstOrDefault(x => x.Fields[x.Fields.Count - 1].Value.Equals(e.Message.Embeds.FirstOrDefault().Fields[x.Fields.Count - 1].Value));
-
-            if (selectedEmbed == null ||
-                embeds.IndexOf(selectedEmbed) == -1)
+            try
             {
-                return -1;
+                var messageEmbed = e.Message.Embeds.FirstOrDefault();
+                var selectedEmbed = embeds.FirstOrDefault(x => x.Fields.LastOrDefault().Value.Equals(messageEmbed.Fields.LastOrDefault().Value));
+
+                if (selectedEmbed == null ||
+                    embeds.IndexOf(selectedEmbed) == -1)
+                {
+                    return -1;
+                }
+
+                var pos = embeds.IndexOf(selectedEmbed);
+
+                if (e.Id.Equals("Righty") && pos < embeds.Count - 1)
+                {
+                    pos++;
+                }
+                if (e.Id.Equals("Lefty") && pos > 0)
+                {
+                    pos--;
+                }
+
+                return pos;
             }
-
-            var pos = embeds.IndexOf(selectedEmbed);
-
-            if (e.Id.Equals("Righty") && pos < embeds.Count - 1)
+            catch (Exception ex)
             {
-                pos++;
+                BotCommons.service.Log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
-            if (e.Id.Equals("Lefty") && pos > 0)
-            {
-                pos--;
-            }
-
-            return pos;
+            return -1;
         }
 
-        private static async Task ValidatePageChangeAction(ComponentInteractionCreateEventArgs e)
-        {
-            if (e.Message?.Embeds == null)
-            {
-                await e.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage,
-                    new DiscordInteractionResponseBuilder().WithContent("Session Expired")).ConfigureAwait(false);
-            }
-
-            if (DateTimeOffset.Now.Subtract(e.Message.CreationTimestamp).TotalMinutes > Common.PageButtonTimeoutMinutes)
-            {
-                if (e.Message.Embeds.FirstOrDefault() == null)
-                {
-                    await e.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage,
-                    new DiscordInteractionResponseBuilder().WithContent("Session Expired")).ConfigureAwait(false);
-                }
-                else
-                {
-                    await e.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage,
-                    new DiscordInteractionResponseBuilder().AddEmbed(e.Message.Embeds.FirstOrDefault())).ConfigureAwait(false);
-                }
-            }
-        }
-
-        private List<DiscordComponent> getButtons(DiscordClient client, string url)
+        private static async Task<bool> ValidatePageChangeAction(ComponentInteractionCreateEventArgs e)
         {
             try
             {
-                return new List<DiscordComponent>(){
+                if (e.Message?.Embeds == null)
+                {
+                    await e.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage,
+                        new DiscordInteractionResponseBuilder().WithContent("Session Expired")).ConfigureAwait(false);
+                    return false;
+                }
+
+                if (DateTimeOffset.Now.Subtract(e.Message.CreationTimestamp).TotalMinutes > Common.PageButtonTimeoutMinutes)
+                {
+                    if (e.Message.Embeds.FirstOrDefault() == null)
+                    {
+                        await e.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage,
+                        new DiscordInteractionResponseBuilder().WithContent("Session Expired")).ConfigureAwait(false);
+                    }
+                    else
+                    {
+                        await e.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage,
+                        new DiscordInteractionResponseBuilder().AddEmbed(e.Message.Embeds.FirstOrDefault())).ConfigureAwait(false);
+                    }
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                BotCommons.service.Log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
+                return false;
+            }
+            return true;
+        }
+
+        private List<DiscordComponent> getButtons(DiscordClient client, string? url = "")
+        {
+            try
+            {
+                var buttonlist = new List<DiscordComponent>(){
                         new DiscordButtonComponent(ButtonStyle.Secondary, "Lefty", string.Empty, emoji: new(DiscordEmoji.FromName(client, ":point_left:"))),
-                        new DiscordLinkButtonComponent(url, "Go!"),
                         new DiscordButtonComponent(ButtonStyle.Secondary, "Righty", string.Empty, emoji: new(DiscordEmoji.FromName(client, ":point_right:"))) };
+
+                if (!String.IsNullOrEmpty(url))
+                {
+                    buttonlist.Insert(1, new DiscordLinkButtonComponent(url, "Go!"));
+                }
+                return buttonlist;
+            }
+            catch (Exception ex)
+            {
+                BotCommons.service.Log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
+            }
+            return new List<DiscordComponent>() { };
+        }
+
+        private List<DiscordComponent> getLinkButton(string url)
+        {
+            try
+            {
+                return new List<DiscordComponent>(){ new DiscordLinkButtonComponent(url, "Go!") };
             }
             catch (Exception ex)
             {
@@ -285,6 +435,46 @@ namespace TourneyPal.BotHandling
                 embeds = new List<DiscordEmbed>();
             }
 
+            return embeds;
+        }
+
+        private List<DiscordEmbed> GetDataEmbeds(List<TournamentData> tourneysSelected)
+        {
+            var embeds = new List<DiscordEmbed>();
+            try
+            {
+                var numberOfTourneys = tourneysSelected.Count;
+                var pageNumber = Math.Ceiling((decimal)numberOfTourneys / Common.TourneyDataPageRows);
+                for (var batchPage = 0; batchPage < pageNumber; batchPage++)
+                {
+                    DiscordEmbedBuilder embed = new DiscordEmbedBuilder
+                    {
+                        Title = tourneysSelected.First().Game,
+                        Color = DiscordColor.Green
+                    };
+
+                    int numberOfItemsToGet = Common.TourneyDataPageRows;
+                    if (pageNumber - batchPage == 1)
+                    {
+                        numberOfItemsToGet = numberOfTourneys % Common.TourneyDataPageRows;
+                    }
+
+                    foreach (var tourney in tourneysSelected.GetRange(batchPage*Common.TourneyDataPageRows, numberOfItemsToGet))
+                    {
+                        embed.AddField((tourneysSelected.IndexOf(tourney) + 1).ToString() + ".: " + tourney.Name,
+                                tourney.StartsAT == null ? "Date: - " : "Date (dd/mm/yyyy): " + tourney.StartsAT.Value.Date.ToString("dd/MM/yyyy") + 
+                                "\nLocation: " + tourney.CountryCode)
+                             .WithFooter($"Page {1 + batchPage}/{pageNumber}");
+                    }
+                    embed.Build();
+                    embeds.Add(embed);
+                }
+            }
+            catch (Exception ex)
+            {
+                BotCommons.service.Log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
+            }
             return embeds;
         }
         #endregion
