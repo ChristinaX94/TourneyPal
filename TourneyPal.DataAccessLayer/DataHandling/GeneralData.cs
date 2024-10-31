@@ -90,7 +90,7 @@ namespace TourneyPal.DataAccessLayer.DataHandling
                     {
                         tournament.isModified = true;
                         TournamentsData.Add(tournament);
-                        return;
+                        continue;
                     }
 
                     var tournamentEdited = !(existingTournament.Online == tournament.Online &&
@@ -104,7 +104,7 @@ namespace TourneyPal.DataAccessLayer.DataHandling
                         existingTournament.NumberOfAttendees = tournament.NumberOfAttendees;
                         existingTournament.VenueAddress = tournament.VenueAddress;
                         existingTournament.isModified = true;
-                        return;
+                        continue;
                     }
                 }
             }

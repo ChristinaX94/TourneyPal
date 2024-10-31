@@ -367,3 +367,5 @@ FodyWeavers.xsd
 
 # configs
 *.config
+/TourneyPal.Bot/App.config
+/TourneyPal.Bot/App.config

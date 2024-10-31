@@ -161,7 +161,7 @@ namespace TourneyPal.Api
                             ApiResponse.Success = false;
                             ApiResponse.Error = new LogMessage()
                             {
-                                MessageItem = "Invalid Response after startGG API call",
+                                MessageItem = "Invalid Response after startGG API call: " + responseString,
                                 FoundInItem = MethodBase.GetCurrentMethod()
                             };
                             return ApiResponse;
