@@ -23,12 +23,12 @@ namespace TourneyPal.BotHandling
                 TokenType = TokenType.Bot,
                 AutoReconnect = true,
                 MinimumLogLevel = Microsoft.Extensions.Logging.LogLevel.Debug,
-                Intents = DiscordIntents.AllUnprivileged | DiscordIntents.MessageContents
+                Intents = DiscordIntents.All
             };
 
             this.Client = new DiscordClient(config);
             this.Client.Ready += isClientReady;
-
+            this.Client.GuildCreated += CreateRole;
             this.Client.UseInteractivity(new InteractivityConfiguration()
             {
                 PollBehaviour = PollBehaviour.KeepEmojis,
@@ -40,10 +40,39 @@ namespace TourneyPal.BotHandling
             this.Commands = this.Client.UseSlashCommands(slashCommandsConfiguration);
             this.Commands.RegisterCommands<BotCommands>();
 
-
+            
             await Client.ConnectAsync();
             await checkUpdates();
             await Task.Delay(-1);
+        }
+
+        private Task CreateRole(DiscordClient Client, GuildCreateEventArgs server)
+        {
+            try
+            {
+                var role = server.Guild.Roles.Select(x => x.Value).FirstOrDefault(x => x.Name.Equals(Common.TourneyPalRole));
+                if(role != null)
+                {
+                    return Task.CompletedTask;
+                }
+
+                server.Guild.CreateRoleAsync(name: Common.TourneyPalRole, mentionable: true);
+
+                var admin = server.Guild.Members.FirstOrDefault(x => x.Value.Hierarchy == int.MaxValue).Value;
+                if(admin == null)
+                {
+                    return Task.CompletedTask;
+                }
+                admin.SendMessageAsync("Thank you for inviting TourneyPal! " +
+                    "If it wasn't created already, TourneyPal created a new role - "+ Common.TourneyPalRole + " - just for annoucements!")
+                    .ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                BotCommons.service.Log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
+            }
+            return Task.CompletedTask;
         }
 
         private Task isClientReady(DiscordClient Client, ReadyEventArgs e)
@@ -54,26 +83,35 @@ namespace TourneyPal.BotHandling
 
         private async Task checkUpdates()
         {
-            var timer = new PeriodicTimer(TimeSpan.FromSeconds(1));
-            while (await timer.WaitForNextTickAsync())
+            try
             {
-                if (Common.getDate().Hour != Common.TimeOfDayRefreshData)
+                var timer = new PeriodicTimer(TimeSpan.FromSeconds(1));
+                while (await timer.WaitForNextTickAsync())
                 {
-                    continue;
-                }
-
-                var servers = this.Client.Guilds.ToList();
-                foreach (var server in servers)
-                {
-                    var channels = server.Value.Channels.Values.Where(x => x.Type != ChannelType.Voice && x.Type != ChannelType.Category);
-                    foreach (var channel in channels)
+                    if (Common.getDate().Hour != Common.TimeOfDayRefreshData)
                     {
-                        var role = server.Value.Roles.Select(x => x.Value).FirstOrDefault(x => x.Name.Equals("Test"));
-                        DiscordEmbed embed = GetDataEmbed(BotCommons.service.getNewTournaments());
-                        await setMessage(embed, channel, role).ConfigureAwait(false);
+                        continue;
+                    }
+
+                    var servers = this.Client.Guilds.ToList();
+                    foreach (var server in servers)
+                    {
+                        var role = server.Value.Roles.Select(x => x.Value).FirstOrDefault(x => x.Name.Equals(Common.TourneyPalRole));
+                        var channels = server.Value.Channels.Values.Where(x => x.Type != ChannelType.Voice && x.Type != ChannelType.Category);
+                        foreach (var channel in channels)
+                        {
+                            DiscordEmbed embed = GetDataEmbed(BotCommons.service.getNewTournaments());
+                            await setMessage(embed, channel, role).ConfigureAwait(false);
+                        }
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                BotCommons.service.Log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
+            }
+            
         }
 
         private DiscordEmbed GetDataEmbed(List<TournamentData> tourneysSelected)
@@ -113,6 +151,11 @@ namespace TourneyPal.BotHandling
         {
             try
             {
+                if(role == null)
+                {
+                    await channel.SendMessageAsync(new DiscordMessageBuilder().AddEmbed(embed)).ConfigureAwait(false);
+                    return;
+                }
 
                 await channel.SendMessageAsync(new DiscordMessageBuilder()
                     .WithContent(role.Mention)
