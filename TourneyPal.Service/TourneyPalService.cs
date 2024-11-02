@@ -98,6 +98,11 @@ namespace TourneyPal.Service
             return GeneralData.TournamentsData.ToList();
         }
 
+        public List<TournamentData> getNewlyAddedTournaments()
+        {
+            return GeneralData.NewlyAddedTournamentsData.ToList();
+        }
+
         public List<TournamentData> getNewTournamentsByCountryCode(string countryCode)
         {
             return GeneralData.TournamentsData.Where(x => x.CountryCode.Equals(countryCode) && x.StartsAT >= Common.getDate()).ToList();

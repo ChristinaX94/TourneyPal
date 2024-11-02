@@ -15,7 +15,7 @@ namespace TourneyPal
                 BotCommons.service = serviceProvider.GetService<ITourneyPalService>()!;
                 BotCommons.service.InitializeData();
 
-                await Task.WhenAll(new Bot().runAsync(), BotCommons.service.RunApiHandler());
+                await Task.WhenAll(new BotSetup().runAsync(), BotCommons.service.RunApiHandler());
             }
             catch (Exception ex)
             {
