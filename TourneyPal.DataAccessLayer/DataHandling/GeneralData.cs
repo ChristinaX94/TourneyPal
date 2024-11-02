@@ -22,6 +22,7 @@ namespace TourneyPal.DataAccessLayer.DataHandling
         private static Game games { get; set; }
         private static Tournament_Host_Sites tournamentHostSites { get; set; }
         public static List<TournamentData> TournamentsData { get; private set; }
+        public static List<TournamentData> NewlyAddedTournamentsData { get; private set; }
 
         public static void GeneralDataInitialize()
         {
@@ -60,7 +61,7 @@ namespace TourneyPal.DataAccessLayer.DataHandling
             tournamentHostSites = (Tournament_Host_Sites)SQLHandler.loadModelData(new Tournament_Host_Sites());
 
             TournamentsData = new List<TournamentData>();
-            
+            NewlyAddedTournamentsData = new List<TournamentData>();
         }
 
         public static void SaveFindings(List<TournamentData> tournaments, List<ApiRequestedDataHandler> requests)
@@ -83,6 +84,7 @@ namespace TourneyPal.DataAccessLayer.DataHandling
         {
             try
             {
+                NewlyAddedTournamentsData = new List<TournamentData>();
                 foreach (var tournament in tournaments)
                 {
                     var existingTournament = TournamentsData.FirstOrDefault(x => x.ID == tournament.ID);
@@ -90,6 +92,7 @@ namespace TourneyPal.DataAccessLayer.DataHandling
                     {
                         tournament.isModified = true;
                         TournamentsData.Add(tournament);
+                        NewlyAddedTournamentsData.Add(tournament);
                         continue;
                     }
 
