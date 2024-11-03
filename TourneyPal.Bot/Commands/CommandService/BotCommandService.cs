@@ -1,74 +1,88 @@
-﻿using DSharpPlus;
-using DSharpPlus.Entities;
-using DSharp​Plus.SlashCommands;
+﻿using DSharpPlus.Entities;
+using DSharpPlus;
+using DSharpPlus.SlashCommands;
 using System.Reflection;
+using TourneyPal.BotHandling;
 using TourneyPal.Commons.DataObjects;
+using static TourneyPal.Common;
 
-namespace TourneyPal.BotHandling
+namespace TourneyPal.Bot.Commands.CommandService
 {
-    public class BotCommands : ApplicationCommandModule
+    public class BotCommandService : IBotCommandService
     {
-        [SlashCommand("ping", "pings bot")]
         public async Task Ping(InteractionContext ctx)
         {
-            var server = ctx.Guild;
-            var member = ctx.Member;
-
-            Console.WriteLine("server: " + server);
-            Console.WriteLine("member: " + member);
-
-            await ctx.CreateResponseAsync("Pong from Bot").ConfigureAwait(false);
+            try
+            {
+                await ctx.CreateResponseAsync("Pong from Bot").ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                BotCommons.DataService.Log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
+            }
         }
 
-        [SlashCommand("pingService", "pings bot")]
         public async Task PingService(InteractionContext ctx)
         {
-            await ctx.CreateResponseAsync(BotCommons.service.Ping()).ConfigureAwait(false);
+            try
+            {
+                await ctx.CreateResponseAsync(BotCommons.DataService.Ping()).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                BotCommons.DataService.Log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
+            }
         }
 
-        [SlashCommand("help", "Get a list of all commands")]
         public async Task Help(InteractionContext ctx)
         {
-            await ctx.CreateResponseAsync("/post").ConfigureAwait(false);
+            try
+            {
+                await ctx.CreateResponseAsync("/post").ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                BotCommons.DataService.Log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
+            }
         }
 
-        [SlashCommand("post", "Posts all upcoming Tournaments up to one year")]
-        public async Task Post(InteractionContext ctx)
+        public async Task Post(Game SelectedGame, InteractionContext ctx)
         {
             try
             {
-                List<DiscordEmbed> embeds = BotCommons.GetEmbeds(BotCommons.service.getNewTournaments());
+                List<DiscordEmbed> embeds = BotCommons.GetEmbeds(BotCommons.DataService.getNewTournaments(SelectedGame));
                 await BotCommons.setPages(ctx, embeds, ctx.InteractionId).ConfigureAwait(false);
 
             }
             catch (Exception ex)
             {
-                BotCommons.service.Log(foundInItem: MethodBase.GetCurrentMethod(),
+                BotCommons.DataService.Log(foundInItem: MethodBase.GetCurrentMethod(),
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
         }
 
-        [SlashCommand("postOld", "Posts all past Tournaments")]
-        public async Task PostOld(InteractionContext ctx)
+        public async Task PostOld(Game SelectedGame, InteractionContext ctx)
         {
             try
             {
-                List<DiscordEmbed> embeds = BotCommons.GetEmbeds(BotCommons.service.getOldTournaments());
+                List<DiscordEmbed> embeds = BotCommons.GetEmbeds(BotCommons.DataService.getOldTournaments(SelectedGame));
                 await BotCommons.setPages(ctx, embeds, ctx.InteractionId).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
-                BotCommons.service.Log(foundInItem: MethodBase.GetCurrentMethod(),
+                BotCommons.DataService.Log(foundInItem: MethodBase.GetCurrentMethod(),
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
         }
 
-        [SlashCommand("postAll", "Posts all registered Tournaments in DB")]
-        public async Task PostAll(InteractionContext ctx)
+        public async Task PostAll(Game SelectedGame, InteractionContext ctx)
         {
             try
             {
-                List<TournamentData> tournaments = BotCommons.service.getAllTournaments();
+                List<TournamentData> tournaments = BotCommons.DataService.getAllTournaments(SelectedGame);
                 List<DiscordEmbed> embeds = BotCommons.GetEmbeds(tournaments);
 
                 var upcomingTournament = tournaments.FirstOrDefault(x => x.StartsAT >= Common.getDate());
@@ -82,13 +96,12 @@ namespace TourneyPal.BotHandling
             }
             catch (Exception ex)
             {
-                BotCommons.service.Log(foundInItem: MethodBase.GetCurrentMethod(),
+                BotCommons.DataService.Log(foundInItem: MethodBase.GetCurrentMethod(),
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
         }
 
-        [SlashCommand("tourneyIn", "Posts all registered Tournaments in Specific Country")]
-        public async Task PostTourneyIn(InteractionContext ctx, [Option("country", "2 character Country Code")] string country)
+        public async Task PostTourneyIn(Game SelectedGame, InteractionContext ctx, string country)
         {
             try
             {
@@ -98,19 +111,18 @@ namespace TourneyPal.BotHandling
                     return;
                 }
 
-                List<DiscordEmbed> embeds = BotCommons.GetEmbeds(BotCommons.service.getNewTournamentsByCountryCode(country));
+                List<DiscordEmbed> embeds = BotCommons.GetEmbeds(BotCommons.DataService.getNewTournamentsByCountryCode(SelectedGame, country));
 
                 await BotCommons.setPages(ctx, embeds, ctx.InteractionId).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
-                BotCommons.service.Log(foundInItem: MethodBase.GetCurrentMethod(),
+                BotCommons.DataService.Log(foundInItem: MethodBase.GetCurrentMethod(),
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
         }
 
-        [SlashCommand("searchTournament", "Searches a tournament based on title and shows results that are a match")]
-        public async Task SearchTournament(InteractionContext ctx, [Option("SearchTerm", "Use a search term")] string term)
+        public async Task SearchTournament(Game SelectedGame, InteractionContext ctx, string term)
         {
             try
             {
@@ -120,7 +132,7 @@ namespace TourneyPal.BotHandling
                     return;
                 }
 
-                var data = BotCommons.service.searchTournaments(term);
+                var data = BotCommons.DataService.searchTournaments(SelectedGame, term);
                 if (data.Count == 0)
                 {
                     await ctx.CreateResponseAsync("No Data").ConfigureAwait(false);
@@ -140,26 +152,22 @@ namespace TourneyPal.BotHandling
 
                 await BotCommons.setMessageFollowUp(data, ctx).ConfigureAwait(false);
 
-                
+
             }
             catch (Exception ex)
             {
-                BotCommons.service.Log(foundInItem: MethodBase.GetCurrentMethod(),
+                BotCommons.DataService.Log(foundInItem: MethodBase.GetCurrentMethod(),
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
         }
 
-        #region RestrictedCommands
-        [SlashCommand("registerChallongeTournament", "Searches a Challonge tournament based on URL and it gets registered.")]
-        public async Task RegisterChallongeTournament(InteractionContext ctx, [Option("URL", "Url of Tournament")] string URL)
+        public async Task RegisterChallongeTournament(InteractionContext ctx, string URL)
         {
             try
             {
-                Permissions userPermissions = ctx.Member.Permissions;
-
-                if (!userPermissions.HasPermission(Permissions.Administrator))
+                var canCall = await BotCommons.ValidatePermissions(ctx, Permissions.Administrator);
+                if (!canCall)
                 {
-                    await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("You don't have the required permissions"));
                     return;
                 }
 
@@ -168,7 +176,7 @@ namespace TourneyPal.BotHandling
                     await ctx.CreateResponseAsync("Invalid URL!").ConfigureAwait(false);
                     return;
                 }
-                var embed = BotCommons.service.getChallongeTournamentByURL(URL).Result;
+                var embed = BotCommons.DataService.getChallongeTournamentByURL(URL).Result;
                 if (embed == null)
                 {
                     await ctx.CreateResponseAsync("No tournament found!").ConfigureAwait(false);
@@ -179,11 +187,9 @@ namespace TourneyPal.BotHandling
             }
             catch (Exception ex)
             {
-                BotCommons.service.Log(foundInItem: MethodBase.GetCurrentMethod(),
+                BotCommons.DataService.Log(foundInItem: MethodBase.GetCurrentMethod(),
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
         }
-        #endregion
     }
-
 }

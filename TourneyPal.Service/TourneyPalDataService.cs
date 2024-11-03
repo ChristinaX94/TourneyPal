@@ -3,10 +3,11 @@ using TourneyPal.Api;
 using TourneyPal.Commons;
 using TourneyPal.Commons.DataObjects;
 using TourneyPal.DataAccessLayer.DataHandling;
+using static TourneyPal.Common;
 
-namespace TourneyPal.Service
+namespace TourneyPal.DataService
 {
-    public class TourneyPalService: ITourneyPalService
+    public class TourneyPalDataService: ITourneyPalDataService
     {
         public string Ping() 
         {
@@ -78,37 +79,37 @@ namespace TourneyPal.Service
             Logger.log(foundInItem, messageItem, exceptionMessageItem);
         }
 
-        public TournamentData? getTournamentByName(string name)
+        public TournamentData? getTournamentByName(Game SelectedGame, string name)
         {
             return GeneralData.TournamentsData.FirstOrDefault(x => x.Name.Equals(name));
         }
 
-        public List<TournamentData> getNewTournaments()
+        public List<TournamentData> getNewTournaments(Game SelectedGame)
         {
             return GeneralData.TournamentsData.Where(x => x.StartsAT >= Common.getDate()).ToList();
         }
 
-        public List<TournamentData> getOldTournaments()
+        public List<TournamentData> getOldTournaments(Game SelectedGame)
         {
             return GeneralData.TournamentsData.Where(x => x.StartsAT < Common.getDate()).ToList();
         }
 
-        public List<TournamentData> getAllTournaments()
+        public List<TournamentData> getAllTournaments(Game SelectedGame)
         {
             return GeneralData.TournamentsData.ToList();
         }
 
-        public List<TournamentData> getNewlyAddedTournaments()
+        public List<TournamentData> getNewlyAddedTournaments(Game SelectedGame)
         {
             return GeneralData.NewlyAddedTournamentsData.ToList();
         }
 
-        public List<TournamentData> getNewTournamentsByCountryCode(string countryCode)
+        public List<TournamentData> getNewTournamentsByCountryCode(Game SelectedGame, string countryCode)
         {
             return GeneralData.TournamentsData.Where(x => x.CountryCode.Equals(countryCode) && x.StartsAT >= Common.getDate()).ToList();
         }
 
-        public List<TournamentData> searchTournaments(string term)
+        public List<TournamentData> searchTournaments(Game SelectedGame, string term)
         {
             return GeneralData.TournamentsData.Where(x => x.Name.ToLower().Contains(term.ToLower()) && x.StartsAT >= Common.getDate()).ToList();
         }

@@ -38,7 +38,7 @@ namespace TourneyPal.Bot.BotHandling
             }
             catch (Exception ex)
             {
-                BotCommons.service.Log(foundInItem: MethodBase.GetCurrentMethod(),
+                BotCommons.DataService.Log(foundInItem: MethodBase.GetCurrentMethod(),
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return Task.CompletedTask;
@@ -62,7 +62,7 @@ namespace TourneyPal.Bot.BotHandling
                         continue;
                     }
 
-                    var newlyAddedTournaments = BotCommons.service.getNewlyAddedTournaments();
+                    var newlyAddedTournaments = BotCommons.DataService.getNewlyAddedTournaments(Common.Game.SoulCalibur6);
                     if (newlyAddedTournaments == null || newlyAddedTournaments.Count==0)
                     {
                         continue;
@@ -84,7 +84,7 @@ namespace TourneyPal.Bot.BotHandling
             }
             catch (Exception ex)
             {
-                BotCommons.service.Log(foundInItem: MethodBase.GetCurrentMethod(),
+                BotCommons.DataService.Log(foundInItem: MethodBase.GetCurrentMethod(),
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
 

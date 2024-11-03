@@ -1,13 +1,12 @@
 ﻿using DSharpPlus;
 using DSharpPlus.Entities;
-using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Enums;
 using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.SlashCommands;
 using System.Reflection;
 using TourneyPal.Bot.BotHandling;
-using TourneyPal.Commons.DataObjects;
+using TourneyPal.Bot.Commands;
 
 namespace TourneyPal.BotHandling
 {
@@ -32,6 +31,7 @@ namespace TourneyPal.BotHandling
                 this.Client = new DiscordClient(config);
                 this.Client.Ready += BotActions.OnClientReady;
                 this.Client.GuildCreated += BotActions.CreateRole;
+
                 this.Client.UseInteractivity(new InteractivityConfiguration()
                 {
                     PollBehaviour = PollBehaviour.KeepEmojis,
@@ -41,7 +41,9 @@ namespace TourneyPal.BotHandling
                 SlashCommandsConfiguration slashCommandsConfiguration = new SlashCommandsConfiguration();
 
                 this.Commands = this.Client.UseSlashCommands(slashCommandsConfiguration);
-                this.Commands.RegisterCommands<BotCommands>();
+                this.Commands.RegisterCommands<AdminCommands>();
+                this.Commands.RegisterCommands<GeneralCommands>();
+                this.Commands.RegisterCommands<SCVICommands>();
 
                 DiscordActivity status = new("/help", ActivityType.ListeningTo);
 
@@ -51,7 +53,7 @@ namespace TourneyPal.BotHandling
             }
             catch (Exception ex)
             {
-                BotCommons.service.Log(foundInItem: MethodBase.GetCurrentMethod(),
+                BotCommons.DataService.Log(foundInItem: MethodBase.GetCurrentMethod(),
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
         }

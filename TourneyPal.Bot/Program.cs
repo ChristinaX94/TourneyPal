@@ -1,7 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
+using TourneyPal.Bot.Commands.CommandService;
 using TourneyPal.BotHandling;
-using TourneyPal.Service;
+using TourneyPal.DataService;
 
 namespace TourneyPal
 {
@@ -11,11 +12,16 @@ namespace TourneyPal
         {
             try
             {
-                ServiceProvider serviceProvider = new ServiceCollection().AddSingleton<ITourneyPalService, TourneyPalService>().BuildServiceProvider();
-                BotCommons.service = serviceProvider.GetService<ITourneyPalService>()!;
-                BotCommons.service.InitializeData();
+                ServiceProvider serviceProvider = new ServiceCollection()
+                    .AddSingleton<ITourneyPalDataService, TourneyPalDataService>()
+                    .AddSingleton<IBotCommandService, BotCommandService>()
+                    .BuildServiceProvider();
+                BotCommons.DataService = serviceProvider.GetService<ITourneyPalDataService>()!;
+                BotCommons.CommandService = serviceProvider.GetService<IBotCommandService>()!;
 
-                await Task.WhenAll(new BotSetup().runAsync(), BotCommons.service.RunApiHandler());
+                BotCommons.DataService.InitializeData();
+
+                await Task.WhenAll(new BotSetup().runAsync(), BotCommons.DataService.RunApiHandler());
             }
             catch (Exception ex)
             {
