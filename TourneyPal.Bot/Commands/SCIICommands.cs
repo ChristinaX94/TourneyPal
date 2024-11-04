@@ -5,10 +5,10 @@ using TourneyPal.Commons;
 
 namespace TourneyPal.Bot.Commands
 {
-    [SlashCommandGroup("SCVI", "List of commands for SoulCalibur VI")]
-    public class SCVICommands : ApplicationCommandModule
+    [SlashCommandGroup("SCII", "List of commands for SoulCalibur II")]
+    public class SCIICommands : ApplicationCommandModule
     {
-        public readonly Common.Game SelectedGame = Common.Game.SoulCalibur6;
+        public readonly Common.Game SelectedGame = Common.Game.SoulCalibur2;
 
         [SlashCommand("post", "Posts all upcoming Tournaments up to one year")]
         public async Task Post(InteractionContext ctx)

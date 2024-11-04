@@ -12,6 +12,7 @@ using System.Reflection;
 using TourneyPal.Commons;
 using TourneyPal.Commons.DataObjects;
 using TourneyPal.Commons.DataObjects.ApiResponseModels;
+using TourneyPal.SQLManager.DataModels.SQLTables.Game_On_Tournament_Host_Site;
 
 namespace TourneyPal.DataAccessLayer.DataHandling
 {
@@ -21,47 +22,63 @@ namespace TourneyPal.DataAccessLayer.DataHandling
         private static Stream streams { get; set; }
         private static Game games { get; set; }
         private static Tournament_Host_Sites tournamentHostSites { get; set; }
+        private static Game_On_Tournament_Host_Site games_On_Tournament_Host_Site { get; set; }
         public static List<TournamentData> TournamentsData { get; private set; }
         public static List<TournamentData> NewlyAddedTournamentsData { get; private set; }
 
         public static void GeneralDataInitialize()
         {
-            InitializeInternalDBObjects();
-
-            foreach (TournamentRow tournament in tournaments.rows)
+            try
             {
-                TournamentsData.Add(new TournamentData()
-                {
-                    ID = tournament.Tournament_ID,
-                    Name = tournament.Name,
-                    CountryCode = tournament.CountryCode,
-                    City = tournament.City,
-                    AddrState = tournament.AddrState,
-                    StartsAT = tournament.StartsAT,
-                    Online = tournament.Online,
-                    URL = tournament.URL,
-                    State = tournament.State,
-                    VenueAddress = tournament.VenueAddress,
-                    VenueName = tournament.VenueName,
-                    RegistrationOpen = tournament.IsExpired,
-                    NumberOfAttendees = tournament.NumberOfAttendees == null ? 0 : (int)tournament.NumberOfAttendees,
-                    Game = games.rows.Where(x => x.ID == tournament.Game_ID)?.Select(y => ((GameRow)y).Title).FirstOrDefault(),
-                    Streams = streams.rows.Where(x => ((StreamRow)x).Tournament_ID == tournament.ID)?.Select(y => "https://www.twitch.tv/" + ((StreamRow)y).Title).ToList(),
-                    HostSite = tournamentHostSites.rows.Where(x => x.ID == tournament.HostSite_ID)?.Select(y => ((Tournament_Host_SitesRow)y).Site).FirstOrDefault(),
-                });
-            }
+                InitializeInternalDBObjects();
 
+                foreach (TournamentRow tournament in tournaments.rows)
+                {
+                    TournamentsData.Add(new TournamentData()
+                    {
+                        ID = tournament.Tournament_ID,
+                        Name = tournament.Name,
+                        CountryCode = tournament.CountryCode,
+                        City = tournament.City,
+                        AddrState = tournament.AddrState,
+                        StartsAT = tournament.StartsAT,
+                        Online = tournament.Online,
+                        URL = tournament.URL,
+                        State = tournament.State,
+                        VenueAddress = tournament.VenueAddress,
+                        VenueName = tournament.VenueName,
+                        RegistrationOpen = tournament.RegistrationOpen,
+                        NumberOfEntrants = tournament.NumberOfEntrants == null ? 0 : (int)tournament.NumberOfEntrants,
+                        GameEnum = (Common.Game)games.rows.Where(x => x.ID == tournament.Game_ID)?.Select(y => ((GameRow)y).ID).FirstOrDefault(),
+                        Streams = streams.rows.Where(x => ((StreamRow)x).Tournament_ID == tournament.ID)?.Select(y => "https://www.twitch.tv/" + ((StreamRow)y).Title).ToList(),
+                        HostSite = tournamentHostSites.rows.Where(x => x.ID == tournament.HostSite_ID)?.Select(y => ((Tournament_Host_SitesRow)y).Site).FirstOrDefault(),
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
+            }
         }
 
         private static void InitializeInternalDBObjects()
         {
-            tournaments = (Tournament)SQLHandler.loadModelData(new Tournament());
-            streams = (Stream)SQLHandler.loadModelData(new Stream());
-            games = (Game)SQLHandler.loadModelData(new Game());
-            tournamentHostSites = (Tournament_Host_Sites)SQLHandler.loadModelData(new Tournament_Host_Sites());
-
-            TournamentsData = new List<TournamentData>();
-            NewlyAddedTournamentsData = new List<TournamentData>();
+            try
+            {
+                tournaments = (Tournament)SQLHandler.loadModelData(new Tournament());
+                streams = (Stream)SQLHandler.loadModelData(new Stream());
+                games = (Game)SQLHandler.loadModelData(new Game());
+                tournamentHostSites = (Tournament_Host_Sites)SQLHandler.loadModelData(new Tournament_Host_Sites());
+                games_On_Tournament_Host_Site = (Game_On_Tournament_Host_Site)SQLHandler.loadModelData(new Game_On_Tournament_Host_Site());
+                TournamentsData = new List<TournamentData>();
+                NewlyAddedTournamentsData = new List<TournamentData>();
+            }
+            catch (Exception ex)
+            {
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
+            }
         }
 
         public static void SaveFindings(List<TournamentData> tournaments, List<ApiRequestedDataHandler> requests)
@@ -98,13 +115,13 @@ namespace TourneyPal.DataAccessLayer.DataHandling
 
                     var tournamentEdited = !(existingTournament.Online == tournament.Online &&
                                             existingTournament.StartsAT == tournament.StartsAT &&
-                                            existingTournament.NumberOfAttendees == tournament.NumberOfAttendees &&
+                                            existingTournament.NumberOfEntrants == tournament.NumberOfEntrants &&
                                             existingTournament.VenueAddress.Equals(tournament.VenueAddress));
                     if (tournamentEdited)
                     {
                         existingTournament.Online = tournament.Online;
                         existingTournament.StartsAT = tournament.StartsAT;
-                        existingTournament.NumberOfAttendees = tournament.NumberOfAttendees;
+                        existingTournament.NumberOfEntrants = tournament.NumberOfEntrants;
                         existingTournament.VenueAddress = tournament.VenueAddress;
                         existingTournament.isModified = true;
                         continue;
@@ -155,9 +172,8 @@ namespace TourneyPal.DataAccessLayer.DataHandling
                     tournamentDataRow.VenueAddress = item.VenueAddress;
                     tournamentDataRow.VenueName = item.VenueName;
                     tournamentDataRow.RegistrationOpen = item.RegistrationOpen;
-                    tournamentDataRow.NumberOfAttendees = item.NumberOfAttendees;
+                    tournamentDataRow.NumberOfEntrants = item.NumberOfEntrants;
                     tournamentDataRow.Game_ID = games.rows.Where(x => ((GameRow)x).Title.Equals(item.Game))?.Select(y => y.ID).FirstOrDefault();
-                    tournamentDataRow.IsExpired = item.StartsAT >= Common.getDate();
                     tournamentDataRow.isModified = true;
 
                     foreach (var streamItem in item.Streams)
@@ -264,9 +280,33 @@ namespace TourneyPal.DataAccessLayer.DataHandling
             }
         }
 
+        public static List<int> GetStartGGGameIDs()
+        {
+            try
+            {
+                return new List<int> { 904, 5582 };
+                //return games_On_Tournament_Host_Site.rows.Where(x => (Common.TournamentSiteHost)((Game_On_Tournament_Host_SiteRow)x).HostSite_ID == Common.TournamentSiteHost.Start).Select(y => (int)((Game_On_Tournament_Host_SiteRow)y).SpecificHostGameID).ToList();
+            }
+            catch (Exception ex)
+            {
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
+            }
+            return new List<int>();
+        }
+
         public static List<string> GetChallongeTournamentUrls()
         {
-            return TournamentsData.Where(x => x.HostSite.Equals(Common.TournamentSiteHost.Challonge.AsString(EnumFormat.Description))).Select(y => y.URL).ToList()??new List<string>();
+            try
+            {
+                return TournamentsData.Where(x => x.HostSite.Equals(Common.TournamentSiteHost.Challonge.AsString(EnumFormat.Description))).Select(y => y.URL).ToList();
+            }
+            catch (Exception ex)
+            {
+                Logger.log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
+            }
+            return new List<string>();
         }
     }
 }

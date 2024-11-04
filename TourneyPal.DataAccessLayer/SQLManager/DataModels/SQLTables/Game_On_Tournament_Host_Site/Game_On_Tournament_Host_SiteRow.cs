@@ -31,22 +31,31 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Game_On_Tournament_Host_Sit
                 }
 
                 //Game_ID
-                if (reader[nameof(Game_ID)] != null)
+                var game_ID = convertToInt(nameof(Game_ID), reader[nameof(Game_ID)]?.ToString());
+                if (game_ID == null)
                 {
-                    Game_ID = convertToInt(nameof(Game_ID), reader[nameof(Game_ID)]?.ToString());
+                    result = false;
+                    return result;
                 }
+                Game_ID = game_ID;
 
                 //HostSite_ID
-                if (reader[nameof(HostSite_ID)] == null)
+                var hostSite_ID = convertToInt(nameof(HostSite_ID), reader[nameof(HostSite_ID)]?.ToString());
+                if (hostSite_ID == null)
                 {
-                    HostSite_ID = convertToInt(nameof(HostSite_ID), reader[nameof(HostSite_ID)]?.ToString());
+                    result = false;
+                    return result;
                 }
+                HostSite_ID = hostSite_ID;
 
                 //SpecificHostGameID
-                if (reader[nameof(SpecificHostGameID)] == null)
+                var specificHostGameID = convertToInt(nameof(SpecificHostGameID), reader[nameof(SpecificHostGameID)]?.ToString());
+                if (specificHostGameID == null)
                 {
-                    SpecificHostGameID = convertToInt(nameof(SpecificHostGameID), reader[nameof(SpecificHostGameID)]?.ToString());
+                    result = false;
+                    return result;
                 }
+                SpecificHostGameID = specificHostGameID;
 
                 result = true;
             }

@@ -5,6 +5,7 @@ using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.SlashCommands;
 using System.Reflection;
 using TourneyPal.Bot.Commands.CommandService;
+using TourneyPal.Commons;
 using TourneyPal.Commons.DataObjects;
 using TourneyPal.DataService;
 

@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 using TourneyPal.Commons.DataObjects;
-using static TourneyPal.Common;
+using static TourneyPal.Commons.Common;
 
 namespace TourneyPal.DataService
 {

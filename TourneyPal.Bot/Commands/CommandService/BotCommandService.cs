@@ -4,7 +4,7 @@ using DSharpPlus.SlashCommands;
 using System.Reflection;
 using TourneyPal.BotHandling;
 using TourneyPal.Commons.DataObjects;
-using static TourneyPal.Common;
+using static TourneyPal.Commons.Common;
 
 namespace TourneyPal.Bot.Commands.CommandService
 {
@@ -85,7 +85,7 @@ namespace TourneyPal.Bot.Commands.CommandService
                 List<TournamentData> tournaments = BotCommons.DataService.getAllTournaments(SelectedGame);
                 List<DiscordEmbed> embeds = BotCommons.GetEmbeds(tournaments);
 
-                var upcomingTournament = tournaments.FirstOrDefault(x => x.StartsAT >= Common.getDate());
+                var upcomingTournament = tournaments.FirstOrDefault(x => x.StartsAT >= getDate());
                 var upcomingTournamentPos = 0;
                 if (upcomingTournament != null)
                 {
@@ -184,6 +184,25 @@ namespace TourneyPal.Bot.Commands.CommandService
                 }
                 List<DiscordEmbed> embeds = BotCommons.GetEmbeds(new List<TournamentData>() { embed });
                 await BotCommons.setPages(ctx, embeds, ctx.InteractionId).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                BotCommons.DataService.Log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
+            }
+        }
+
+        public async Task RegisterServerGames(InteractionContext ctx)
+        {
+            try
+            {
+                var canCall = await BotCommons.ValidatePermissions(ctx, Permissions.Administrator);
+                if (!canCall)
+                {
+                    return;
+                }
+
+                await ctx.CreateResponseAsync("Set server games!").ConfigureAwait(false);
             }
             catch (Exception ex)
             {

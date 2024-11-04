@@ -28,9 +28,8 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament
         public string? VenueAddress { get; set; }
         public string? VenueName { get; set; }
         public bool? RegistrationOpen { get; set; }
-        public int? NumberOfAttendees { get; set; }
+        public int? NumberOfEntrants { get; set; }
         public int? Game_ID { get; set; }
-        public bool? IsExpired { get; set; }
 
         public override bool loadRow(MySqlDataReader reader)
         {
@@ -121,10 +120,10 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament
                 }
                 RegistrationOpen = (bool)registrationOpen;
 
-                //NumberOfAttendees
-                if (reader[nameof(NumberOfAttendees)] != null)
+                //NumberOfEntrants
+                if (reader[nameof(NumberOfEntrants)] != null)
                 {
-                    NumberOfAttendees = convertToInt(nameof(NumberOfAttendees), reader[nameof(NumberOfAttendees)]?.ToString());
+                    NumberOfEntrants = convertToInt(nameof(NumberOfEntrants), reader[nameof(NumberOfEntrants)]?.ToString());
                 }
 
                 //Game_ID
@@ -135,15 +134,6 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament
                     return result;
                 }
                 Game_ID = (int)game_ID;
-
-                //IsExpired
-                var isExpired = convertToBool(nameof(IsExpired), reader[nameof(IsExpired)]?.ToString());
-                if (isExpired == null)
-                {
-                    result = false;
-                    return result;
-                }
-                IsExpired = (bool)isExpired;
 
                 result = true;
             }
@@ -207,12 +197,6 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament
                 {
                     result = false;
                     Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: nameof(this.Game_ID) + ", of table: " + this.tableName + "-- Cannot be null");
-                }
-
-                if (this.IsExpired == null)
-                {
-                    result = false;
-                    Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: nameof(this.IsExpired) + ", of table: " + this.tableName + "-- Cannot be null");
                 }
 
                 result = true;

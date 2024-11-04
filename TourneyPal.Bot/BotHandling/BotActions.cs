@@ -1,14 +1,11 @@
 ﻿using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using TourneyPal.BotHandling;
-using TourneyPal.Commons.DataObjects;
+using TourneyPal.Commons;
+using TourneyPal.Bot.Commands;
+using DSharpPlus.SlashCommands;
 
 namespace TourneyPal.Bot.BotHandling
 {
@@ -90,6 +87,24 @@ namespace TourneyPal.Bot.BotHandling
 
         }
 
-        
+        public static async Task OnMessageCreated(DiscordClient Client, MessageCreateEventArgs e)
+        {
+            //if (e?.Message?.Interaction?.Name != null &&
+            //    e.Message.Interaction.Name.ToLower().Contains("registerservergames"))
+            //{
+            //    await e.Channel.SendMessageAsync("aa").ConfigureAwait(false);
+            //    var commands = Client.GetSlashCommands();
+            //    commands.RegisterCommands<SCVICommands>();
+            //    commands.RegisterCommands<SCIICommands>();
+            //    await commands.RefreshCommands();
+
+            //    foreach (var command in commands.RegisteredCommands)
+            //    {
+            //        var ee = command.Key;
+            //        var eee = command.Value;
+            //    }
+            //    await e.Channel.SendMessageAsync("ok").ConfigureAwait(false);
+            //}
+        }
     }
 }

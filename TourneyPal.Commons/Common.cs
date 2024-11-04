@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace TourneyPal
+namespace TourneyPal.Commons
 {
     public static class Common
     {

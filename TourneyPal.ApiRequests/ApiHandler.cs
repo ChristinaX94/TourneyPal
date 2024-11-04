@@ -7,32 +7,36 @@ using TourneyPal.DataHandling.ChallongeHelper;
 using System.Reflection;
 using TourneyPal.Commons.DataObjects;
 using TourneyPal.Commons.DataObjects.ApiResponseModels;
+using TourneyPal.Commons;
 
 namespace TourneyPal.Api
 {
 
     public static class ApiHandler
     {
-        public static async Task<ApiResponse> examineAllDataAsync(List<string> challongeURLS)
+        public static async Task<ApiResponse> examineAllDataAsync(List<int> StartGGGameIDs, List<string> challongeURLS)
         {
             var response = new ApiResponse();
             try
             {
-                var startGGTournamentsResponse = await handleStartGGDataAsync();
-                if (!startGGTournamentsResponse.Success)
+                foreach(var gameID in StartGGGameIDs)
                 {
-                    return startGGTournamentsResponse;
+                    var startGGTournamentsResponse = await handleStartGGDataAsync(gameID);
+                    if (!startGGTournamentsResponse.Success)
+                    {
+                        return startGGTournamentsResponse;
+                    }
+
+                    response.Tournaments.AddRange(startGGTournamentsResponse.Tournaments);
+                    response.Requests.Add(startGGTournamentsResponse.ApiRequestedData);
                 }
+                
 
                 var challongeTournamentsResponse = await handleChallongeDataASync(challongeURLS);
                 if (!challongeTournamentsResponse.Success)
                 {
                     return challongeTournamentsResponse;
                 }
-
-
-                response.Tournaments.AddRange(startGGTournamentsResponse.Tournaments);
-                response.Requests.Add(startGGTournamentsResponse.ApiRequestedData);
 
                 response.Tournaments.AddRange(challongeTournamentsResponse.Tournaments);
                 response.Requests.AddRange(challongeTournamentsResponse.Requests);
@@ -75,13 +79,13 @@ namespace TourneyPal.Api
             return response;
         }
 
-        public static async Task<ApiRequestResponse> handleStartGGDataAsync() 
+        public static async Task<ApiRequestResponse> handleStartGGDataAsync(int GameID) 
         {
             var response = new ApiRequestResponse();
             try
             {
                 //getData
-                var apiResponseData = await ConnectAndGetData_StartGG();
+                var apiResponseData = await ConnectAndGetData_StartGG(GameID);
                 if (!apiResponseData.Success ||
                     String.IsNullOrEmpty(apiResponseData.ApiRequestedData.ApiResponse))
                 {
@@ -120,13 +124,13 @@ namespace TourneyPal.Api
             return response;
         }
 
-        private static async Task<ApiRequestResponse> ConnectAndGetData_StartGG()
+        private static async Task<ApiRequestResponse> ConnectAndGetData_StartGG(int GameID)
         {
             var ApiResponse = new ApiRequestResponse();
             try
             {
                 Console.WriteLine("Calling Api: " + System.DateTime.Now);
-                var json = new StartGGConnectionData.StartGGJsonFormatter();
+                var json = new StartGGConnectionData.StartGGJsonFormatter(GameID);
 
                 using (HttpClient client = new HttpClient())
                 {
@@ -250,8 +254,8 @@ namespace TourneyPal.Api
                         VenueAddress = tournament.venueAddress,
                         VenueName = tournament.venueName,
                         RegistrationOpen = tournament.isRegistrationOpen,
-                        NumberOfAttendees = tournament.numAttendees==null ? 0: (int)tournament.numAttendees,
-                        Game = gameResponse.Game.AsString(EnumFormat.Description),
+                        NumberOfEntrants = tournament.events.Select(x => x.numEntrants)?.FirstOrDefault() ==null ? 0: (int)tournament.events.Select(x => x.numEntrants)?.FirstOrDefault(),
+                        GameEnum = gameResponse.Game,
                         Streams = tournament.streams==null? new List<string>() : tournament.streams?.Select(x => "https://www.twitch.tv/" + x.streamName)?.ToList(),
                         HostSite = Common.TournamentSiteHost.Start.AsString(EnumFormat.Description),
                     };
@@ -458,8 +462,8 @@ namespace TourneyPal.Api
                     VenueAddress = string.Empty,
                     VenueName = string.Empty,
                     RegistrationOpen = tournament.open_signup,
-                    NumberOfAttendees = tournament.participants_count,
-                    Game = gameResponse.Game.AsString(EnumFormat.Description),
+                    NumberOfEntrants = tournament.participants_count,
+                    GameEnum = gameResponse.Game,
                     Streams = new List<string>(),
                     HostSite = Common.TournamentSiteHost.Challonge.AsString(EnumFormat.Description),
                 });

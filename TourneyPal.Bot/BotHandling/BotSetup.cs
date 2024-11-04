@@ -31,6 +31,7 @@ namespace TourneyPal.BotHandling
                 this.Client = new DiscordClient(config);
                 this.Client.Ready += BotActions.OnClientReady;
                 this.Client.GuildCreated += BotActions.CreateRole;
+                this.Client.MessageCreated += BotActions.OnMessageCreated;
 
                 this.Client.UseInteractivity(new InteractivityConfiguration()
                 {
@@ -43,7 +44,6 @@ namespace TourneyPal.BotHandling
                 this.Commands = this.Client.UseSlashCommands(slashCommandsConfiguration);
                 this.Commands.RegisterCommands<AdminCommands>();
                 this.Commands.RegisterCommands<GeneralCommands>();
-                this.Commands.RegisterCommands<SCVICommands>();
 
                 DiscordActivity status = new("/help", ActivityType.ListeningTo);
 

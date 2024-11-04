@@ -1,5 +1,5 @@
 ﻿using DSharpPlus.SlashCommands;
-using static TourneyPal.Common;
+using static TourneyPal.Commons.Common;
 
 namespace TourneyPal.Bot.Commands.CommandService
 {
@@ -14,6 +14,7 @@ namespace TourneyPal.Bot.Commands.CommandService
         public Task PostTourneyIn(Game SelectedGame, InteractionContext ctx, string country);
         public Task SearchTournament(Game SelectedGame, InteractionContext ctx, string term);
         public Task RegisterChallongeTournament(InteractionContext ctx, string URL);
+        public Task RegisterServerGames(InteractionContext ctx);
     }
 
 }

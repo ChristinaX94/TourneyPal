@@ -1,4 +1,6 @@
-﻿namespace TourneyPal.Commons.DataObjects
+﻿using EnumsNET;
+
+namespace TourneyPal.Commons.DataObjects
 {
 
     public class TournamentData
@@ -15,11 +17,11 @@
         public string VenueAddress { get; set; }
         public string VenueName { get; set; }
         public bool? RegistrationOpen { get; set; }
-        public int NumberOfAttendees { get; set; }
-        public string Game { get; set; }
-        public List<string> Streams { get; set; }
+        public int NumberOfEntrants { get; set; }
+        public Common.Game GameEnum { get; set; }
+        public string Game => GameEnum==null? string.Empty: ((Common.Game)GameEnum).AsString(EnumFormat.Description);
+        public List<string> Streams { get; set; } = new List<string>();
         public string HostSite { get; set; }
-
         public bool isModified { get; set; } = false;
     }
 

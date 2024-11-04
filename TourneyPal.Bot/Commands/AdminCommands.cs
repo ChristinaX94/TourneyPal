@@ -20,5 +20,19 @@ namespace TourneyPal.Bot.Commands
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
         }
+
+        [SlashCommand("registerServerGames", "Set prefered games - for commands and announcements")]
+        public async Task RegisterServerGames(InteractionContext ctx)
+        {
+            try
+            {
+                await BotCommons.CommandService.RegisterServerGames(ctx).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                BotCommons.DataService.Log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
+            }
+        }
     }
 }
