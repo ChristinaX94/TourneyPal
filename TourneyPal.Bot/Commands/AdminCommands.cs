@@ -34,5 +34,20 @@ namespace TourneyPal.Bot.Commands
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
         }
+
+        [SlashCommand("removeservergames", "Removes commands and announcements of all available games")]
+        public async Task RemoveServerGames(InteractionContext ctx)
+        {
+            try
+            {
+                await BotCommons.CommandService.RemoveServerGames(ctx).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                BotCommons.DataService.Log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
+            }
+        }
+        
     }
 }

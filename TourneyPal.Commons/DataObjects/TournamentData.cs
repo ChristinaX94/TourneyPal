@@ -19,7 +19,7 @@ namespace TourneyPal.Commons.DataObjects
         public bool? RegistrationOpen { get; set; }
         public int NumberOfEntrants { get; set; }
         public Common.Game GameEnum { get; set; }
-        public string Game => GameEnum==null? string.Empty: ((Common.Game)GameEnum).AsString(EnumFormat.Description);
+        public string Game => GameEnum==null? string.Empty: GameEnum.AsString(EnumFormat.Description);
         public List<string> Streams { get; set; } = new List<string>();
         public string HostSite { get; set; }
         public bool isModified { get; set; } = false;

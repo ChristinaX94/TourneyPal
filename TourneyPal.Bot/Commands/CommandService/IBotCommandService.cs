@@ -15,6 +15,7 @@ namespace TourneyPal.Bot.Commands.CommandService
         public Task SearchTournament(Game SelectedGame, InteractionContext ctx, string term);
         public Task RegisterChallongeTournament(InteractionContext ctx, string URL);
         public Task RegisterServerGames(InteractionContext ctx);
+        public Task RemoveServerGames(InteractionContext ctx);
     }
 
 }

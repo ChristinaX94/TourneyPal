@@ -16,6 +16,13 @@ namespace TourneyPal.BotHandling
         public static ITourneyPalDataService DataService { get; set; } = default!;
         public static IBotCommandService CommandService { get; set; } = default!;
 
+        public static Dictionary<int, Common.Game> GameCommands = 
+            new Dictionary<int, Common.Game>() 
+            {
+                { 1, Common.Game.SoulCalibur2  },
+                { 2, Common.Game.SoulCalibur6  }
+            };
+
         #region ActionHandlers
         public static async Task setPages(InteractionContext ctx, List<DiscordEmbed> embeds, ulong interactionID = 0, int selectedPos = 0)
         {

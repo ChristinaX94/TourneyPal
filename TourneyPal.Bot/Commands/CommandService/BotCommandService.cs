@@ -210,5 +210,24 @@ namespace TourneyPal.Bot.Commands.CommandService
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
         }
+
+        public async Task RemoveServerGames(InteractionContext ctx)
+        {
+            try
+            {
+                var canCall = await BotCommons.ValidatePermissions(ctx, Permissions.Administrator);
+                if (!canCall)
+                {
+                    return;
+                }
+
+                await ctx.CreateResponseAsync("Removing all server games!").ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                BotCommons.DataService.Log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
+            }
+        }
     }
 }
