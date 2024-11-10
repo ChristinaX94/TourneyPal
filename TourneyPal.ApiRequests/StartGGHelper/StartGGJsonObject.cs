@@ -22,6 +22,8 @@ namespace TourneyPal.DataHandling.StartGGHelper
         public class Event
         {
             public string name { get; set; }
+
+            public int? numEntrants { get; set; }
             public Videogame videogame { get; set; }
         }
 
@@ -52,7 +54,6 @@ namespace TourneyPal.DataHandling.StartGGHelper
             public string venueAddress { get; set; }
             public string venueName { get; set; }
             public bool isRegistrationOpen { get; set; }
-            public int? numAttendees { get; set; }
             public List<Event> events { get; set; }
             public List<Stream> streams { get; set; }
         }

@@ -3,10 +3,11 @@ using TourneyPal.Api;
 using TourneyPal.Commons;
 using TourneyPal.Commons.DataObjects;
 using TourneyPal.DataAccessLayer.DataHandling;
+using static TourneyPal.Commons.Common;
 
-namespace TourneyPal.Service
+namespace TourneyPal.DataService
 {
-    public class TourneyPalService: ITourneyPalService
+    public class TourneyPalDataService: ITourneyPalDataService
     {
         public string Ping() 
         {
@@ -17,12 +18,12 @@ namespace TourneyPal.Service
         {
             GeneralData.GeneralDataInitialize();
 
-            CallApiAndSave();
+           _ = CallApiAndSave();
         }
 
         private async Task CallApiAndSave()
         {
-            var response = await ApiHandler.examineAllDataAsync(GeneralData.GetChallongeTournamentUrls());
+            var response = await ApiHandler.examineAllDataAsync(GeneralData.GetStartGGGameIDs(),GeneralData.GetChallongeTournamentUrls());
             if (!response.Success)
             {
                 Log(response.Error.FoundInItem, response.Error.MessageItem, response.Error.ExceptionMessageItem);
@@ -50,7 +51,7 @@ namespace TourneyPal.Service
                         continue;
                     }
 
-                    CallApiAndSave();
+                    _ = CallApiAndSave();
                 }
             }
             catch (Exception ex)
@@ -78,39 +79,39 @@ namespace TourneyPal.Service
             Logger.log(foundInItem, messageItem, exceptionMessageItem);
         }
 
-        public TournamentData? getTournamentByName(string name)
+        public TournamentData? getTournamentByName(Game SelectedGame, string name)
         {
-            return GeneralData.TournamentsData.FirstOrDefault(x => x.Name.Equals(name));
+            return GeneralData.TournamentsData.FirstOrDefault(x => x.GameEnum == SelectedGame && x.Name.Equals(name));
         }
 
-        public List<TournamentData> getNewTournaments()
+        public List<TournamentData> getNewTournaments(Game SelectedGame)
         {
-            return GeneralData.TournamentsData.Where(x => x.StartsAT >= Common.getDate()).ToList();
+            return GeneralData.TournamentsData.Where(x => x.GameEnum == SelectedGame && x.StartsAT >= Common.getDate()).ToList();
         }
 
-        public List<TournamentData> getOldTournaments()
+        public List<TournamentData> getOldTournaments(Game SelectedGame)
         {
-            return GeneralData.TournamentsData.Where(x => x.StartsAT < Common.getDate()).ToList();
+            return GeneralData.TournamentsData.Where(x => x.GameEnum == SelectedGame && x.StartsAT < Common.getDate()).ToList();
         }
 
-        public List<TournamentData> getAllTournaments()
+        public List<TournamentData> getAllTournaments(Game SelectedGame)
         {
-            return GeneralData.TournamentsData.ToList();
+            return GeneralData.TournamentsData.Where(x=> x.GameEnum == SelectedGame).ToList();
         }
 
-        public List<TournamentData> getNewlyAddedTournaments()
+        public List<TournamentData> getNewlyAddedTournaments(Game SelectedGame)
         {
             return GeneralData.NewlyAddedTournamentsData.ToList();
         }
 
-        public List<TournamentData> getNewTournamentsByCountryCode(string countryCode)
+        public List<TournamentData> getNewTournamentsByCountryCode(Game SelectedGame, string countryCode)
         {
-            return GeneralData.TournamentsData.Where(x => x.CountryCode.Equals(countryCode) && x.StartsAT >= Common.getDate()).ToList();
+            return GeneralData.TournamentsData.Where(x => x.GameEnum == SelectedGame && x.CountryCode.Equals(countryCode) && x.StartsAT >= Common.getDate()).ToList();
         }
 
-        public List<TournamentData> searchTournaments(string term)
+        public List<TournamentData> searchTournaments(Game SelectedGame, string term)
         {
-            return GeneralData.TournamentsData.Where(x => x.Name.ToLower().Contains(term.ToLower()) && x.StartsAT >= Common.getDate()).ToList();
+            return GeneralData.TournamentsData.Where(x => x.GameEnum == SelectedGame && x.Name.ToLower().Contains(term.ToLower()) && x.StartsAT >= Common.getDate()).ToList();
         }
 
         public async Task<TournamentData?> getChallongeTournamentByURL(string url)

@@ -4,14 +4,24 @@ using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.SlashCommands;
 using System.Reflection;
+using TourneyPal.Bot.Commands.CommandService;
+using TourneyPal.Commons;
 using TourneyPal.Commons.DataObjects;
-using TourneyPal.Service;
+using TourneyPal.DataService;
 
 namespace TourneyPal.BotHandling
 {
     public static class BotCommons
     {
-        public static ITourneyPalService service { get; set; } = default!;
+        public static ITourneyPalDataService DataService { get; set; } = default!;
+        public static IBotCommandService CommandService { get; set; } = default!;
+
+        public static Dictionary<string, Common.Game> GameDescriptions =
+            new Dictionary<string, Common.Game>()
+            {
+                { "SCII", Common.Game.SoulCalibur2 },
+                { "SCVI", Common.Game.SoulCalibur6}
+            };
 
         #region ActionHandlers
         public static async Task setPages(InteractionContext ctx, List<DiscordEmbed> embeds, ulong interactionID = 0, int selectedPos = 0)
@@ -48,7 +58,7 @@ namespace TourneyPal.BotHandling
             }
             catch (Exception ex)
             {
-                service.Log(foundInItem: MethodBase.GetCurrentMethod(),
+                DataService.Log(foundInItem: MethodBase.GetCurrentMethod(),
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
         }
@@ -82,7 +92,7 @@ namespace TourneyPal.BotHandling
             }
             catch (Exception ex)
             {
-                service.Log(foundInItem: MethodBase.GetCurrentMethod(),
+                DataService.Log(foundInItem: MethodBase.GetCurrentMethod(),
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
         }
@@ -115,7 +125,7 @@ namespace TourneyPal.BotHandling
             }
             catch (Exception ex)
             {
-                service.Log(foundInItem: MethodBase.GetCurrentMethod(),
+                DataService.Log(foundInItem: MethodBase.GetCurrentMethod(),
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
         }
@@ -151,7 +161,7 @@ namespace TourneyPal.BotHandling
             }
             catch (Exception ex)
             {
-                service.Log(foundInItem: MethodBase.GetCurrentMethod(),
+                DataService.Log(foundInItem: MethodBase.GetCurrentMethod(),
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return -1;
@@ -185,11 +195,31 @@ namespace TourneyPal.BotHandling
             }
             catch (Exception ex)
             {
-                service.Log(foundInItem: MethodBase.GetCurrentMethod(),
+                DataService.Log(foundInItem: MethodBase.GetCurrentMethod(),
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
                 return false;
             }
             return true;
+        }
+
+        public static async Task<bool> ValidatePermissions(InteractionContext ctx, Permissions requiredPermissions)
+        {
+            try
+            {
+                Permissions userPermissions = ctx.Member.Permissions;
+
+                if (userPermissions.HasPermission(requiredPermissions))
+                {
+                    return true;
+                }
+                await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("You don't have the required permissions"));
+            }
+            catch (Exception ex)
+            {
+                BotCommons.DataService.Log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
+            }
+            return false;
         }
 
         public static List<DiscordComponent> getButtons(DiscordClient client, string? url = "")
@@ -211,7 +241,7 @@ namespace TourneyPal.BotHandling
             }
             catch (Exception ex)
             {
-                service.Log(foundInItem: MethodBase.GetCurrentMethod(),
+                DataService.Log(foundInItem: MethodBase.GetCurrentMethod(),
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return new List<DiscordComponent>() { };
@@ -225,7 +255,7 @@ namespace TourneyPal.BotHandling
             }
             catch (Exception ex)
             {
-                service.Log(foundInItem: MethodBase.GetCurrentMethod(),
+                DataService.Log(foundInItem: MethodBase.GetCurrentMethod(),
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return new List<DiscordComponent>() { };
@@ -260,7 +290,7 @@ namespace TourneyPal.BotHandling
             }
             catch (Exception ex)
             {
-                service.Log(foundInItem: MethodBase.GetCurrentMethod(),
+                DataService.Log(foundInItem: MethodBase.GetCurrentMethod(),
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
                 embeds = new List<DiscordEmbed>();
             }
@@ -302,7 +332,7 @@ namespace TourneyPal.BotHandling
             }
             catch (Exception ex)
             {
-                service.Log(foundInItem: MethodBase.GetCurrentMethod(),
+                DataService.Log(foundInItem: MethodBase.GetCurrentMethod(),
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return embeds;
@@ -336,7 +366,7 @@ namespace TourneyPal.BotHandling
             }
             catch (Exception ex)
             {
-                service.Log(foundInItem: MethodBase.GetCurrentMethod(),
+                DataService.Log(foundInItem: MethodBase.GetCurrentMethod(),
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return null;
@@ -360,7 +390,7 @@ namespace TourneyPal.BotHandling
             }
             catch (Exception ex)
             {
-                service.Log(foundInItem: MethodBase.GetCurrentMethod(),
+                DataService.Log(foundInItem: MethodBase.GetCurrentMethod(),
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
         }
@@ -393,6 +423,26 @@ namespace TourneyPal.BotHandling
             {
 
                 throw;
+            }
+        }
+
+        internal static async Task GetAvailableGames(InteractionContext ctx)
+        {
+            try
+            {
+                var serverCommands = ctx.Guild.GetApplicationCommandsAsync().Result;
+                var response = "No games available";
+                if(serverCommands != null &&
+                    serverCommands.Count > 0)
+                {
+                    response = "Server contains the following sets of commands: " + Environment.NewLine + String.Join(Environment.NewLine, serverCommands.Select(x => "- " + x.Name.ToUpper()));
+                }
+                await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent(response));
+            }
+            catch (Exception ex)
+            {
+                DataService.Log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
         }
     }

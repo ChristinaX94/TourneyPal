@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace TourneyPal
+namespace TourneyPal.Commons
 {
     public static class Common
     {
@@ -37,13 +37,13 @@ namespace TourneyPal
 
         public enum Game
         {
-            [Description("Soul Calibur VI")]
+            [Description("Soul Calibur VI - SCVI")]
             SoulCalibur6 = 1,
-            [Description("Tekken 8")]
+            [Description("Tekken 8 - T8")]
             Tekken8 = 2,
-            [Description("Street Fighter 6")]
+            [Description("Street Fighter 6 - SF6")]
             StreetFighter6 = 3,
-            [Description("Soul Calibur II")]
+            [Description("Soul Calibur II - SCII")]
             SoulCalibur2 = 4
         }
     }

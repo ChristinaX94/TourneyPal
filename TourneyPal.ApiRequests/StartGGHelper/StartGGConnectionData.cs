@@ -23,15 +23,15 @@ namespace TourneyPal.DataHandling.StartGGHelper
         /// </summary>
         public const string StartGGQuery = "query TournamentsByDate($perPage: Int!, $startAt: Timestamp!, $endAt: Timestamp!, $videogameIDs: [ID!]) " +
                                                 "{tournaments(    query: {perPage: $perPage, sortBy: \"startAt asc\", filter: {afterDate: $startAt, beforeDate: $endAt, videogameIds: $videogameIDs}}) " +
-                                                    "{nodes {id name countryCode addrState city startAt isOnline url state venueAddress venueName isRegistrationOpen numAttendees events(filter: {videogameId: $videogameIDs}) { name videogame { name } } streams{streamName} } } }";
+                                                    "{nodes {id name countryCode addrState city startAt isOnline url state venueAddress venueName isRegistrationOpen events(filter: {videogameId: $videogameIDs}) { name numEntrants videogame { name } } streams{streamName} } } }";
 
         
         /// <summary>
         /// Variables for start.gg  
         /// </summary>
-        public static string getStartGGVariables()
+        public static string getStartGGVariables(int GameID)
         {
-            return "{\"perPage\": 500,\"startAt\": "+ getUnixTimeStamp(DateTime.Now) + ",\"endAt\": "+ getUnixTimeStamp(DateTime.Now.AddYears(1)) + ",\"videogameIDs\": [904]}";
+            return "{\"perPage\": 500,\"startAt\": "+ getUnixTimeStamp(DateTime.Now) + ",\"endAt\": "+ getUnixTimeStamp(DateTime.Now.AddMonths(3)) + ",\"videogameIDs\": ["+GameID+"]}";
         }
 
         public static long getUnixTimeStamp(DateTime date)
@@ -45,19 +45,12 @@ namespace TourneyPal.DataHandling.StartGGHelper
             public string operationName { get; set; }
             public string variables { get; set; }
 
-            public StartGGJsonFormatter()
+            public StartGGJsonFormatter(int GameID)
             {
                 query = StartGGQuery;
                 operationName = null;
-                variables = getStartGGVariables();
+                variables = getStartGGVariables(GameID);
             }
-
-            //public StartGGJsonFormatter()
-            //{
-            //    query = "query TournamentsByDate($perPage: Int!, $startAt: Timestamp!, $endAt: Timestamp!, $videogameIDs: [ID!]) {tournaments(    query: {perPage: $perPage, sortBy: \"startAt asc\", filter: {afterDate: $startAt, beforeDate: $endAt, videogameIds: $videogameIDs}}) {nodes {id name countryCode addrState city startAt isOnline url state venueAddress venueName isRegistrationOpen numAttendees events(filter: {videogameId: $videogameIDs}) { name videogame { name } } streams{streamName} } } }";
-            //    operationName = null;
-            //    variables = "{\"perPage\": 500,\"startAt\": 1704123544,\"endAt\": 1735738744,\"videogameIDs\": [904]}";
-            //}
         }
 
     }
