@@ -234,14 +234,17 @@ namespace TourneyPal.DataAccessLayer.DataHandling
                     {
                         continue;
                     }
+
+                    if (request.Tournaments == null || request.Tournaments.Count == 0)
+                    {
+                        continue;
+                    }
+
                     var relatedTournamentIDs = new List<int>();
 
-                    if (request.Tournaments != null && request.Tournaments.Count > 0)
-                    {
-                        var listSavedStartGG = listSaved.Where(y => y.HostSite.Equals(Common.TournamentSiteHost.Start.AsString(EnumFormat.Description))).Select(x => x.ID).ToList();
-                        request.Tournaments.RemoveAll(x => !listSavedStartGG.Contains(x));
-                        relatedTournamentIDs.AddRange(request.Tournaments);
-                    }
+                    var listSavedStartGG = listSaved.Where(y => y.HostSite.Equals(Common.TournamentSiteHost.Start.AsString(EnumFormat.Description))).Select(x => x.ID).ToList();
+                    request.Tournaments.RemoveAll(x => !listSavedStartGG.Contains(x));
+                    relatedTournamentIDs.AddRange(request.Tournaments);
 
                     foreach (var relatedTournamentID in relatedTournamentIDs)
                     {
