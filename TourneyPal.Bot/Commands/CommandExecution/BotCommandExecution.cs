@@ -309,7 +309,8 @@ namespace TourneyPal.Bot.Commands.CommandExecution
                     int numberOfItemsToGet = BotCommons.TourneyDataPageRows;
                     if (pageNumber - batchPage == 1)
                     {
-                        numberOfItemsToGet = numberOfTourneys % BotCommons.TourneyDataPageRows;
+                        numberOfItemsToGet = numberOfTourneys % BotCommons.TourneyDataPageRows==0? 
+                            BotCommons.TourneyDataPageRows: numberOfTourneys % BotCommons.TourneyDataPageRows;
                     }
 
                     foreach (var tourney in tourneysSelected.GetRange(batchPage * BotCommons.TourneyDataPageRows, numberOfItemsToGet))

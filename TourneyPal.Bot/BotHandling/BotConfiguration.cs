@@ -45,6 +45,14 @@ namespace TourneyPal.BotHandling
                 this.Commands.RegisterCommands<AdminCommands>();
                 this.Commands.RegisterCommands<GeneralCommands>();
 
+                this.Commands.SlashCommandErrored += (cnext, ex) =>
+                {
+                    Console.WriteLine($"ERROR: {ex.Exception}");
+                    BotCommons.DataService.Log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Context.CommandName + " -- " + ex.Exception);
+                    return Task.CompletedTask;
+                };
+
                 DiscordActivity status = new("/help", ActivityType.ListeningTo);
 
                 await Client.ConnectAsync(status, UserStatus.Online);

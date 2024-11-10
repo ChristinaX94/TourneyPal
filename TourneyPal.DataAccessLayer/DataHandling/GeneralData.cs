@@ -242,8 +242,8 @@ namespace TourneyPal.DataAccessLayer.DataHandling
 
                     var relatedTournamentIDs = new List<int>();
 
-                    var listSavedStartGG = listSaved.Where(y => y.HostSite.Equals(Common.TournamentSiteHost.Start.AsString(EnumFormat.Description))).Select(x => x.ID).ToList();
-                    request.Tournaments.RemoveAll(x => !listSavedStartGG.Contains(x));
+                    var listSavedTournaments = listSaved.Select(x => x.ID).ToList();
+                    request.Tournaments.RemoveAll(x => !listSavedTournaments.Contains(x));
                     relatedTournamentIDs.AddRange(request.Tournaments);
 
                     foreach (var relatedTournamentID in relatedTournamentIDs)
