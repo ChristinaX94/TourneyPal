@@ -4,26 +4,26 @@ using DSharpPlus;
 using System.Reflection;
 using TourneyPal.BotHandling;
 using TourneyPal.Commons;
-using TourneyPal.Bot.Commands;
 using DSharpPlus.SlashCommands;
 using EnumsNET;
 using DSharpPlus.Interactivity.Extensions;
+using TourneyPal.Bot.Commands.GameCommands;
 
-namespace TourneyPal.Bot.BotHandling
+namespace TourneyPal.Bot.Commands.CommandExecution
 {
-    public static class BotActions
+    public static class BotConfigurationCommandExecution
     {
         public static Task CreateRole(DiscordClient Client, GuildCreateEventArgs server)
         {
             try
             {
-                var role = server.Guild.Roles.Select(x => x.Value).FirstOrDefault(x => x.Name.Equals(Common.TourneyPalRole));
+                var role = server.Guild.Roles.Select(x => x.Value).FirstOrDefault(x => x.Name.Equals(BotCommons.TourneyPalRole));
                 if (role != null)
                 {
                     return Task.CompletedTask;
                 }
 
-                server.Guild.CreateRoleAsync(name: Common.TourneyPalRole, mentionable: true);
+                server.Guild.CreateRoleAsync(name: BotCommons.TourneyPalRole, mentionable: true);
 
                 var admin = server.Guild.Members.FirstOrDefault(x => x.Value.Hierarchy == int.MaxValue).Value;
                 if (admin == null)
@@ -32,7 +32,7 @@ namespace TourneyPal.Bot.BotHandling
                 }
 
                 admin.SendMessageAsync("Thank you for inviting TourneyPal! " + Environment.NewLine +
-                    "If it wasn't created already, TourneyPal created a new role - " + Common.TourneyPalRole + " - just for annoucements!")
+                    "If it wasn't created already, TourneyPal created a new role - " + BotCommons.TourneyPalRole + " - just for annoucements!")
                     .ConfigureAwait(false);
             }
             catch (Exception ex)
@@ -62,22 +62,22 @@ namespace TourneyPal.Bot.BotHandling
                     }
 
                     var newlyAddedTournaments = BotCommons.DataService.getNewlyAddedTournaments(Common.Game.SoulCalibur6);
-                    if (newlyAddedTournaments == null || newlyAddedTournaments.Count==0)
+                    if (newlyAddedTournaments == null || newlyAddedTournaments.Count == 0)
                     {
                         continue;
                     }
 
                     var servers = client.Guilds.ToList();
-                    foreach (var server in servers.Select(x=>x.Value))
+                    foreach (var server in servers.Select(x => x.Value))
                     {
-                        var role = server.Roles.Select(x => x.Value).FirstOrDefault(x => x.Name.Equals(Common.TourneyPalRole));
+                        var role = server.Roles.Select(x => x.Value).FirstOrDefault(x => x.Name.Equals(BotCommons.TourneyPalRole));
                         var channel = server.Channels.Values.FirstOrDefault(x => x.Type != ChannelType.Voice && x.Type != ChannelType.Category);
-                        if(channel == null)
-                        { 
-                            continue; 
+                        if (channel == null)
+                        {
+                            continue;
                         }
-                        DiscordEmbed embed = BotCommons.GetDataEmbed(newlyAddedTournaments);
-                        await BotCommons.SetMessage(embed, channel, role).ConfigureAwait(false);
+                        DiscordEmbed embed = BotCommandExecution.GetDataEmbed(newlyAddedTournaments);
+                        await BotCommandExecution.SetMessage(embed, channel, role).ConfigureAwait(false);
                     }
                 }
             }
@@ -113,7 +113,7 @@ namespace TourneyPal.Bot.BotHandling
                 BotCommons.DataService.Log(foundInItem: MethodBase.GetCurrentMethod(),
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
-            
+
         }
 
         public static async Task RegisterServerGames(DiscordClient Client, MessageCreateEventArgs e)
@@ -147,8 +147,8 @@ namespace TourneyPal.Bot.BotHandling
                 var commands = Client.GetSlashCommands();
                 foreach (var part in selectedGameCommands)
                 {
-                    
-                    if (!Int32.TryParse(part, out var key))
+
+                    if (!int.TryParse(part, out var key))
                     {
                         return;
                     }
@@ -187,7 +187,7 @@ namespace TourneyPal.Bot.BotHandling
                 BotCommons.DataService.Log(foundInItem: MethodBase.GetCurrentMethod(),
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
-            
+
         }
 
         public static async Task RemoveServerGames(DiscordClient Client, MessageCreateEventArgs e)
@@ -199,7 +199,7 @@ namespace TourneyPal.Bot.BotHandling
                 await e.Channel.SendMessageAsync("Commands Removed! Refresh with CTRL+R!").ConfigureAwait(false);
 
                 var commands = Client.GetSlashCommands();
-                
+
                 await commands.RefreshCommands();
             }
             catch (Exception ex)
@@ -209,25 +209,25 @@ namespace TourneyPal.Bot.BotHandling
             }
         }
 
-        private static async Task<Dictionary<int,Common.Game>> ShowCurrentCommands(MessageCreateEventArgs e)
+        private static async Task<Dictionary<int, Common.Game>> ShowCurrentCommands(MessageCreateEventArgs e)
         {
             try
             {
                 var server = e.Guild;
                 var serverCommands = server.GetApplicationCommandsAsync().Result;
-                await e.Channel.SendMessageAsync("Server contains the following sets of commands: " + Environment.NewLine + String.Join(Environment.NewLine, serverCommands.Select(x => "- " + x.Name.ToUpper())));
+                await e.Channel.SendMessageAsync("Server contains the following sets of commands: " + Environment.NewLine + string.Join(Environment.NewLine, serverCommands.Select(x => "- " + x.Name.ToUpper())));
 
                 Dictionary<int, string> gameCommands = new Dictionary<int, string>();
                 var currentCommandsNames = serverCommands.Select(x => x.Name.ToUpper()).ToList();
                 var currentDictionary = BotCommons.GameDescriptions.Where(x => !currentCommandsNames.Any(y => y.Equals(x.Key))).ToDictionary();
-                if(currentDictionary == null)
+                if (currentDictionary == null)
                 {
                     return new Dictionary<int, Common.Game>();
                 }
 
                 var dictionaryOfAvailableCommands = new Dictionary<int, Common.Game>();
                 var enumerator = 1;
-                foreach(var currentGame in currentDictionary.Values) 
+                foreach (var currentGame in currentDictionary.Values)
                 {
                     dictionaryOfAvailableCommands.Add(enumerator, currentGame);
                     enumerator++;
@@ -248,11 +248,11 @@ namespace TourneyPal.Bot.BotHandling
             {
                 var listToShow = dictionaryOfAvailableGameCommands.Select(x => x.Key + ". " + x.Value.AsString(EnumFormat.Description)).ToList();
 
-                await e.Channel.SendMessageAsync("Commands available for: " + Environment.NewLine + String.Join(Environment.NewLine, listToShow) + Environment.NewLine + "Respond with the number of games, seperated by comma to continue.");
+                await e.Channel.SendMessageAsync("Commands available for: " + Environment.NewLine + string.Join(Environment.NewLine, listToShow) + Environment.NewLine + "Respond with the number of games, seperated by comma to continue.");
 
                 var selection = await e.Channel.GetNextMessageAsync();
                 var message = selection.Result?.Content?.ToString();
-                if (String.IsNullOrEmpty(message))
+                if (string.IsNullOrEmpty(message))
                 {
                     return new List<string>();
                 }

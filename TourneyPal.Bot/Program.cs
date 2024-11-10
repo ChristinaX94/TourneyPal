@@ -21,7 +21,7 @@ namespace TourneyPal
 
                 BotCommons.DataService.InitializeData();
 
-                await Task.WhenAll(new BotSetup().runAsync(), BotCommons.DataService.RunApiHandler());
+                await Task.WhenAll(new BotConfiguration().runAsync(), BotCommons.DataService.RunApiHandler());
             }
             catch (Exception ex)
             {
