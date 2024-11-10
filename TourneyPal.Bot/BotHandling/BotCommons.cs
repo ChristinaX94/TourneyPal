@@ -16,11 +16,11 @@ namespace TourneyPal.BotHandling
         public static ITourneyPalDataService DataService { get; set; } = default!;
         public static IBotCommandService CommandService { get; set; } = default!;
 
-        public static Dictionary<int, Common.Game> GameCommands = 
-            new Dictionary<int, Common.Game>() 
+        public static Dictionary<string, Common.Game> GameDescriptions =
+            new Dictionary<string, Common.Game>()
             {
-                { 1, Common.Game.SoulCalibur2  },
-                { 2, Common.Game.SoulCalibur6  }
+                { "SCII", Common.Game.SoulCalibur2 },
+                { "SCVI", Common.Game.SoulCalibur6}
             };
 
         #region ActionHandlers
@@ -423,6 +423,26 @@ namespace TourneyPal.BotHandling
             {
 
                 throw;
+            }
+        }
+
+        internal static async Task GetAvailableGames(InteractionContext ctx)
+        {
+            try
+            {
+                var serverCommands = ctx.Guild.GetApplicationCommandsAsync().Result;
+                var response = "No games available";
+                if(serverCommands != null &&
+                    serverCommands.Count > 0)
+                {
+                    response = "Server contains the following sets of commands: " + Environment.NewLine + String.Join(Environment.NewLine, serverCommands.Select(x => "- " + x.Name.ToUpper()));
+                }
+                await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent(response));
+            }
+            catch (Exception ex)
+            {
+                DataService.Log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
         }
     }

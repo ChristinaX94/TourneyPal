@@ -18,6 +18,12 @@ namespace TourneyPal.Bot.Commands
             await BotCommons.CommandService.PingService(ctx).ConfigureAwait(false);
         }
 
+        [SlashCommand("getAvailableGames", "Get a list of all game commands")]
+        public async Task GetAvailableGames(InteractionContext ctx)
+        {
+            await BotCommons.CommandService.GetAvailableGames(ctx).ConfigureAwait(false);
+        }
+
         [SlashCommand("help", "Get a list of all commands")]
         public async Task Help(InteractionContext ctx)
         {

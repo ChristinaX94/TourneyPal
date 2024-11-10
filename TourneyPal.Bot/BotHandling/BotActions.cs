@@ -120,16 +120,39 @@ namespace TourneyPal.Bot.BotHandling
         {
             try
             {
-                var commands = Client.GetSlashCommands();
-                var messageCommands = await showCurrentCommandsAndSelection(e);
-                foreach (var part in messageCommands)
+
+                var dictionaryOfAvailableGameCommands = await ShowCurrentCommands(e);
+                if (dictionaryOfAvailableGameCommands == null ||
+                    dictionaryOfAvailableGameCommands.Count == 0)
                 {
-                    await commands.RefreshCommands();
+                    await e.Channel.SendMessageAsync("All Commands Available!").ConfigureAwait(false);
+                    return;
+                }
+
+                var selectedGameCommands = await SelectCommands(dictionaryOfAvailableGameCommands, e);
+
+                await RegisterNewCommands(Client, e, dictionaryOfAvailableGameCommands, selectedGameCommands).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                BotCommons.DataService.Log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
+            }
+        }
+
+        private static async Task RegisterNewCommands(DiscordClient Client, MessageCreateEventArgs e, Dictionary<int, Common.Game> dictionaryOfAvailableGameCommands, List<string> selectedGameCommands)
+        {
+            try
+            {
+                var commands = Client.GetSlashCommands();
+                foreach (var part in selectedGameCommands)
+                {
+                    
                     if (!Int32.TryParse(part, out var key))
                     {
                         return;
                     }
-                    if (!BotCommons.GameCommands.TryGetValue(key, out var value))
+                    if (!dictionaryOfAvailableGameCommands.TryGetValue(key, out var value))
                     {
                         return;
                     }
@@ -139,23 +162,24 @@ namespace TourneyPal.Bot.BotHandling
                         case Common.Game.SoulCalibur2:
                             {
                                 commands.RegisterCommands<SCIICommands>(e.Guild.Id);
+                                await commands.RefreshCommands();
                                 continue;
                             }
                         case Common.Game.SoulCalibur6:
                             {
                                 commands.RegisterCommands<SCVICommands>(e.Guild.Id);
+                                await commands.RefreshCommands();
                                 continue;
                             }
                         case Common.Game.StreetFighter6:
                         case Common.Game.Tekken8:
                         default:
                             {
+                                await commands.RefreshCommands();
                                 continue;
                             }
                     }
                 }
-
-                
                 await e.Channel.SendMessageAsync("Commands Added! Refresh with CTRL+R!").ConfigureAwait(false);
             }
             catch (Exception ex)
@@ -163,6 +187,7 @@ namespace TourneyPal.Bot.BotHandling
                 BotCommons.DataService.Log(foundInItem: MethodBase.GetCurrentMethod(),
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
+            
         }
 
         public static async Task RemoveServerGames(DiscordClient Client, MessageCreateEventArgs e)
@@ -184,15 +209,44 @@ namespace TourneyPal.Bot.BotHandling
             }
         }
 
-        private static async Task<List<string>> showCurrentCommandsAndSelection(MessageCreateEventArgs e)
+        private static async Task<Dictionary<int,Common.Game>> ShowCurrentCommands(MessageCreateEventArgs e)
         {
             try
             {
                 var server = e.Guild;
                 var serverCommands = server.GetApplicationCommandsAsync().Result;
-                var currentCommands = serverCommands.Select(x =>  "- " + x.Name.ToUpper());
-                await e.Channel.SendMessageAsync("Server contains the following sets of commands: " + Environment.NewLine + String.Join(Environment.NewLine, currentCommands));
-                var listToShow = BotCommons.GameCommands.Select(x => x.Key + ". " + x.Value.AsString(EnumFormat.Description)).ToList();
+                await e.Channel.SendMessageAsync("Server contains the following sets of commands: " + Environment.NewLine + String.Join(Environment.NewLine, serverCommands.Select(x => "- " + x.Name.ToUpper())));
+
+                Dictionary<int, string> gameCommands = new Dictionary<int, string>();
+                var currentCommandsNames = serverCommands.Select(x => x.Name.ToUpper()).ToList();
+                var currentDictionary = BotCommons.GameDescriptions.Where(x => !currentCommandsNames.Any(y => y.Equals(x.Key))).ToDictionary();
+                if(currentDictionary == null)
+                {
+                    return new Dictionary<int, Common.Game>();
+                }
+
+                var dictionaryOfAvailableCommands = new Dictionary<int, Common.Game>();
+                var enumerator = 1;
+                foreach(var currentGame in currentDictionary.Values) 
+                {
+                    dictionaryOfAvailableCommands.Add(enumerator, currentGame);
+                    enumerator++;
+                }
+                return dictionaryOfAvailableCommands;
+            }
+            catch (Exception ex)
+            {
+                BotCommons.DataService.Log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
+            }
+            return new Dictionary<int, Common.Game>();
+        }
+
+        private static async Task<List<string>> SelectCommands(Dictionary<int, Common.Game> dictionaryOfAvailableGameCommands, MessageCreateEventArgs e)
+        {
+            try
+            {
+                var listToShow = dictionaryOfAvailableGameCommands.Select(x => x.Key + ". " + x.Value.AsString(EnumFormat.Description)).ToList();
 
                 await e.Channel.SendMessageAsync("Commands available for: " + Environment.NewLine + String.Join(Environment.NewLine, listToShow) + Environment.NewLine + "Respond with the number of games, seperated by comma to continue.");
 

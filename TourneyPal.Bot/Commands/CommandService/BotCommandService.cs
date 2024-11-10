@@ -192,6 +192,19 @@ namespace TourneyPal.Bot.Commands.CommandService
             }
         }
 
+        public async Task GetAvailableGames(InteractionContext ctx)
+        {
+            try
+            {
+                 await BotCommons.GetAvailableGames(ctx).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                BotCommons.DataService.Log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
+            }
+        }
+
         public async Task RegisterServerGames(InteractionContext ctx)
         {
             try

@@ -21,7 +21,7 @@ namespace TourneyPal.Bot.Commands
             }
         }
 
-        [SlashCommand("registerServerGames", "Set prefered games - for commands and announcements")]
+        [SlashCommand("registerServerGames", "Set prefered games - for commands and announcements.")]
         public async Task RegisterServerGames(InteractionContext ctx)
         {
             try
@@ -35,7 +35,7 @@ namespace TourneyPal.Bot.Commands
             }
         }
 
-        [SlashCommand("removeservergames", "Removes commands and announcements of all available games")]
+        [SlashCommand("removeservergames", "Removes commands and announcements of all available games.")]
         public async Task RemoveServerGames(InteractionContext ctx)
         {
             try
