@@ -30,9 +30,11 @@ namespace TourneyPal.BotHandling
 
                 this.Client = new DiscordClient(config);
                 this.Client.Ready += BotConfigurationCommandExecution.OnClientReady;
-                this.Client.GuildCreated += BotConfigurationCommandExecution.CreateRole;
+                this.Client.GuildCreated += BotConfigurationCommandExecution.OnBotInvitedToServerCreateRole;
                 this.Client.MessageCreated += BotConfigurationCommandExecution.OnMessageCreated;
-
+                this.Client.GuildDownloadCompleted += BotConfigurationCommandExecution.OnGuildDownloadCompleted;
+                
+                
                 this.Client.UseInteractivity(new InteractivityConfiguration()
                 {
                     PollBehaviour = PollBehaviour.KeepEmojis,
@@ -44,14 +46,8 @@ namespace TourneyPal.BotHandling
                 this.Commands = this.Client.UseSlashCommands(slashCommandsConfiguration);
                 this.Commands.RegisterCommands<AdminCommands>();
                 this.Commands.RegisterCommands<GeneralCommands>();
+                this.Commands.SlashCommandErrored += BotConfigurationCommandExecution.OnSlashCommandErrored;
 
-                this.Commands.SlashCommandErrored += (cnext, ex) =>
-                {
-                    Console.WriteLine($"ERROR: {ex.Exception}");
-                    BotCommons.DataService.Log(foundInItem: MethodBase.GetCurrentMethod(),
-                           exceptionMessageItem: ex.Context.CommandName + " -- " + ex.Exception);
-                    return Task.CompletedTask;
-                };
 
                 DiscordActivity status = new("/help", ActivityType.ListeningTo);
 

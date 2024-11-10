@@ -8,12 +8,14 @@ using DSharpPlus.SlashCommands;
 using EnumsNET;
 using DSharpPlus.Interactivity.Extensions;
 using TourneyPal.Bot.Commands.GameCommands;
+using Google.Protobuf.WellKnownTypes;
+using DSharpPlus.SlashCommands.EventArgs;
 
 namespace TourneyPal.Bot.Commands.CommandExecution
 {
     public static class BotConfigurationCommandExecution
     {
-        public static Task CreateRole(DiscordClient Client, GuildCreateEventArgs server)
+        public static Task OnBotInvitedToServerCreateRole(DiscordClient Client, GuildCreateEventArgs server)
         {
             try
             {
@@ -116,6 +118,46 @@ namespace TourneyPal.Bot.Commands.CommandExecution
 
         }
 
+        public static async Task OnGuildDownloadCompleted(DiscordClient Client, GuildDownloadCompletedEventArgs e)
+        {
+            try
+            {
+                foreach(var server in e.Guilds.Values)
+                {
+                    var serverCommands = server.GetApplicationCommandsAsync().Result.ToList();
+                    foreach(var name in serverCommands.Select(x=>x.Name.ToUpper()).ToList())
+                    {
+                        var game = BotCommons.GameDescriptions.GetValueOrDefault(name);
+                        await RegisterGameCommand(server.Id, Client.GetSlashCommands(), game);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                BotCommons.DataService.Log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
+            }
+
+        }
+
+        public static async Task OnSlashCommandErrored(SlashCommandsExtension s, SlashCommandErrorEventArgs e)
+        {
+            try
+            {
+                Console.WriteLine($"ERROR: {e.Exception}");
+                BotCommons.DataService.Log(foundInItem: MethodBase.GetCurrentMethod(),
+                       exceptionMessageItem: e.Context.CommandName + " -- " + e.Exception);
+                await Task.CompletedTask;
+            }
+            catch (Exception ex)
+            {
+                BotCommons.DataService.Log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
+            }
+
+        }
+
+
         public static async Task RegisterServerGames(DiscordClient Client, MessageCreateEventArgs e)
         {
             try
@@ -157,28 +199,7 @@ namespace TourneyPal.Bot.Commands.CommandExecution
                         return;
                     }
 
-                    switch (value)
-                    {
-                        case Common.Game.SoulCalibur2:
-                            {
-                                commands.RegisterCommands<SCIICommands>(e.Guild.Id);
-                                await commands.RefreshCommands();
-                                continue;
-                            }
-                        case Common.Game.SoulCalibur6:
-                            {
-                                commands.RegisterCommands<SCVICommands>(e.Guild.Id);
-                                await commands.RefreshCommands();
-                                continue;
-                            }
-                        case Common.Game.StreetFighter6:
-                        case Common.Game.Tekken8:
-                        default:
-                            {
-                                await commands.RefreshCommands();
-                                continue;
-                            }
-                    }
+                    await RegisterGameCommand(e.Guild.Id, commands, value);
                 }
                 await e.Channel.SendMessageAsync("Commands Added! Refresh with CTRL+R!").ConfigureAwait(false);
             }
@@ -188,6 +209,41 @@ namespace TourneyPal.Bot.Commands.CommandExecution
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
 
+        }
+
+        private static async Task RegisterGameCommand(ulong guildID, SlashCommandsExtension commands, Common.Game value)
+        {
+            try
+            {
+                switch (value)
+                {
+                    case Common.Game.SoulCalibur2:
+                        {
+                            commands.RegisterCommands<SCIICommands>(guildID);
+                            await commands.RefreshCommands();
+                            break;
+                        }
+                    case Common.Game.SoulCalibur6:
+                        {
+                            commands.RegisterCommands<SCVICommands>(guildID);
+                            await commands.RefreshCommands();
+                            break;
+                        }
+                    case Common.Game.StreetFighter6:
+                    case Common.Game.Tekken8:
+                    default:
+                        {
+                            await commands.RefreshCommands();
+                            break;
+                        }
+                }
+            }
+            catch (Exception ex)
+            {
+                BotCommons.DataService.Log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
+            }
+            
         }
 
         public static async Task RemoveServerGames(DiscordClient Client, MessageCreateEventArgs e)
