@@ -1,7 +1,7 @@
 ﻿using DSharpPlus.SlashCommands;
 using TourneyPal.BotHandling;
 
-namespace TourneyPal.Bot.Commands
+namespace TourneyPal.Bot.Commands.AllGuildsCommands
 {
     [SlashCommandGroup("general", "List of general commands")]
     public class GeneralCommands : ApplicationCommandModule
@@ -22,6 +22,12 @@ namespace TourneyPal.Bot.Commands
         public async Task GetAvailableGames(InteractionContext ctx)
         {
             await BotCommons.CommandService.GetAvailableGames(ctx).ConfigureAwait(false);
+        }
+
+        [SlashCommand("getAvailableCommands", "Get a list of all commands of the server")]
+        public async Task GetAvailableCommands(InteractionContext ctx)
+        {
+            await BotCommons.CommandService.GetAvailableCommands(ctx).ConfigureAwait(false);
         }
 
         [SlashCommand("help", "Get a list of all commands")]

@@ -129,7 +129,7 @@ namespace TourneyPal.Api
             var ApiResponse = new ApiRequestResponse();
             try
             {
-                Console.WriteLine("Calling Api: " + System.DateTime.Now);
+                LogFile.WriteToLogFile("Calling Api: " + System.DateTime.Now);
                 var json = new StartGGConnectionData.StartGGJsonFormatter(GameID);
 
                 using (HttpClient client = new HttpClient())
@@ -414,7 +414,7 @@ namespace TourneyPal.Api
             var response = new ApiRequestResponse();
             try
             {
-                Console.WriteLine("Calling Challonge Api: " + System.DateTime.Now);
+                LogFile.WriteToLogFile("Calling Challonge Api: " + System.DateTime.Now);
 
                 ChallongeJsonObject.Root challongeGGData = JsonConvert.DeserializeObject<ChallongeJsonObject.Root>(responseData);
 

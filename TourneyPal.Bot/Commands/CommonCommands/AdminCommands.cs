@@ -2,7 +2,7 @@
 using System.Reflection;
 using TourneyPal.BotHandling;
 
-namespace TourneyPal.Bot.Commands
+namespace TourneyPal.Bot.Commands.AllGuildsCommands
 {
     [SlashCommandGroup("admin", "List of admin commands")]
     public class AdminCommands : ApplicationCommandModule
@@ -48,6 +48,6 @@ namespace TourneyPal.Bot.Commands
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
         }
-        
+
     }
 }

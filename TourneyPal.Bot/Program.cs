@@ -2,6 +2,7 @@
 using System.Reflection;
 using TourneyPal.Bot.Commands.CommandService;
 using TourneyPal.BotHandling;
+using TourneyPal.Commons;
 using TourneyPal.DataService;
 
 namespace TourneyPal
@@ -21,11 +22,11 @@ namespace TourneyPal
 
                 BotCommons.DataService.InitializeData();
 
-                await Task.WhenAll(new BotSetup().runAsync(), BotCommons.DataService.RunApiHandler());
+                await Task.WhenAll(new BotConfiguration().runAsync(), BotCommons.DataService.RunApiHandler());
             }
             catch (Exception ex)
             {
-                Console.WriteLine("FoundInItem: "+MethodBase.GetCurrentMethod() + ", ExceptionMessageItem: "+ex.Message + " -- " + ex.StackTrace);
+                LogFile.WriteToLogFile("FoundInItem: "+MethodBase.GetCurrentMethod() + ", ExceptionMessageItem: "+ex.Message + " -- " + ex.StackTrace);
             }
         }
     }

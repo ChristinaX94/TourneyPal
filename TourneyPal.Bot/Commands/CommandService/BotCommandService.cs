@@ -5,6 +5,7 @@ using System.Reflection;
 using TourneyPal.BotHandling;
 using TourneyPal.Commons.DataObjects;
 using static TourneyPal.Commons.Common;
+using TourneyPal.Bot.Commands.CommandExecution;
 
 namespace TourneyPal.Bot.Commands.CommandService
 {
@@ -40,7 +41,13 @@ namespace TourneyPal.Bot.Commands.CommandService
         {
             try
             {
-                await ctx.CreateResponseAsync("/post").ConfigureAwait(false);
+                var initialResponse = "Thank you for using TourneyPal!";
+                var navigationHelpResponse = "Use /general getAvailableGames, /general getAvailableCommands, to navigate!";
+                var issueResponse = "For any issues, please send an email to tourneyPal@gmail.com.";
+
+                await ctx.CreateResponseAsync(initialResponse + Environment.NewLine 
+                    + navigationHelpResponse + Environment.NewLine
+                    + issueResponse + Environment.NewLine).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -53,8 +60,8 @@ namespace TourneyPal.Bot.Commands.CommandService
         {
             try
             {
-                List<DiscordEmbed> embeds = BotCommons.GetEmbeds(BotCommons.DataService.getNewTournaments(SelectedGame));
-                await BotCommons.setPages(ctx, embeds, ctx.InteractionId).ConfigureAwait(false);
+                List<DiscordEmbed> embeds = BotCommandExecution.GetEmbeds(BotCommons.DataService.getNewTournaments(SelectedGame));
+                await BotCommandExecution.setPages(ctx, embeds, ctx.InteractionId).ConfigureAwait(false);
 
             }
             catch (Exception ex)
@@ -68,8 +75,8 @@ namespace TourneyPal.Bot.Commands.CommandService
         {
             try
             {
-                List<DiscordEmbed> embeds = BotCommons.GetEmbeds(BotCommons.DataService.getOldTournaments(SelectedGame));
-                await BotCommons.setPages(ctx, embeds, ctx.InteractionId).ConfigureAwait(false);
+                List<DiscordEmbed> embeds = BotCommandExecution.GetEmbeds(BotCommons.DataService.getOldTournaments(SelectedGame));
+                await BotCommandExecution.setPages(ctx, embeds, ctx.InteractionId).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -83,7 +90,7 @@ namespace TourneyPal.Bot.Commands.CommandService
             try
             {
                 List<TournamentData> tournaments = BotCommons.DataService.getAllTournaments(SelectedGame);
-                List<DiscordEmbed> embeds = BotCommons.GetEmbeds(tournaments);
+                List<DiscordEmbed> embeds = BotCommandExecution.GetEmbeds(tournaments);
 
                 var upcomingTournament = tournaments.FirstOrDefault(x => x.StartsAT >= getDate());
                 var upcomingTournamentPos = 0;
@@ -92,7 +99,7 @@ namespace TourneyPal.Bot.Commands.CommandService
                     upcomingTournamentPos = tournaments.IndexOf(upcomingTournament);
                 }
 
-                await BotCommons.setPages(ctx, embeds, ctx.InteractionId, upcomingTournamentPos).ConfigureAwait(false);
+                await BotCommandExecution.setPages(ctx, embeds, ctx.InteractionId, upcomingTournamentPos).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -111,9 +118,9 @@ namespace TourneyPal.Bot.Commands.CommandService
                     return;
                 }
 
-                List<DiscordEmbed> embeds = BotCommons.GetEmbeds(BotCommons.DataService.getNewTournamentsByCountryCode(SelectedGame, country));
+                List<DiscordEmbed> embeds = BotCommandExecution.GetEmbeds(BotCommons.DataService.getNewTournamentsByCountryCode(SelectedGame, country));
 
-                await BotCommons.setPages(ctx, embeds, ctx.InteractionId).ConfigureAwait(false);
+                await BotCommandExecution.setPages(ctx, embeds, ctx.InteractionId).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -141,16 +148,16 @@ namespace TourneyPal.Bot.Commands.CommandService
 
                 if (data.Count == 1)
                 {
-                    List<DiscordEmbed> fullEmbeds = BotCommons.GetEmbeds(data);
-                    await BotCommons.setPages(ctx, fullEmbeds);
+                    List<DiscordEmbed> fullEmbeds = BotCommandExecution.GetEmbeds(data);
+                    await BotCommandExecution.setPages(ctx, fullEmbeds);
                     return;
                 }
 
-                var embeds = BotCommons.GetDataEmbeds(data);
+                var embeds = BotCommandExecution.GetDataEmbeds(data);
 
-                await BotCommons.setDataPages(ctx, embeds, ctx.InteractionId).ConfigureAwait(false);
+                await BotCommandExecution.setDataPages(ctx, embeds, ctx.InteractionId).ConfigureAwait(false);
 
-                await BotCommons.setMessageFollowUp(data, ctx).ConfigureAwait(false);
+                await BotCommandExecution.SetMessageFollowUp(data, ctx).ConfigureAwait(false);
 
 
             }
@@ -165,7 +172,7 @@ namespace TourneyPal.Bot.Commands.CommandService
         {
             try
             {
-                var canCall = await BotCommons.ValidatePermissions(ctx, Permissions.Administrator);
+                var canCall = await BotCommandExecution.ValidatePermissions(ctx, Permissions.Administrator);
                 if (!canCall)
                 {
                     return;
@@ -182,8 +189,8 @@ namespace TourneyPal.Bot.Commands.CommandService
                     await ctx.CreateResponseAsync("No tournament found!").ConfigureAwait(false);
                     return;
                 }
-                List<DiscordEmbed> embeds = BotCommons.GetEmbeds(new List<TournamentData>() { embed });
-                await BotCommons.setPages(ctx, embeds, ctx.InteractionId).ConfigureAwait(false);
+                List<DiscordEmbed> embeds = BotCommandExecution.GetEmbeds(new List<TournamentData>() { embed });
+                await BotCommandExecution.setPages(ctx, embeds, ctx.InteractionId).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -196,7 +203,20 @@ namespace TourneyPal.Bot.Commands.CommandService
         {
             try
             {
-                 await BotCommons.GetAvailableGames(ctx).ConfigureAwait(false);
+                 await BotCommandExecution.GetAvailableGames(ctx).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                BotCommons.DataService.Log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
+            }
+        }
+
+        public async Task GetAvailableCommands(InteractionContext ctx)
+        {
+            try
+            {
+                await BotCommandExecution.GetAvailableCommands(ctx).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -209,7 +229,7 @@ namespace TourneyPal.Bot.Commands.CommandService
         {
             try
             {
-                var canCall = await BotCommons.ValidatePermissions(ctx, Permissions.Administrator);
+                var canCall = await BotCommandExecution.ValidatePermissions(ctx, Permissions.Administrator);
                 if (!canCall)
                 {
                     return;
@@ -228,7 +248,7 @@ namespace TourneyPal.Bot.Commands.CommandService
         {
             try
             {
-                var canCall = await BotCommons.ValidatePermissions(ctx, Permissions.Administrator);
+                var canCall = await BotCommandExecution.ValidatePermissions(ctx, Permissions.Administrator);
                 if (!canCall)
                 {
                     return;
