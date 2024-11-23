@@ -47,7 +47,7 @@ namespace TourneyPal.Bot.Commands.CommandExecution
 
         public static Task OnClientReady(DiscordClient Client, ReadyEventArgs e)
         {
-            Console.WriteLine("Tourney Pal is going online...");
+            LogFile.WriteToLogFile("Tourney Pal is going online...");
             return Task.CompletedTask;
         }
 
@@ -144,7 +144,7 @@ namespace TourneyPal.Bot.Commands.CommandExecution
         {
             try
             {
-                Console.WriteLine($"ERROR: {e.Exception}");
+                LogFile.WriteToLogFile($"ERROR: {e.Exception}");
                 BotCommons.DataService.Log(foundInItem: MethodBase.GetCurrentMethod(),
                        exceptionMessageItem: e.Context.CommandName + " -- " + e.Exception);
                 await Task.CompletedTask;

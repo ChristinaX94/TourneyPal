@@ -1,14 +1,6 @@
-﻿using Org.BouncyCastle.Utilities.IO;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Reflection;
 using TourneyPal.SQLManager;
 using TourneyPal.SQLManager.DataModels.SQLTables.Errorlogs;
-using TourneyPal.SQLManager.DataModels.SQLTables.Stream;
-using TourneyPal.SQLManager.DataModels.SQLTables.Tournament_Api_Data;
 
 namespace TourneyPal.Commons
 {
@@ -46,10 +38,12 @@ namespace TourneyPal.Commons
                     return;
                 }
 
+                LogFile.WriteToLogFile("** Error found at ID: " + errorlogsRow.ID);
+
             }
             catch (Exception ex)
             {
-                Console.WriteLine("EXCEPTION: " + ex.Message);
+                LogFile.WriteToLogFile("EXCEPTION: " + ex.Message);
             }
         }
     }
