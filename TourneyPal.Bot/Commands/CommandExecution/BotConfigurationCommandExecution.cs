@@ -51,46 +51,6 @@ namespace TourneyPal.Bot.Commands.CommandExecution
             return Task.CompletedTask;
         }
 
-        public static async Task CheckUpdates(DiscordClient client)
-        {
-            try
-            {
-                var timer = new PeriodicTimer(TimeSpan.FromHours(1));
-                while (await timer.WaitForNextTickAsync())
-                {
-                    if (Common.getDate().Hour != Common.TimeOfDayRefreshData)
-                    {
-                        continue;
-                    }
-
-                    var newlyAddedTournaments = BotCommons.DataService.getNewlyAddedTournaments(Common.Game.SoulCalibur6);
-                    if (newlyAddedTournaments == null || newlyAddedTournaments.Count == 0)
-                    {
-                        continue;
-                    }
-
-                    var servers = client.Guilds.ToList();
-                    foreach (var server in servers.Select(x => x.Value))
-                    {
-                        var role = server.Roles.Select(x => x.Value).FirstOrDefault(x => x.Name.Equals(BotCommons.TourneyPalRole));
-                        var channel = server.Channels.Values.FirstOrDefault(x => x.Type != ChannelType.Voice && x.Type != ChannelType.Category);
-                        if (channel == null)
-                        {
-                            continue;
-                        }
-                        DiscordEmbed embed = BotCommandExecution.GetDataEmbed(newlyAddedTournaments);
-                        await BotCommandExecution.SetMessage(embed, channel, role).ConfigureAwait(false);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                BotCommons.DataService.Log(foundInItem: MethodBase.GetCurrentMethod(),
-                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
-            }
-
-        }
-
         public static async Task OnMessageCreated(DiscordClient Client, MessageCreateEventArgs e)
         {
             try
@@ -157,6 +117,45 @@ namespace TourneyPal.Bot.Commands.CommandExecution
 
         }
 
+        public static async Task CheckUpdates(DiscordClient client)
+        {
+            try
+            {
+                var timer = new PeriodicTimer(TimeSpan.FromHours(1));
+                while (await timer.WaitForNextTickAsync())
+                {
+                    if (Common.getDate().Hour != Common.TimeOfDayRefreshData)
+                    {
+                        continue;
+                    }
+
+                    var newlyAddedTournaments = BotCommons.DataService.getNewlyAddedTournaments(Common.Game.SoulCalibur6);
+                    if (newlyAddedTournaments == null || newlyAddedTournaments.Count == 0)
+                    {
+                        continue;
+                    }
+
+                    var servers = client.Guilds.ToList();
+                    foreach (var server in servers.Select(x => x.Value))
+                    {
+                        var role = server.Roles.Select(x => x.Value).FirstOrDefault(x => x.Name.Equals(BotCommons.TourneyPalRole));
+                        var channel = server.Channels.Values.FirstOrDefault(x => x.Type != ChannelType.Voice && x.Type != ChannelType.Category);
+                        if (channel == null)
+                        {
+                            continue;
+                        }
+                        DiscordEmbed embed = BotCommandExecution.GetDataEmbed(newlyAddedTournaments);
+                        await BotCommandExecution.SetMessage(embed, channel, role).ConfigureAwait(false);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                BotCommons.DataService.Log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
+            }
+
+        }
 
         public static async Task RegisterServerGames(DiscordClient Client, MessageCreateEventArgs e)
         {

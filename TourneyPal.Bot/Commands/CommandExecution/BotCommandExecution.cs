@@ -333,7 +333,6 @@ namespace TourneyPal.Bot.Commands.CommandExecution
         }
         #endregion
 
-
         public static DiscordEmbed GetDataEmbed(List<TournamentData> tourneysSelected)
         {
             try
@@ -389,7 +388,7 @@ namespace TourneyPal.Bot.Commands.CommandExecution
             }
         }
 
-        internal static async Task setMessageFollowUp(List<TournamentData> data, InteractionContext ctx)
+        internal static async Task SetMessageFollowUp(List<TournamentData> data, InteractionContext ctx)
         {
             try
             {

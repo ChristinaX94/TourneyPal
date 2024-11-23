@@ -157,7 +157,7 @@ namespace TourneyPal.Bot.Commands.CommandService
 
                 await BotCommandExecution.setDataPages(ctx, embeds, ctx.InteractionId).ConfigureAwait(false);
 
-                await BotCommandExecution.setMessageFollowUp(data, ctx).ConfigureAwait(false);
+                await BotCommandExecution.SetMessageFollowUp(data, ctx).ConfigureAwait(false);
 
 
             }
