@@ -5,7 +5,6 @@ using TourneyPal.SQLManager.DataModels.SQLTables.Stream;
 using Stream = TourneyPal.SQLManager.DataModels.SQLTables.Stream.Stream;
 using TourneyPal.SQLManager.DataModels.SQLTables.Tournament_Host_Sites;
 using Tournament = TourneyPal.SQLManager.DataModels.SQLTables.Tournament.Tournament;
-using TourneyPal.SQLManager.DataModels.SQLTables.Related_Tournaments_Api_Call;
 using TourneyPal.SQLManager.DataModels.SQLTables.Tournament_Api_Data;
 using EnumsNET;
 using System.Reflection;
@@ -198,6 +197,7 @@ namespace TourneyPal.DataAccessLayer.DataHandling
                 tournaments = (Tournament)SQLHandler.saveData(tournaments);
                 streams = (Stream)SQLHandler.saveData(streams);
 
+                TournamentsData.ForEach(x => x.isModified = false);
             }
             catch (Exception ex)
             {
@@ -209,13 +209,9 @@ namespace TourneyPal.DataAccessLayer.DataHandling
         {
             try
             {
-                var listSaved = TournamentsData.Where(x => x.isModified).ToList();
-
+                var apiData = new Tournament_Api_Data();
                 foreach (var request in requests)
                 {
-                    var relatedTournaments = new Related_Tournaments_Api_Call();
-                    var apiData = new Tournament_Api_Data();
-
                     Tournament_Api_DataRow apiRow = new Tournament_Api_DataRow(nameof(apiData));
                     apiRow.insertNewRowData();
                     apiRow.RequestJSON = request.ApiRequestJson;
@@ -223,46 +219,9 @@ namespace TourneyPal.DataAccessLayer.DataHandling
                     apiRow.Response = request.ApiResponse;
                     apiRow.TournamentHostSite_ID = request.HostSite;
                     apiData.rows.Add(apiRow);
-
-                    apiData = (Tournament_Api_Data)SQLHandler.saveData(apiData);
-                    if (apiData == null)
-                    {
-                        return;
-                    }
-
-                    if (listSaved == null || listSaved.Count == 0)
-                    {
-                        continue;
-                    }
-
-                    if (request.Tournaments == null || request.Tournaments.Count == 0)
-                    {
-                        continue;
-                    }
-
-                    var relatedTournamentIDs = new List<int>();
-
-                    var listSavedTournaments = listSaved.Select(x => x.ID).ToList();
-                    request.Tournaments.RemoveAll(x => !listSavedTournaments.Contains(x));
-                    relatedTournamentIDs.AddRange(request.Tournaments);
-
-                    foreach (var relatedTournamentID in relatedTournamentIDs)
-                    {
-                        Related_Tournaments_Api_CallRow relatedTournament = new Related_Tournaments_Api_CallRow(nameof(relatedTournaments));
-                        relatedTournament.insertNewRowData();
-                        relatedTournament.Tournament_ID = relatedTournamentID;
-                        relatedTournament.TournamentApiData_ID = apiRow.ID;
-                        relatedTournaments.rows.Add(relatedTournament);
-                    }
-
-                    relatedTournaments = (Related_Tournaments_Api_Call)SQLHandler.saveData(relatedTournaments);
-                    if (relatedTournaments == null)
-                    {
-                        return;
-                    }
                 }
 
-                TournamentsData.ForEach(x => x.isModified = false);
+                apiData = (Tournament_Api_Data)SQLHandler.saveData(apiData);
             }
             catch (Exception ex)
             {
