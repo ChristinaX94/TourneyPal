@@ -108,6 +108,41 @@ namespace TourneyPal.Bot.Commands.CommandService
             }
         }
 
+        public async Task PostUpdates(Game SelectedGame, InteractionContext ctx)
+        {
+            try
+            {
+                var newlyAddedTournaments = BotCommons.DataService.getNewlyAddedTournaments(new List<Game> { SelectedGame });
+                if (newlyAddedTournaments == null || newlyAddedTournaments.Count == 0)
+                {
+                    await ctx.CreateResponseAsync("No new entries found for today.").ConfigureAwait(false);
+                    return;
+                }
+
+                if (newlyAddedTournaments.Count == 1)
+                {
+                    List<DiscordEmbed> fullEmbeds = BotCommandExecution.GetEmbeds(newlyAddedTournaments);
+                    await BotCommandExecution.setPages(ctx, fullEmbeds);
+                    return;
+                }
+
+                var embeds = BotCommandExecution.GetTournamentsListEmbeds(newlyAddedTournaments, usePages: false);
+                if (embeds == null)
+                {
+                    return;
+                }
+
+                await BotCommandExecution.setDataPages(ctx, embeds, ctx.InteractionId).ConfigureAwait(false);
+
+                await BotCommandExecution.SetMessageFollowUp(newlyAddedTournaments, ctx).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                BotCommons.DataService.Log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
+            }
+        }
+
         public async Task PostTourneyIn(Game SelectedGame, InteractionContext ctx, string country)
         {
             try
@@ -153,7 +188,7 @@ namespace TourneyPal.Bot.Commands.CommandService
                     return;
                 }
 
-                var embeds = BotCommandExecution.GetDataEmbeds(data);
+                var embeds = BotCommandExecution.GetTournamentsListEmbeds(data);
 
                 await BotCommandExecution.setDataPages(ctx, embeds, ctx.InteractionId).ConfigureAwait(false);
 

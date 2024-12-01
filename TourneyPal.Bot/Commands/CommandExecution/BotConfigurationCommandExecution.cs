@@ -129,23 +129,29 @@ namespace TourneyPal.Bot.Commands.CommandExecution
                         continue;
                     }
 
-                    var newlyAddedTournaments = BotCommons.DataService.getNewlyAddedTournaments(Common.Game.SoulCalibur6);
-                    if (newlyAddedTournaments == null || newlyAddedTournaments.Count == 0)
-                    {
-                        continue;
-                    }
-
                     var servers = client.Guilds.ToList();
                     foreach (var server in servers.Select(x => x.Value))
                     {
+                        List<Common.Game> selectedgames = GetServerGames(server);
+
+                        var newlyAddedTournaments = BotCommons.DataService.getNewlyAddedTournaments(selectedgames);
+                        if (newlyAddedTournaments == null || newlyAddedTournaments.Count == 0)
+                        {
+                            continue;
+                        }
+
                         var role = server.Roles.Select(x => x.Value).FirstOrDefault(x => x.Name.Equals(BotCommons.TourneyPalRole));
                         var channel = server.Channels.Values.FirstOrDefault(x => x.Type != ChannelType.Voice && x.Type != ChannelType.Category);
                         if (channel == null)
                         {
                             continue;
                         }
-                        DiscordEmbed embed = BotCommandExecution.GetDataEmbed(newlyAddedTournaments);
-                        await BotCommandExecution.SetMessage(embed, channel, role).ConfigureAwait(false);
+                        var embeds = BotCommandExecution.GetTournamentsListEmbeds(newlyAddedTournaments, usePages: false);
+                        if(embeds == null)
+                        { 
+                            continue; 
+                        }
+                        await BotCommandExecution.SetMessage(embeds.FirstOrDefault(), channel, role).ConfigureAwait(false);
                     }
                 }
             }
@@ -155,6 +161,31 @@ namespace TourneyPal.Bot.Commands.CommandExecution
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
 
+        }
+
+        private static List<Common.Game> GetServerGames(DiscordGuild server)
+        {
+            try
+            {
+                var serverCommands = server.GetApplicationCommandsAsync().Result;
+
+                Dictionary<int, string> gameCommands = new Dictionary<int, string>();
+                var currentCommandsNames = serverCommands.Select(x => x.Name.ToUpper()).ToList();
+
+                var currentDictionary = BotCommons.GameDescriptions.Where(x => !currentCommandsNames.Any(y => y.Equals(x.Key))).ToDictionary();
+                if (currentDictionary == null)
+                {
+                    return new List<Common.Game>();
+                }
+
+                return currentDictionary.Values.ToList();
+                
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
 
         public static async Task RegisterServerGames(DiscordClient Client, MessageCreateEventArgs e)

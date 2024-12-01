@@ -15,7 +15,7 @@ namespace TourneyPal.DataService
         public List<TournamentData> getNewTournaments(Game SelectedGame);
         public List<TournamentData> getOldTournaments(Game SelectedGame);
         public List<TournamentData> getAllTournaments(Game SelectedGame);
-        public List<TournamentData> getNewlyAddedTournaments(Game SelectedGame);
+        public List<TournamentData> getNewlyAddedTournaments(List<Game> SelectedGames);
         public List<TournamentData> getNewTournamentsByCountryCode(Game SelectedGame, string countryCode);
         public List<TournamentData> searchTournaments(Game SelectedGame, string term);
         public Task<TournamentData?> getChallongeTournamentByURL(string url);

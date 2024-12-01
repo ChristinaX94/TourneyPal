@@ -79,6 +79,20 @@ namespace TourneyPal.Bot.Commands.GameCommands
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
         }
+
+        [SlashCommand("postUpdates", "Shows newly added tournaments")]
+        public async Task PostUpdates(InteractionContext ctx)
+        {
+            try
+            {
+                await BotCommons.CommandService.PostUpdates(SelectedGame, ctx).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                BotCommons.DataService.Log(foundInItem: MethodBase.GetCurrentMethod(),
+                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
+            }
+        }
     }
 
 }
