@@ -17,13 +17,13 @@ namespace TourneyPal.DataAccessLayer.DataHandling
 {
     public static class GeneralData
     {
-        private static Tournament tournaments { get; set; }
-        private static Stream streams { get; set; }
-        private static Game games { get; set; }
-        private static Tournament_Host_Sites tournamentHostSites { get; set; }
-        private static Game_On_Tournament_Host_Site games_On_Tournament_Host_Site { get; set; }
-        public static List<TournamentData> TournamentsData { get; private set; }
-        public static List<TournamentData> NewlyAddedTournamentsData { get; private set; }
+        private static Tournament Tournaments { get; set; } = new Tournament();
+        private static Stream Streams { get; set; } = new Stream();
+        private static Game Games { get; set; } = new Game();
+        private static Tournament_Host_Sites TournamentHostSites { get; set; } = new Tournament_Host_Sites();
+        private static Game_On_Tournament_Host_Site Games_On_Tournament_Host_Site { get; set; } = new Game_On_Tournament_Host_Site();
+        public static List<TournamentData> TournamentsData { get; private set; } = new List<TournamentData>();
+        public static List<TournamentData> NewlyAddedTournamentsData { get; private set; } = new List<TournamentData>();
 
         public static void GeneralDataInitialize()
         {
@@ -31,7 +31,7 @@ namespace TourneyPal.DataAccessLayer.DataHandling
             {
                 InitializeInternalDBObjects();
 
-                foreach (TournamentRow tournament in tournaments.rows)
+                foreach (TournamentRow tournament in Tournaments.rows)
                 {
                     TournamentsData.Add(new TournamentData()
                     {
@@ -48,9 +48,9 @@ namespace TourneyPal.DataAccessLayer.DataHandling
                         VenueName = tournament.VenueName,
                         RegistrationOpen = tournament.RegistrationOpen,
                         NumberOfEntrants = tournament.NumberOfEntrants == null ? 0 : (int)tournament.NumberOfEntrants,
-                        GameEnum = (Common.Game)games.rows.Where(x => x.ID == tournament.Game_ID)?.Select(y => ((GameRow)y).ID).FirstOrDefault(),
-                        Streams = streams.rows.Where(x => ((StreamRow)x).Tournament_ID == tournament.ID)?.Select(y => "https://www.twitch.tv/" + ((StreamRow)y).Title).ToList(),
-                        HostSite = tournamentHostSites.rows.Where(x => x.ID == tournament.HostSite_ID)?.Select(y => ((Tournament_Host_SitesRow)y).Site).FirstOrDefault(),
+                        GameEnum = (Common.Game)Games.rows.Where(x => x.ID == tournament.Game_ID)?.Select(y => ((GameRow)y).ID).FirstOrDefault(),
+                        Streams = Streams.rows.Where(x => ((StreamRow)x).Tournament_ID == tournament.ID)?.Select(y => "https://www.twitch.tv/" + ((StreamRow)y).Title).ToList(),
+                        HostSite = TournamentHostSites.rows.Where(x => x.ID == tournament.HostSite_ID)?.Select(y => ((Tournament_Host_SitesRow)y).Site).FirstOrDefault(),
                     });
                 }
             }
@@ -65,11 +65,11 @@ namespace TourneyPal.DataAccessLayer.DataHandling
         {
             try
             {
-                tournaments = (Tournament)SQLHandler.loadModelData(new Tournament());
-                streams = (Stream)SQLHandler.loadModelData(new Stream());
-                games = (Game)SQLHandler.loadModelData(new Game());
-                tournamentHostSites = (Tournament_Host_Sites)SQLHandler.loadModelData(new Tournament_Host_Sites());
-                games_On_Tournament_Host_Site = (Game_On_Tournament_Host_Site)SQLHandler.loadModelData(new Game_On_Tournament_Host_Site());
+                Tournaments = (Tournament)SQLHandler.loadModelData(new Tournament());
+                Streams = (Stream)SQLHandler.loadModelData(new Stream());
+                Games = (Game)SQLHandler.loadModelData(new Game());
+                TournamentHostSites = (Tournament_Host_Sites)SQLHandler.loadModelData(new Tournament_Host_Sites());
+                Games_On_Tournament_Host_Site = (Game_On_Tournament_Host_Site)SQLHandler.loadModelData(new Game_On_Tournament_Host_Site());
                 TournamentsData = new List<TournamentData>();
                 NewlyAddedTournamentsData = new List<TournamentData>();
             }
@@ -145,20 +145,20 @@ namespace TourneyPal.DataAccessLayer.DataHandling
 
                 foreach (var item in listToSave)
                 {
-                    TournamentRow tournamentDataRow = (TournamentRow)tournaments.rows.FirstOrDefault(x => ((TournamentRow)x).Tournament_ID == item.ID);
+                    TournamentRow tournamentDataRow = (TournamentRow)Tournaments.rows.FirstOrDefault(x => ((TournamentRow)x).Tournament_ID == item.ID);
 
                     if (tournamentDataRow == null)
                     {
-                        tournamentDataRow = new TournamentRow(nameof(tournaments));
+                        tournamentDataRow = new TournamentRow(nameof(Tournaments));
                         tournamentDataRow.insertNewRowData();
-                        tournaments.rows.Add(tournamentDataRow);
+                        Tournaments.rows.Add(tournamentDataRow);
                     }
                     else
                     {
                         tournamentDataRow.updateRowData();
                     }
 
-                    tournamentDataRow.HostSite_ID = tournamentHostSites.rows.Where(x => ((Tournament_Host_SitesRow)x).Site.Equals(item.HostSite))?.Select(y => y.ID).FirstOrDefault();
+                    tournamentDataRow.HostSite_ID = TournamentHostSites.rows.Where(x => ((Tournament_Host_SitesRow)x).Site.Equals(item.HostSite))?.Select(y => y.ID).FirstOrDefault();
                     tournamentDataRow.Tournament_ID = item.ID;
                     tournamentDataRow.Name = item.Name;
                     tournamentDataRow.CountryCode = item.CountryCode;
@@ -172,18 +172,18 @@ namespace TourneyPal.DataAccessLayer.DataHandling
                     tournamentDataRow.VenueName = item.VenueName;
                     tournamentDataRow.RegistrationOpen = item.RegistrationOpen;
                     tournamentDataRow.NumberOfEntrants = item.NumberOfEntrants;
-                    tournamentDataRow.Game_ID = games.rows.Where(x => ((GameRow)x).Title.Equals(item.Game))?.Select(y => y.ID).FirstOrDefault();
+                    tournamentDataRow.Game_ID = Games.rows.Where(x => ((GameRow)x).Title.Equals(item.Game))?.Select(y => y.ID).FirstOrDefault();
                     tournamentDataRow.isModified = true;
 
                     foreach (var streamItem in item.Streams)
                     {
-                        StreamRow streamRow = (StreamRow)streams.rows.FirstOrDefault(x => ((StreamRow)x).Tournament_ID == item.ID && ((StreamRow)x).Title.Equals(streamItem));
+                        StreamRow streamRow = (StreamRow)Streams.rows.FirstOrDefault(x => ((StreamRow)x).Tournament_ID == item.ID && ((StreamRow)x).Title.Equals(streamItem));
                         if (streamRow == null)
                         {
-                            streamRow = new StreamRow(nameof(streams));
+                            streamRow = new StreamRow(nameof(Streams));
                             streamRow.insertNewRowData();
                             streamRow.Tournament_ID = item.ID;
-                            streams.rows.Add(streamRow);
+                            Streams.rows.Add(streamRow);
                         }
                         else
                         {
@@ -194,8 +194,8 @@ namespace TourneyPal.DataAccessLayer.DataHandling
                     }
                 }
 
-                tournaments = (Tournament)SQLHandler.saveData(tournaments);
-                streams = (Stream)SQLHandler.saveData(streams);
+                Tournaments = (Tournament)SQLHandler.saveData(Tournaments);
+                Streams = (Stream)SQLHandler.saveData(Streams);
 
                 TournamentsData.ForEach(x => x.isModified = false);
             }

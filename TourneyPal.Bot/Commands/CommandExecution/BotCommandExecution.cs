@@ -34,7 +34,7 @@ namespace TourneyPal.Bot.Commands.CommandExecution
                     return;
                 }
 
-                var buttons = embeds.Count > 1 ? getButtons(ctx.Client, url.Value) : getLinkButton(url.Value);
+                var buttons = embeds.Count > 1 ? GetButtons(ctx.Client, url.Value) : GetLinkButton(url.Value);
 
                 await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder()
                     .WithContent(ctx.Member.Mention)
@@ -73,7 +73,7 @@ namespace TourneyPal.Bot.Commands.CommandExecution
 
                 if (embeds.Count > 1)
                 {
-                    component.AddComponents(getButtons(ctx.Client));
+                    component.AddComponents(GetButtons(ctx.Client));
                 }
 
                 await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, component).ConfigureAwait(false);
@@ -113,7 +113,7 @@ namespace TourneyPal.Bot.Commands.CommandExecution
                     var url = embeds[pos].Fields.FirstOrDefault(x => x.Name.Contains("Site"))?.Value;
                     await e.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage, new DiscordInteractionResponseBuilder()
                     .AddEmbed(embeds[pos])
-                    .AddComponents(getButtons(ctx.Client, url))).ConfigureAwait(false);
+                    .AddComponents(GetButtons(ctx.Client, url))).ConfigureAwait(false);
                 }
             }
             catch (Exception ex)
@@ -215,7 +215,7 @@ namespace TourneyPal.Bot.Commands.CommandExecution
             return false;
         }
 
-        public static List<DiscordComponent> getButtons(DiscordClient client, string? url = "")
+        public static List<DiscordComponent> GetButtons(DiscordClient client, string? url = "")
         {
             try
             {
@@ -240,7 +240,7 @@ namespace TourneyPal.Bot.Commands.CommandExecution
             return new List<DiscordComponent>() { };
         }
 
-        public static List<DiscordComponent> getLinkButton(string url)
+        public static List<DiscordComponent> GetLinkButton(string url)
         {
             try
             {
@@ -291,13 +291,19 @@ namespace TourneyPal.Bot.Commands.CommandExecution
             return embeds;
         }
 
-        public static List<DiscordEmbed> GetDataEmbeds(List<TournamentData> tourneysSelected)
+        public static List<DiscordEmbed> GetTournamentsListEmbeds(List<TournamentData> tourneysSelected, bool usePages = true)
         {
             var embeds = new List<DiscordEmbed>();
+            decimal pageNumber = 1;
             try
             {
                 var numberOfTourneys = tourneysSelected.Count;
-                var pageNumber = Math.Ceiling((decimal)numberOfTourneys / BotCommons.TourneyDataPageRows);
+
+                if (usePages)
+                {
+                    pageNumber = Math.Ceiling((decimal)numberOfTourneys / BotCommons.TourneyDataPageRows);
+                }
+               
                 for (var batchPage = 0; batchPage < pageNumber; batchPage++)
                 {
                     DiscordEmbedBuilder embed = new DiscordEmbedBuilder
@@ -318,7 +324,7 @@ namespace TourneyPal.Bot.Commands.CommandExecution
                         embed.AddField((tourneysSelected.IndexOf(tourney) + 1).ToString() + ".: " + tourney.Name,
                                 tourney.StartsAT == null ? "Date: - " : "Date (dd/mm/yyyy): " + tourney.StartsAT.Value.Date.ToString("dd/MM/yyyy") +
                                 "\nLocation: " + tourney.CountryCode)
-                             .WithFooter($"Page {1 + batchPage}/{pageNumber}");
+                             .WithFooter($"Page {1 + batchPage}/{pageNumber}" + Environment.NewLine + $"Total: " + numberOfTourneys + " Tournaments");
                     }
                     embed.Build();
                     embeds.Add(embed);
@@ -332,38 +338,6 @@ namespace TourneyPal.Bot.Commands.CommandExecution
             return embeds;
         }
         #endregion
-
-        public static DiscordEmbed GetDataEmbed(List<TournamentData> tourneysSelected)
-        {
-            try
-            {
-                var numberOfTourneys = tourneysSelected.Count;
-
-                DiscordEmbedBuilder embedTobuild = new DiscordEmbedBuilder
-                {
-                    Title = tourneysSelected.First().Game,
-                    Color = DiscordColor.Cyan
-                };
-
-
-                foreach (var tourney in tourneysSelected)
-                {
-                    embedTobuild.AddField((tourneysSelected.IndexOf(tourney) + 1).ToString() + ".: " + tourney.Name,
-                        tourney.StartsAT == null ? "Date: - " : "Date (dd/mm/yyyy): " + tourney.StartsAT.Value.Date.ToString("dd/MM/yyyy") +
-                        "\nLocation: " + tourney.CountryCode)
-                        .WithFooter($"Total: " + numberOfTourneys + " Tournaments");
-                }
-
-                return embedTobuild.Build();
-
-            }
-            catch (Exception ex)
-            {
-                BotCommons.DataService.Log(foundInItem: MethodBase.GetCurrentMethod(),
-                           exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
-            }
-            return null;
-        }
 
         public static async Task SetMessage(DiscordEmbed embed, DiscordChannel channel, DiscordRole? role)
         {
@@ -410,7 +384,7 @@ namespace TourneyPal.Bot.Commands.CommandExecution
 
                 DiscordEmbed embedSelected = GetEmbeds(new List<TournamentData>() { data[choice - 1] }).FirstOrDefault();
                 var url = embedSelected.Fields.FirstOrDefault(x => x.Name.Contains("Site"))?.Value;
-                await ctx.FollowUpAsync(new DiscordFollowupMessageBuilder().AddEmbed(embedSelected).AddComponents(getLinkButton(url)));
+                await ctx.FollowUpAsync(new DiscordFollowupMessageBuilder().AddEmbed(embedSelected).AddComponents(GetLinkButton(url)));
             }
             catch (Exception ex)
             {

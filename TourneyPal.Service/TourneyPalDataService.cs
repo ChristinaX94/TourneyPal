@@ -99,9 +99,9 @@ namespace TourneyPal.DataService
             return GeneralData.TournamentsData.Where(x=> x.GameEnum == SelectedGame).ToList();
         }
 
-        public List<TournamentData> getNewlyAddedTournaments(Game SelectedGame)
+        public List<TournamentData> getNewlyAddedTournaments(List<Game> SelectedGames)
         {
-            return GeneralData.NewlyAddedTournamentsData.ToList();
+            return GeneralData.NewlyAddedTournamentsData.Where(x => SelectedGames.Contains(x.GameEnum)).OrderBy(x=>x.GameEnum).ToList();
         }
 
         public List<TournamentData> getNewTournamentsByCountryCode(Game SelectedGame, string countryCode)

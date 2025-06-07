@@ -11,6 +11,7 @@ namespace TourneyPal.Bot.Commands.CommandService
         public Task Post(Game SelectedGame, InteractionContext ctx);
         public Task PostOld(Game SelectedGame, InteractionContext ctx);
         public Task PostAll(Game SelectedGame, InteractionContext ctx);
+        public Task PostUpdates(Game SelectedGame, InteractionContext ctx);
         public Task PostTourneyIn(Game SelectedGame, InteractionContext ctx, string country);
         public Task SearchTournament(Game SelectedGame, InteractionContext ctx, string term);
         public Task RegisterChallongeTournament(InteractionContext ctx, string URL);
