@@ -1,10 +1,5 @@
 ﻿using MySql.Data.MySqlClient;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using TourneyPal.Commons;
 
 namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament_Host_Sites
@@ -35,6 +30,7 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament_Host_Sites
                 if (reader[nameof(Site)] == null ||
                     string.IsNullOrEmpty(reader[nameof(Site)].ToString()))
                 {
+                    Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: nameof(Site) + ", of table: " + tableName + "-- Could not be loaded");
                     result = false;
                     return result;
                 }
@@ -44,6 +40,7 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament_Host_Sites
                 if (reader[nameof(Endpoint)] == null ||
                     string.IsNullOrEmpty(reader[nameof(Endpoint)].ToString()))
                 {
+                    Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: nameof(Endpoint) + ", of table: " + tableName + "-- Could not be loaded");
                     result = false;
                     return result;
                 }
@@ -53,6 +50,7 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament_Host_Sites
                 if (reader[nameof(Token)] == null ||
                     string.IsNullOrEmpty(reader[nameof(Token)].ToString()))
                 {
+                    Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: nameof(Token) + ", of table: " + tableName + "-- Could not be loaded");
                     result = false;
                     return result;
                 }
@@ -85,20 +83,23 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament_Host_Sites
 
                 if (string.IsNullOrEmpty(this.Site))
                 {
-                    result = false;
                     Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: nameof(this.Site) + ", of table: " + this.tableName + "-- Cannot be null");
+                    result = false;
+                    return result;
                 }
 
                 if (string.IsNullOrEmpty(this.Token))
                 {
-                    result = false;
                     Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: nameof(this.Token) + ", of table: " + this.tableName + "-- Cannot be null");
+                    result = false;
+                    return result;
                 }
 
                 if (string.IsNullOrEmpty(this.Endpoint))
                 {
-                    result = false;
                     Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: nameof(this.Endpoint) + ", of table: " + this.tableName + "-- Cannot be null");
+                    result = false;
+                    return result;
                 }
 
                 result = true;

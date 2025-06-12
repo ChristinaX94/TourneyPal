@@ -202,7 +202,7 @@ namespace TourneyPal.SQLManager
 
                 if (lastinsertedID > 0)
                 {
-                    foreach (var row in model.rows)
+                    foreach (var row in model.Rows)
                     {
                         row.setNewID(lastinsertedID);
                         lastinsertedID++;

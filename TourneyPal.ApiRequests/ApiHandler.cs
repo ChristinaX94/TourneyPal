@@ -79,7 +79,7 @@ namespace TourneyPal.Api
             return response;
         }
 
-        public static async Task<ApiRequestResponse> handleStartGGDataAsync(int GameID) 
+        private static async Task<ApiRequestResponse> handleStartGGDataAsync(int GameID) 
         {
             var response = new ApiRequestResponse();
             try
@@ -196,7 +196,7 @@ namespace TourneyPal.Api
             return ApiResponse;
         }
 
-        public static ApiRequestResponse CallStartGGApiAsync(string responseData)
+        private static ApiRequestResponse CallStartGGApiAsync(string responseData)
         {
             var response = new ApiRequestResponse();
             try
@@ -256,7 +256,7 @@ namespace TourneyPal.Api
                         RegistrationOpen = tournament.isRegistrationOpen,
                         NumberOfEntrants = tournament.events.Select(x => x.numEntrants)?.FirstOrDefault() ==null ? 0: (int)tournament.events.Select(x => x.numEntrants)?.FirstOrDefault(),
                         GameEnum = gameResponse.Game,
-                        Streams = tournament.streams==null? new List<string>() : tournament.streams?.Select(x => "https://www.twitch.tv/" + x.streamName)?.ToList(),
+                        Streams = tournament.streams==null? new List<string>() : tournament.streams?.Select(x => x.streamName)?.ToList(),
                         HostSite = Common.TournamentSiteHost.Start.AsString(EnumFormat.Description),
                     };
                     response.Tournaments.Add(systemTourney);
@@ -276,7 +276,7 @@ namespace TourneyPal.Api
             return response;
         }
 
-        public static async Task<ApiRequestResponse> handleChallongeDataASync(List<string> challongeURLS)
+        private static async Task<ApiRequestResponse> handleChallongeDataASync(List<string> challongeURLS)
         {
             var response = new ApiRequestResponse();
             try
@@ -409,7 +409,7 @@ namespace TourneyPal.Api
             return apiResponse;
         }
 
-        public static ApiRequestResponse CallChallongeApiAsync(string responseData)
+        private static ApiRequestResponse CallChallongeApiAsync(string responseData)
         {
             var response = new ApiRequestResponse();
             try

@@ -30,7 +30,7 @@ namespace TourneyPal.Commons
                 errorlogsRow.ExceptionMessage = exceptionMessage;
                 errorlogsRow.FoundIn = foundIn;
 
-                errorlogs.rows.Add(errorlogsRow);
+                errorlogs.Rows.Add(errorlogsRow);
 
                 errorlogs = (Errorlogs)SQLHandler.saveData(errorlogs);
                 if (errorlogs == null)

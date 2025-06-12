@@ -1,10 +1,6 @@
 ﻿using MySql.Data.MySqlClient;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+using System.Security.Policy;
 using TourneyPal.Commons;
 
 namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament_Api_Data
@@ -35,6 +31,7 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament_Api_Data
                 var tournamentHostSite_ID = convertToInt(nameof(TournamentHostSite_ID), reader[nameof(TournamentHostSite_ID)]?.ToString());
                 if (tournamentHostSite_ID == null)
                 {
+                    Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: nameof(TournamentHostSite_ID) + ", of table: " + tableName + "-- Could not be loaded");
                     result = false;
                     return result;
                 }
@@ -50,6 +47,7 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament_Api_Data
                 if (reader[nameof(Response)] == null ||
                     string.IsNullOrEmpty(reader[nameof(Response)].ToString()))
                 {
+                    Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: nameof(Response) + ", of table: " + tableName + "-- Could not be loaded");
                     result = false;
                     return result;
                 }
@@ -73,14 +71,16 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament_Api_Data
             {
                 if (this.TournamentHostSite_ID == null)
                 {
-                    result = false;
                     Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: nameof(this.TournamentHostSite_ID) + ", of table: " + this.tableName + "-- Cannot be null");
+                    result = false;
+                    return result;
                 }
                 
                 if (string.IsNullOrEmpty(this.Response))
                 {
-                    result = false;
                     Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: nameof(this.Response) + ", of table: " + this.tableName + "-- Cannot be null");
+                    result = false;
+                    return result;
                 }
 
                 result = true;
