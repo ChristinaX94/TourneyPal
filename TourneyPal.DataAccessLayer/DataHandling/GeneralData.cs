@@ -103,7 +103,7 @@ namespace TourneyPal.DataAccessLayer.DataHandling
                 NewlyAddedTournamentsData = new List<TournamentData>();
                 foreach (var tournament in tournaments)
                 {
-                    var existingTournament = TournamentsData.FirstOrDefault(x => x.ID == tournament.ID);
+                    var existingTournament = TournamentsData.FirstOrDefault(x => x.ID == tournament.ID && x.GameEnum == tournament.GameEnum);
                     if (existingTournament == null)
                     {
                         tournament.isModified = true;
