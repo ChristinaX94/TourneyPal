@@ -6,21 +6,27 @@ namespace TourneyPal.SQLManager.DataModels
 {
     public abstract class Model : iModel
     {
-        public List<ModelRow> rows { get; private set; }
+        public List<ModelRow> Rows { get; private set; } = new List<ModelRow>();
 
-        public Model()
-        {
-            this.initializeRows();
-        }
+        public abstract ModelRow initiateRow();
 
-        public abstract bool load(MySqlDataReader reader);
-
-        public bool initializeRows()
+        public bool load(MySqlDataReader reader)
         {
             bool result = false;
             try
             {
-                this.rows = new List<ModelRow>();
+                while (reader.Read())
+                {
+                    var row = initiateRow();
+
+                    result = row.loadRow(reader);
+                    if (!result)
+                    {
+                        return result;
+                    }
+
+                    Rows.Add(row);
+                }
                 result = true;
             }
             catch (Exception ex)
@@ -30,6 +36,7 @@ namespace TourneyPal.SQLManager.DataModels
                            exceptionMessageItem: ex.Message + " -- " + ex.StackTrace);
             }
             return result;
+
         }
 
         public bool save()
@@ -37,7 +44,6 @@ namespace TourneyPal.SQLManager.DataModels
             bool result = false;
             try
             {
-
                 result = this.validate();
                 if (!result)
                 {
@@ -61,9 +67,8 @@ namespace TourneyPal.SQLManager.DataModels
             bool result = false;
             try
             {
-                foreach (var row in rows)
+                foreach (var row in Rows)
                 {
-
                     result = row.validateRow();
                     if (!result)
                     {
@@ -71,7 +76,6 @@ namespace TourneyPal.SQLManager.DataModels
                         return result;
                     }
                 }
-
             }
             catch (Exception ex)
             {
@@ -81,6 +85,6 @@ namespace TourneyPal.SQLManager.DataModels
             }
             return result;
         }
-
+        
     }
 }

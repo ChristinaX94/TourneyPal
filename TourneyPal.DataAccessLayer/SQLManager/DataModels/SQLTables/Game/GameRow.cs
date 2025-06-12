@@ -1,10 +1,5 @@
 ﻿using MySql.Data.MySqlClient;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using TourneyPal.Commons;
 
 namespace TourneyPal.SQLManager.DataModels.SQLTables.Game
@@ -32,6 +27,7 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Game
                 if (reader[nameof(Title)] == null ||
                     string.IsNullOrEmpty(reader[nameof(Title)].ToString()))
                 {
+                    Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: nameof(Title) + ", of table: " + tableName + "-- Could not be loaded");
                     result = false;
                     return result;
                 }
@@ -61,8 +57,9 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Game
 
                 if (string.IsNullOrEmpty(this.Title))
                 {
-                    result = false;
                     Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: nameof(this.Title) + ", of table: " + this.tableName + "-- Cannot be null");
+                    result = false;
+                    return result;
                 }
 
                 result = true;

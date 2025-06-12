@@ -1,10 +1,5 @@
 ﻿using MySql.Data.MySqlClient;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using TourneyPal.Commons;
 
 namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament
@@ -46,6 +41,7 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament
                 var hostSite_ID = convertToInt(nameof(HostSite_ID), reader[nameof(HostSite_ID)]?.ToString());
                 if (hostSite_ID == null)
                 {
+                    Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: nameof(HostSite_ID) + ", of table: " + tableName + "-- Could not be loaded");
                     result = false;
                     return result;
                 }
@@ -55,6 +51,7 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament
                 var tournament_ID = convertToInt(nameof(Tournament_ID), reader[nameof(Tournament_ID)]?.ToString());
                 if (tournament_ID == null)
                 {
+                    Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: nameof(Tournament_ID) + ", of table: " + tableName + "-- Could not be loaded");
                     result = false;
                     return result;
                 }
@@ -76,6 +73,7 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament
                 var startsAT = convertToDateTime(nameof(StartsAT), reader[nameof(StartsAT)]?.ToString());
                 if (startsAT == null)
                 {
+                    Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: nameof(StartsAT) + ", of table: " + tableName + "-- Could not be loaded");
                     result = false;
                     return result;
                 }
@@ -85,6 +83,7 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament
                 var online = convertToBool(nameof(Online), reader[nameof(Online)]?.ToString());
                 if (online == null)
                 {
+                    Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: nameof(Online) + ", of table: " + tableName + "-- Could not be loaded");
                     result = false;
                     return result;
                 }
@@ -94,6 +93,7 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament
                 if (reader[nameof(URL)] == null ||
                     string.IsNullOrEmpty(reader[nameof(URL)].ToString()))
                 {
+                    Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: nameof(URL) + ", of table: " + tableName + "-- Could not be loaded");
                     result = false;
                     return result;
                 }
@@ -115,6 +115,7 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament
                 var registrationOpen = convertToBool(nameof(RegistrationOpen), reader[nameof(RegistrationOpen)]?.ToString());
                 if (registrationOpen == null)
                 {
+                    Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: nameof(RegistrationOpen) + ", of table: " + tableName + "-- Could not be loaded");
                     result = false;
                     return result;
                 }
@@ -130,6 +131,7 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament
                 var game_ID = convertToInt(nameof(Game_ID), reader[nameof(Game_ID)]?.ToString());
                 if (game_ID == null)
                 {
+                    Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: nameof(Game_ID) + ", of table: " + tableName + "-- Could not be loaded");
                     result = false;
                     return result;
                 }
@@ -159,44 +161,51 @@ namespace TourneyPal.SQLManager.DataModels.SQLTables.Tournament
 
                 if (this.HostSite_ID == null)
                 {
-                    result = false;
                     Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: nameof(this.HostSite_ID) + ", of table: " + this.tableName + "-- Cannot be null");
+                    result = false;
+                    return result;
                 }
 
                 if (this.Tournament_ID == null)
                 {
-                    result = false;
                     Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: nameof(this.Tournament_ID) + ", of table: " + this.tableName + "-- Cannot be null");
+                    result = false;
+                    return result;
                 }
 
                 if (this.StartsAT == null)
                 {
-                    result = false;
                     Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: nameof(this.StartsAT) + ", of table: " + this.tableName + "-- Cannot be null");
+                    result = false;
+                    return result;
                 }
 
                 if (this.Online == null)
                 {
-                    result = false;
                     Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: nameof(this.Online) + ", of table: " + this.tableName + "-- Cannot be null");
+                    result = false;
+                    return result;
                 }
 
                 if (string.IsNullOrEmpty(this.URL))
                 {
-                    result = false;
                     Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: nameof(this.URL) + ", of table: " + this.tableName + "-- Cannot be null");
+                    result = false;
+                    return result;
                 }
 
                 if (this.RegistrationOpen == null)
                 {
-                    result = false;
                     Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: nameof(this.RegistrationOpen) + ", of table: " + this.tableName + "-- Cannot be null");
+                    result = false;
+                    return result;
                 }
 
                 if (this.Game_ID == null)
                 {
-                    result = false;
                     Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: nameof(this.Game_ID) + ", of table: " + this.tableName + "-- Cannot be null");
+                    result = false;
+                    return result;
                 }
 
                 result = true;

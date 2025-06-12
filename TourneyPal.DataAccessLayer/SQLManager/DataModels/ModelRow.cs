@@ -1,11 +1,7 @@
 ﻿using MySql.Data.MySqlClient;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
+using System.Security.Policy;
 using TourneyPal.Commons;
 
 namespace TourneyPal.SQLManager.DataModels
@@ -40,6 +36,7 @@ namespace TourneyPal.SQLManager.DataModels
                 var id = convertToInt(nameof(this.ID), reader[nameof(this.ID)]?.ToString());
                 if (id == null)
                 {
+                    Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: nameof(ID) + ", of table: " + tableName + "-- Could not be loaded");
                     result = false;
                     return result;
                 }
@@ -49,6 +46,7 @@ namespace TourneyPal.SQLManager.DataModels
                 var dateUpdated = convertToDateTime(nameof(this.DateUpdated), reader[nameof(this.DateUpdated)]?.ToString());
                 if (dateUpdated == null)
                 {
+                    Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: nameof(DateUpdated) + ", of table: " + tableName + "-- Could not be loaded");
                     result = false;
                     return result;
                 }
@@ -58,6 +56,7 @@ namespace TourneyPal.SQLManager.DataModels
                 var dateInserted = convertToDateTime(nameof(this.DateInserted), reader[nameof(this.DateInserted)]?.ToString());
                 if (dateInserted == null)
                 {
+                    Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: nameof(DateInserted) + ", of table: " + tableName + "-- Could not be loaded");
                     result = false;
                     return result;
                 }

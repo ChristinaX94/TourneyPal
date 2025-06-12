@@ -35,8 +35,8 @@ namespace TourneyPal.SQLManager
             {
                 var connection = new SQLConnection();
 
-                if (model?.rows == null ||
-                   model.rows.Count == 0)
+                if (model?.Rows == null ||
+                   model.Rows.Count == 0)
                 {
                     Logger.log(foundInItem: MethodBase.GetCurrentMethod(), messageItem: "Nothing to save on " + model?.GetType().Name);
                     return null;
@@ -44,7 +44,7 @@ namespace TourneyPal.SQLManager
 
                 var tableType = model.GetType();
 
-                var rowType = model.rows.FirstOrDefault().GetType();
+                var rowType = model.Rows.FirstOrDefault().GetType();
                 var rowProperties = rowType.GetProperties().Where(pi => !Attribute.IsDefined(pi, typeof(IgnoreDataMemberAttribute))).Select(x => x.Name).ToList();
 
                 var result = insertData(model, connection, tableType, rowProperties);
@@ -77,14 +77,14 @@ namespace TourneyPal.SQLManager
             var result = new bool();
             try
             {
-                if(model.rows.Where(x => x.ID == 0).Count() == 0)
+                if(model.Rows.Where(x => x.ID == 0).Count() == 0)
                 {
                     result = true;
                     return result;
                 }
 
                 //insert
-                var sqlInsert = getInsertQuery(model.rows.Where(x => x.ID == 0).ToArray(), connection, tableType, rowProperties);
+                var sqlInsert = getInsertQuery(model.Rows.Where(x => x.ID == 0).ToArray(), connection, tableType, rowProperties);
                 if (sqlInsert == null)
                 {
                     result = false;
@@ -151,14 +151,14 @@ namespace TourneyPal.SQLManager
             var result = new bool();
             try
             {
-                if (model.rows.Where(x => x.ID > 0 && x.isModified).Count() == 0)
+                if (model.Rows.Where(x => x.ID > 0 && x.isModified).Count() == 0)
                 {
                     result = true;
                     return result;
                 }
 
                 //update
-                var sqlUpdate = getUpdateQuery(model.rows.Where(x => x.ID > 0 && x.isModified).ToArray(), connection, tableType, rowProperties);
+                var sqlUpdate = getUpdateQuery(model.Rows.Where(x => x.ID > 0 && x.isModified).ToArray(), connection, tableType, rowProperties);
                 if (sqlUpdate == null)
                 {
                     result = false;

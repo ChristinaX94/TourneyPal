@@ -269,10 +269,10 @@ namespace TourneyPal.Bot.Commands.CommandExecution
 
                     }
                     .AddField("Site: ", tourney.HostSite + tourney.URL)
-                    .AddField("Online: ", tourney.Online == null ? " - " : tourney.Online == true ? "Yes" : "No")
+                    .AddField("Format: ", tourney.Format)
                     .AddField("Country Code: ", string.IsNullOrEmpty(tourney.CountryCode) ? " - " : tourney.CountryCode)
                     .AddField("Location: ", tourney.VenueAddress + ", " + tourney.City + ", " + tourney.AddrState + ", " + tourney.CountryCode)
-                    .AddField("Date (dd/mm/yyyy): ", tourney.StartsAT == null ? " - " : tourney.StartsAT.Value.Date.ToString("dd/MM/yyyy"))
+                    .AddField("Date : ", tourney.StartsATFullText)
                     .AddField("Streams: ", tourney.Streams == null || tourney.Streams.Count == 0 ? " - " : string.Join("\n", tourney.Streams))
                     .AddField("ID: ", tourney.ID.ToString())
                     .WithFooter($"Tournament {1 + tourneysSelected.IndexOf(tourney)}/{tourneysSelected.Count}")
@@ -322,8 +322,7 @@ namespace TourneyPal.Bot.Commands.CommandExecution
                     foreach (var tourney in tourneysSelected.GetRange(batchPage * BotCommons.TourneyDataPageRows, numberOfItemsToGet))
                     {
                         embed.AddField((tourneysSelected.IndexOf(tourney) + 1).ToString() + ".: " + tourney.Name,
-                                tourney.StartsAT == null ? "Date: - " : "Date (dd/mm/yyyy): " + tourney.StartsAT.Value.Date.ToString("dd/MM/yyyy") +
-                                "\nLocation: " + tourney.CountryCode)
+                                tourney.StartsATFullText + "\nLocation: " + tourney.CountryCode)
                              .WithFooter($"Page {1 + batchPage}/{pageNumber}" + Environment.NewLine + $"Total: " + numberOfTourneys + " Tournaments");
                     }
                     embed.Build();
